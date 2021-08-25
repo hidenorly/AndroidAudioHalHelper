@@ -19,12 +19,16 @@
 
 #include "AudioFormat.hpp"
 #include <system/audio.h>
+#include <stdint.h>
 
 class AndroidEncodingHelper
 {
 public:
   static AudioFormat::ENCODING getEncodingFromAndroidEncoding(audio_format_t androidEncoding);
   static audio_format_t getAndroidEncodingFromEncoding(AudioFormat::ENCODING afwEncoding);
+
+  static AudioFormat::CHANNEL getChannelFromAndroidChannel(uint32_t androidChannel);
+  static int getAndroidChannelFromChannel(AudioFormat::CHANNEL afwChannel);
 };
 
 #endif /* __AUDIO_FORMAT_HELPER_HPP__ */
