@@ -21,7 +21,9 @@
 #include <system/audio.h>
 #include <stdint.h>
 
-class AndroidEncodingHelper
+#include "Sink.hpp"
+
+class AndroidFormatHelper
 {
 public:
   static AudioFormat::ENCODING getEncodingFromAndroidEncoding(audio_format_t androidEncoding);
@@ -29,6 +31,12 @@ public:
 
   static AudioFormat::CHANNEL getChannelFromAndroidChannel(uint32_t androidChannel);
   static int getAndroidChannelFromChannel(AudioFormat::CHANNEL afwChannel);
+};
+
+class AndroidAudioPortHelper
+{
+public:
+  static void getAndroidPortFromSourceSink(audio_port* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, audio_module_handle_t hwModule, int androidAudioDeviceType = AUDIO_DEVICE_OUT_SPEAKER);
 };
 
 #endif /* __AUDIO_FORMAT_HELPER_HPP__ */
