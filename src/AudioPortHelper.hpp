@@ -14,23 +14,19 @@
    limitations under the License.
 */
 
-#ifndef __AUDIO_FORMAT_HELPER_HPP__
-#define __AUDIO_FORMAT_HELPER_HPP__
+#ifndef __AUDIO_PORT_HELPER_HPP__
+#define __AUDIO_PORT_HELPER_HPP__
 
-#include "AudioFormat.hpp"
 #include <system/audio.h>
 #include <stdint.h>
 
 #include "PipeAndFilterCommon.hpp"
 
-class AndroidFormatHelper
+class AndroidAudioPortHelper
 {
 public:
-  static AudioFormat::ENCODING getEncodingFromAndroidEncoding(audio_format_t androidEncoding);
-  static audio_format_t getAndroidEncodingFromEncoding(AudioFormat::ENCODING afwEncoding);
-
-  static AudioFormat::CHANNEL getChannelFromAndroidChannel(uint32_t androidChannel);
-  static int getAndroidChannelFromChannel(AudioFormat::CHANNEL afwChannel);
+  static void getAndroidPortFromSourceSink(audio_port* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, audio_module_handle_t hwModule, int androidAudioDeviceType = AUDIO_DEVICE_OUT_SPEAKER);
+  static void getAndroidPortConfigFromSourceSink(audio_port_config* pOutAudioPortConfig, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, audio_module_handle_t hwModule, int androidAudioDeviceType = AUDIO_DEVICE_OUT_SPEAKER);
 };
 
-#endif /* __AUDIO_FORMAT_HELPER_HPP__ */
+#endif /* __AUDIO_PORT_HELPER_HPP__ */
