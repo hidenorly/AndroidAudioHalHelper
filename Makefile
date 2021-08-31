@@ -27,6 +27,10 @@ OBJ_DIR=./out
 ANDROID_HOME := $(shell printenv ANDROID_HOME)
 ANDROID_MEDIA_INC=$(ANDROID_HOME)/system/media/audio/include
 ANDROID_CUTIL_INC=$(ANDROID_HOME)/system/core/libcutils/include
+ANDROID_FMQ_INC=$(ANDROID_HOME)/system/libfmq/include
+ANDROID_UTILS_INC=$(ANDROID_HOME)/system/core/libutils/include
+ANDROID_HIDL_INC=$(ANDROID_HOME)/system/libhidl/base/include
+ANDROID_LOG_INC=$(ANDROID_HOME)/system/core/liblog/include
 
 # --- source code config --------------
 HELPER_SRCS = $(wildcard $(HELPER_DIR)/*.cpp)
@@ -58,7 +62,7 @@ $(HELPER_OBJS): $(HELPER_SRCS)
 	echo Android home is $(ANDROID_HOME)
 
 	@[ -d $(OBJ_DIR) ] || mkdir -p $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) -I $(INC_DIR) -I $(ANDROID_MEDIA_INC) -I $(ANDROID_CUTIL_INC) -c $(HELPER_DIR)/$(notdir $(@:.o=.cpp)) -o $@
+	$(CXX) $(CXXFLAGS) -I $(INC_DIR) -I $(ANDROID_MEDIA_INC) -I $(ANDROID_CUTIL_INC) -I $(ANDROID_FMQ_INC) -I $(ANDROID_UTILS_INC) -I $(ANDROID_HIDL_INC) -I $(ANDROID_LOG_INC) -c $(HELPER_DIR)/$(notdir $(@:.o=.cpp)) -o $@
 
 -include $(HELPER_DEPS)
 

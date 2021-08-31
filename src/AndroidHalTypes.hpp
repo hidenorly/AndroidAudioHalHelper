@@ -18,6 +18,7 @@ limitations under the License.
 #define __ANDROID_HAL_TYPES_HPP__
 
 #include <string>
+#include <vector>
 
 enum HalResult {
   OK,
@@ -50,5 +51,57 @@ struct ParameterValue
 };
 
 typedef uint32_t AudioHwSync;
+typedef int32_t AudioUsage;
+typedef uint32_t AudioContentType;
+typedef int32_t AudioDrain;
+typedef int32_t DualMonoMode;
+
+struct PlaybackTrackMetadata
+{
+  AudioUsage usage;
+  AudioContentType contentType;
+  float gain;
+};
+
+struct SourceMetadata
+{
+  std::vector<PlaybackTrackMetadata> tracks;
+};
+
+struct TimeSpec
+{
+  uint64_t tvSec;   // seconds
+  uint64_t tvNSec;  // nanoseconds
+};
+
+struct PresentationPosition
+{
+  uint64_t frames;
+  TimeSpec timeStamp;
+};
+
+
+enum TimestretchMode
+{
+  DEFAULT = 0,
+  VOICE = 1,
+};
+
+enum TimestretchFallbackMode
+{
+  MUTE = 1,
+  FAIL = 2,
+};
+
+struct PlaybackRate {
+  float speed;
+  float pitch;
+  TimestretchMode timestretchMode;
+  TimestretchFallbackMode fallbackMode;
+};
+
+#ifndef PAGE_SIZE
+#define PAGE_SIZE 4096
+#endif /* PAGE_SIZE */
 
 #endif /* __ANDROID_HAL_TYPES_HPP__ */
