@@ -19,6 +19,7 @@ limitations under the License.
 
 #include <string>
 #include <vector>
+#include <system/audio.h>
 
 enum HalResult {
   OK,
@@ -68,6 +69,12 @@ struct SourceMetadata
   std::vector<PlaybackTrackMetadata> tracks;
 };
 
+
+/** Metadatas of the sink of a StreamIn. */
+struct SinkMetadata {
+    std::vector<record_track_metadata> tracks;
+};
+
 struct TimeSpec
 {
   uint64_t tvSec;   // seconds
@@ -103,5 +110,10 @@ struct PlaybackRate {
 #ifndef PAGE_SIZE
 #define PAGE_SIZE 4096
 #endif /* PAGE_SIZE */
+
+
+typedef int32_t AudioPatchHandle;
+typedef int32_t AudioPortHandle;
+typedef int32_t AudioIoHandle;
 
 #endif /* __ANDROID_HAL_TYPES_HPP__ */
