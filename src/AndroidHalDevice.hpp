@@ -23,9 +23,8 @@
 #include "AndroidHalTypes.hpp"
 
 #include "AndroidHalStreamOut.hpp"
+#include "AndroidHalStreamIn.hpp"
 #include <vector>
-
-class IStreamIn : public IStream{};
 
 class IDevice
 {

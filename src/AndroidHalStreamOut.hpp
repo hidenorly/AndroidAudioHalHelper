@@ -19,6 +19,7 @@
 
 #include "AndroidHalStream.hpp"
 #include <fmq/MessageQueue.h>
+#include <vector>
 
 class IStreamOut : public IStream
 {
@@ -72,6 +73,7 @@ public:
     virtual ~WritePipeInfo(){};
   };
 
+public:
   virtual WritePipeInfo prepareForWriting(uint32_t frameSize, uint32_t framesCount);
 
   // capability check

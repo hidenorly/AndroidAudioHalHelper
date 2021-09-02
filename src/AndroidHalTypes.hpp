@@ -56,6 +56,7 @@ typedef int32_t AudioUsage;
 typedef uint32_t AudioContentType;
 typedef int32_t AudioDrain;
 typedef int32_t DualMonoMode;
+typedef int32_t AudioSource;
 
 struct PlaybackTrackMetadata
 {
