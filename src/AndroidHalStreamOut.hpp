@@ -21,6 +21,10 @@
 #include <fmq/MessageQueue.h>
 #include <vector>
 
+#include <system/audio.h>
+#include <stdint.h>
+#include "Strategy.hpp"
+
 class IStreamOut : public IStream
 {
 public:
@@ -113,5 +117,21 @@ public:
 
   virtual void updateSourceMetadata(SourceMetadata sourceMetadata);
 };
+
+
+class StreamOutContext : public StrategyContext
+{
+public:
+  AudioIoHandle ioHandle;
+  DeviceAddress device;
+  audio_config config;
+  audio_output_flags_t flags;
+  SourceMetadata sourceMetadata;
+
+public:
+  StreamOutContext(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata):ioHandle(ioHandle), device(device), config(config), flags(flags), sourceMetadata(sourceMetadata){};
+  virtual ~StreamOutContext(){};
+};
+
 
 #endif /* __ANDROID_HAL_STREAM_OUT_HPP__ */

@@ -25,6 +25,7 @@
 #include "AndroidHalStreamOut.hpp"
 #include "AndroidHalStreamIn.hpp"
 #include <vector>
+#include <memory>
 
 class IDevice
 {
@@ -32,8 +33,8 @@ public:
   virtual HalResult initCheck(void);
   virtual HalResult close(void);
 
-  virtual HalResult openOutputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata, IStreamOut*& pOutStream, audio_config& outSuggestedConfig);
-  virtual HalResult openInputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata, IStreamIn*& pOutInStream, audio_config& outSuggestedConfig);
+  virtual HalResult openOutputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata, std::shared_ptr<IStreamOut>& pOutStream, audio_config& outSuggestedConfig);
+  virtual HalResult openInputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata, std::shared_ptr<IStreamIn>& pOutInStream, audio_config& outSuggestedConfig);
 
   virtual std::vector<ParameterValue> getParameters(std::vector<std::string> keys);
   virtual HalResult setParameters(std::vector<ParameterValue> parameters);

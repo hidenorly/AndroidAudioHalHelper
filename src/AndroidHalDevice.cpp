@@ -27,12 +27,12 @@ HalResult IDevice::close(void)
 }
 
 
-HalResult IDevice::openOutputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata, IStreamOut*& pOutStream, audio_config& outSuggestedConfig)
+HalResult IDevice::openOutputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata, std::shared_ptr<IStreamOut>& pOutStream, audio_config& outSuggestedConfig)
 {
   return HalResult::NOT_SUPPORTED;
 }
 
-HalResult IDevice::openInputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata, IStreamIn*& pOutInStream, audio_config& outSuggestedConfig)
+HalResult IDevice::openInputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata, std::shared_ptr<IStreamIn>& pOutInStream, audio_config& outSuggestedConfig)
 {
   return HalResult::NOT_SUPPORTED;
 }
