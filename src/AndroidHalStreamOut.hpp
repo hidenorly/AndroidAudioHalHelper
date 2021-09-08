@@ -24,6 +24,7 @@
 #include <system/audio.h>
 #include <stdint.h>
 #include "Strategy.hpp"
+#include "Pipe.hpp"
 
 class IStreamOut : public IStream
 {
@@ -77,6 +78,11 @@ public:
     virtual ~WritePipeInfo(){};
   };
 
+protected:
+  std::weak_ptr<IStreamOutCallback> mCallback;
+  std::weak_ptr<IStreamOutEventCallback> mEventCallback;
+  std::shared_ptr<IPipe> mPipe;
+
 public:
   virtual WritePipeInfo prepareForWriting(uint32_t frameSize, uint32_t framesCount);
 
@@ -92,9 +98,9 @@ public:
   virtual HalResult flush(void);
 
   // callback
-  virtual HalResult setCallback(IStreamOutCallback callback);
+  virtual HalResult setCallback(std::weak_ptr<IStreamOutCallback> callback);
   virtual HalResult clearCallback(void);
-  virtual HalResult setEventCallback(IStreamOutEventCallback callback);
+  virtual HalResult setEventCallback(std::weak_ptr<IStreamOutEventCallback> callback);
 
   // get status
   virtual int64_t getNextWriteTimestampUsec();

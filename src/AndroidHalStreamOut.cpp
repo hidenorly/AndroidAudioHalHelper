@@ -34,7 +34,7 @@ bool IStreamOut::supportsResume(void)
 
 bool IStreamOut::supportsDrain(void)
 {
-  return false;
+  return true;
 }
 
 // operation
@@ -50,28 +50,41 @@ HalResult IStreamOut::resume(void)
 
 HalResult IStreamOut::drain(AudioDrain type)
 {
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::INVALID_STATE;
+  if( mPipe ){
+    mPipe->stopAndFlush();
+    result = HalResult::OK;
+  }
+  return result;
 }
 
 HalResult IStreamOut::flush(void)
 {
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::INVALID_STATE;
+  if( mPipe ){
+    mPipe->stopAndFlush();
+    result = HalResult::OK;
+  }
+  return result;
 }
 
 
-HalResult IStreamOut::setCallback(IStreamOut::IStreamOutCallback callback)
+HalResult IStreamOut::setCallback(std::weak_ptr<IStreamOut::IStreamOutCallback> callback)
 {
-  return HalResult::NOT_SUPPORTED;
+  mCallback = callback;
+  return HalResult::OK;
 }
 
 HalResult IStreamOut::clearCallback(void)
 {
-  return HalResult::NOT_SUPPORTED;
+  mCallback.reset();
+  return HalResult::OK;
 }
 
-HalResult IStreamOut::setEventCallback(IStreamOut::IStreamOutEventCallback callback)
+HalResult IStreamOut::setEventCallback(std::weak_ptr<IStreamOut::IStreamOutEventCallback> callback)
 {
-  return HalResult::NOT_SUPPORTED;
+  mEventCallback = callback;
+  return HalResult::OK;
 }
 
 // get status
@@ -82,22 +95,64 @@ int64_t IStreamOut::getNextWriteTimestampUsec()
 
 uint32_t IStreamOut::getLatencyMsec(void)
 {
-  return 0;
+  uint32_t result = 0;
+
+  if( mPipe ){
+    result = mPipe->getLatencyUSec() / 1000;
+  }
+  return result;
 }
 
 uint32_t IStreamOut::getRenderPositionDspFrames(void)
 {
-  return 0;
+  uint32_t result = 0;
+
+  if( mPipe ){
+    std::shared_ptr<ISink> pSink = mPipe->getSinkRef();
+    if( pSink ){
+      long time = pSink->getPresentationTime(); // usec
+      int windowSize = mPipe->getWindowSizeUsec();
+      result = time ? (uint32_t)( time / (long)windowSize ) : 0;
+    }
+  }
+
+  return result;
 }
 
 PresentationPosition IStreamOut::getPresentationPosition(void)
 {
-  return PresentationPosition();
+  PresentationPosition result;
+
+  if( mPipe ){
+    std::shared_ptr<ISink> pSink = mPipe->getSinkRef();
+    if( pSink ){
+      long time = pSink->getPresentationTime(); // usec
+      result.timeStamp.tvSec = time / 1000000; // usec to sec
+      result.timeStamp.tvNSec = (time - result.timeStamp.tvSec * 1000000) * 1000; // usec to nsec
+      result.frames = getRenderPositionDspFrames();
+    }
+  }
+
+  return result;
 }
 
 HalResult IStreamOut::setVolume(float left, float right)
 {
-  return HalResult::NOT_SUPPORTED;
+  if( mPipe ){
+    std::shared_ptr<ISink> pSink = mPipe->getSinkRef();
+    if( pSink ){
+      if( pSink->getAudioFormat().getChannels() == AudioFormat::CHANNEL::CHANNEL_STEREO ){
+        Volume::CHANNEL_VOLUME chVolume;
+        chVolume[AudioFormat::CH::L] = left;
+        chVolume[AudioFormat::CH::R] = left;
+        pSink->setVolume( chVolume );
+      } else {
+        pSink->setVolume( (left + right) / 2 );
+      }
+    }
+  }
+
+  return HalResult::OK;
 }
 
 PlaybackRate IStreamOut::getPlaybackRateParameters(void)
