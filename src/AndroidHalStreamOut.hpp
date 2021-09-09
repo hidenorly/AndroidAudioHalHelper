@@ -68,23 +68,53 @@ public:
   class WritePipeInfo
   {
   public:
-    //TODO: will be update
-    CommandMQ commandMQ;
-    StatusMQ dataMQ;
-    DataMQ statusMQ;
+    std::shared_ptr<CommandMQ> commandMQ;
+    std::shared_ptr<DataMQ> dataMQ;
+    std::shared_ptr<StatusMQ> statusMQ;
     //ThreadInfo threadInfo;
 
-    WritePipeInfo(int bufferSize = 4096):commandMQ(1), dataMQ(bufferSize, true), statusMQ(1){};
+    WritePipeInfo(
+      std::shared_ptr<CommandMQ> commandMQ = std::make_shared<CommandMQ>(1), 
+      std::shared_ptr<DataMQ> dataMQ = std::make_shared<DataMQ>(1), 
+      std::shared_ptr<StatusMQ> statusMQ = std::make_shared<StatusMQ>(4096, true)) : commandMQ(commandMQ), dataMQ(dataMQ), statusMQ(statusMQ){};
     virtual ~WritePipeInfo(){};
+  };
+
+  class AndroidAudioSource : public ISource
+  {
+  protected:
+    std::shared_ptr<DataMQ> mDataMQ;
+  public:
+    AndroidAudioSource(std::shared_ptr<DataMQ> dataMQ = nullptr) : mDataMQ(dataMQ){};
+    virtual ~AndroidAudioSource(){
+      mDataMQ.reset();
+    };
+    virtual bool isAvailableFormat(AudioFormat format){ return true; };
+
+  protected:
+    virtual void readPrimitive(IAudioBuffer& buf);
   };
 
 protected:
   std::weak_ptr<IStreamOutCallback> mCallback;
   std::weak_ptr<IStreamOutEventCallback> mEventCallback;
   std::shared_ptr<IPipe> mPipe;
+  std::shared_ptr<WritePipeInfo> mWritePipeInfo;
+  std::shared_ptr<AndroidAudioSource> mSource;
+
+  AudioIoHandle mIoHandle;
+  DeviceAddress mDeviceAddr;
+  audio_config mConfig;
+  audio_output_flags_t mOutputFlags;
+  SourceMetadata mSourceMetadata;
 
 public:
-  virtual WritePipeInfo prepareForWriting(uint32_t frameSize, uint32_t framesCount);
+  virtual audio_config getSuggestedConfig(void);
+
+  IStreamOut(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, audio_output_flags_t flags=AUDIO_OUTPUT_FLAG_NONE, SourceMetadata sourceMetadata=SourceMetadata()){};
+  virtual ~IStreamOut(){};
+
+  virtual std::shared_ptr<WritePipeInfo> prepareForWriting(uint32_t frameSize, uint32_t framesCount);
 
   // capability check
   virtual bool supportsPause(void);

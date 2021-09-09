@@ -43,6 +43,10 @@ struct DeviceAddress {
   } address;
   std::string busAddress;
   std::string rSubmixAddress;
+  DeviceAddress():device(0){
+    address.alsa.card = 0;
+    address.alsa.device = 0;
+  };
 };
 
 struct ParameterValue

@@ -15,10 +15,43 @@
 */
 
 #include "AndroidHalStreamOut.hpp"
+#include <algorithm>
+#include "Buffer.hpp"
+#include "PipeMultiThread.hpp"
 
-IStreamOut::WritePipeInfo IStreamOut::prepareForWriting(uint32_t frameSize, uint32_t framesCount)
+void IStreamOut::AndroidAudioSource::readPrimitive(IAudioBuffer& buf)
 {
-  return WritePipeInfo();
+  if( mDataMQ ){
+    int availToRead = mDataMQ->availableToRead();
+    int nBufSize = buf.getRawBufferSize();
+    nBufSize = nBufSize ? nBufSize : availToRead;
+    int nReadSize = std::min(nBufSize, availToRead);
+
+    ByteBuffer rawBuf = buf.getRawBuffer();
+    rawBuf.resize( nReadSize );
+    mDataMQ->read( rawBuf.data(), nReadSize );
+    buf.setRawBuffer( rawBuf ); // just in case. basically not be required.
+  }
+}
+
+audio_config IStreamOut::getSuggestedConfig(void)
+{
+  return audio_config();
+}
+
+
+std::shared_ptr<IStreamOut::WritePipeInfo> IStreamOut::prepareForWriting(uint32_t frameSize, uint32_t framesCount)
+{
+  mWritePipeInfo.reset();
+  mSource.reset();
+  mPipe.reset();
+
+  mWritePipeInfo = std::make_shared<WritePipeInfo>();
+  mSource = std::make_shared<IStreamOut::AndroidAudioSource>( mWritePipeInfo->dataMQ );
+  mPipe = std::make_shared<PipeMultiThread>();
+  mPipe->attachSource( mSource );
+
+  return mWritePipeInfo;
 }
 
 // capability check

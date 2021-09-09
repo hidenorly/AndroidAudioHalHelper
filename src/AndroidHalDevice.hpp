@@ -29,6 +29,9 @@
 
 class IDevice
 {
+protected:
+  std::vector<std::shared_ptr<IStream>> mStreams;
+
 public:
   virtual HalResult initCheck(void);
   virtual HalResult close(void);
