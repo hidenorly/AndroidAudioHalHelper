@@ -15,21 +15,38 @@
 */
 
 #include "AndroidHalDevice.hpp"
+#include "PatchPanel.hpp"
+#include "AudioPortHelper.hpp"
+
+IDevice::IDevice(std::shared_ptr<ISink> pSink)
+{
+  if( std::dynamic_pointer_cast<PipedSink>(pSink) ){
+    mSink = std::dynamic_pointer_cast<PipedSink>(pSink);
+  } else {
+    mSink = std::make_shared<PipedSink>(pSink);
+  }
+}
+
+IDevice::~IDevice()
+{
+}
 
 HalResult IDevice::initCheck(void)
 {
-  return HalResult::NOT_SUPPORTED;
+  return mSink ? HalResult::OK : HalResult::NOT_INITIALIZED;
 }
 
 HalResult IDevice::close(void)
 {
-  return HalResult::NOT_SUPPORTED;
+  mPatchPanels.clear();
+  mSink.reset();
+  return HalResult::OK;
 }
 
 
 HalResult IDevice::openOutputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata, std::shared_ptr<IStreamOut>& pOutStream, audio_config& outSuggestedConfig)
 {
-  pOutStream = std::make_shared<IStreamOut>(ioHandle, device, config, flags, sourceMetadata);
+  pOutStream = std::make_shared<IStreamOut>(mSink, ioHandle, device, config, flags, sourceMetadata);
   outSuggestedConfig = pOutStream->getSuggestedConfig();
 
   mStreams.push_back( pOutStream );
@@ -77,7 +94,11 @@ HalResult IDevice::releaseAudioPatch(audio_patch_handle_t patch)
 
 audio_port IDevice::getAudioPort(audio_port port)
 {
-  return audio_port();
+  audio_port result;
+  uint32_t id = (uint32_t)((uint64_t)(this) & 0xFFFFFFFF);
+  AndroidAudioPortHelper::getAndroidPortFromSourceSink(&result, mSink, "1", id );
+
+  return result;
 }
 
 HalResult IDevice::setAudioPortConfig(audio_port_config config)
@@ -88,6 +109,7 @@ HalResult IDevice::setAudioPortConfig(audio_port_config config)
 
 HalResult IDevice::addDeviceEffect(audio_port_handle_t device, uint64_t effectId)
 {
+
   return HalResult::NOT_SUPPORTED;
 }
 
@@ -99,22 +121,36 @@ HalResult IDevice::removeDeviceEffect(audio_port_handle_t device, uint64_t effec
 
 HalResult IDevice::setMasterVolume(float volume)
 {
-  return HalResult::NOT_SUPPORTED;
+  if( mSink ){
+    mSink->setVolume(volume);
+  }
+  return HalResult::OK;
 }
 
 float IDevice::getMasterVolume(void)
 {
-  return 0.0f;
+  float result = 100.0f;
+  if( mSink ){
+    result = mSink->getVolume();
+  }
+  return result;
 }
 
 HalResult IDevice::setMasterMute(bool mute)
 {
-  return HalResult::NOT_SUPPORTED;
+  if( mSink ){
+    mSink->setVolume(0);
+  }
+  return HalResult::OK;
 }
 
 bool IDevice::getMasterMute(void)
 {
-  return false;
+  bool result = false;
+  if( mSink ){
+    result = ( mSink->getVolume() == 0.0f ) ? true : false;
+  }
+  return result;
 }
 
 HalResult IDevice::setMicMute(bool mute)

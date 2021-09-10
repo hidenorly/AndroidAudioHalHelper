@@ -24,6 +24,8 @@
 
 #include "AndroidHalStreamOut.hpp"
 #include "AndroidHalStreamIn.hpp"
+#include "PatchPanel.hpp"
+#include "PipedSink.hpp"
 #include <vector>
 #include <memory>
 
@@ -31,8 +33,13 @@ class IDevice
 {
 protected:
   std::vector<std::shared_ptr<IStream>> mStreams;
+  std::shared_ptr<PipedSink> mSink;
+  std::vector<std::shared_ptr<PatchPanel>> mPatchPanels;
 
 public:
+  IDevice(std::shared_ptr<ISink> pSink = nullptr);
+  virtual ~IDevice();
+
   virtual HalResult initCheck(void);
   virtual HalResult close(void);
 

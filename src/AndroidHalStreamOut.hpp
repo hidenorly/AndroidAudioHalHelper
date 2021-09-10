@@ -25,6 +25,8 @@
 #include <stdint.h>
 #include "Strategy.hpp"
 #include "Pipe.hpp"
+#include "Source.hpp"
+#include "Sink.hpp"
 
 class IStreamOut : public IStream
 {
@@ -101,6 +103,7 @@ protected:
   std::shared_ptr<IPipe> mPipe;
   std::shared_ptr<WritePipeInfo> mWritePipeInfo;
   std::shared_ptr<AndroidAudioSource> mSource;
+  std::shared_ptr<ISink> mSink;
 
   AudioIoHandle mIoHandle;
   DeviceAddress mDeviceAddr;
@@ -111,7 +114,7 @@ protected:
 public:
   virtual audio_config getSuggestedConfig(void);
 
-  IStreamOut(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, audio_output_flags_t flags=AUDIO_OUTPUT_FLAG_NONE, SourceMetadata sourceMetadata=SourceMetadata()){};
+  IStreamOut(std::shared_ptr<ISink> pSink = nullptr, AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, audio_output_flags_t flags=AUDIO_OUTPUT_FLAG_NONE, SourceMetadata sourceMetadata=SourceMetadata()):mSink(pSink){};
   virtual ~IStreamOut(){};
 
   virtual std::shared_ptr<WritePipeInfo> prepareForWriting(uint32_t frameSize, uint32_t framesCount);
