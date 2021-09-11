@@ -17,6 +17,15 @@
 #include "AndroidHalStream.hpp"
 #include "AudioFormatHelper.hpp"
 
+
+IStream::~IStream()
+{
+  if( mSessionHandler ){
+    mSessionHandler->onCloseStream( shared_from_this() );
+  }
+}
+
+
 uint64_t IStream::getFrameSize(void)
 {
   return 0;

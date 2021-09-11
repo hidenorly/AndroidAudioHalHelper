@@ -28,11 +28,12 @@
 #include "PipedSink.hpp"
 #include <vector>
 #include <memory>
+#include <map>
 
-class IDevice
+class IDevice : public IStream::StreamSessionHandler, public std::enable_shared_from_this<IDevice>
 {
 protected:
-  std::vector<std::shared_ptr<IStream>> mStreams;
+  std::map<AudioIoHandle, std::shared_ptr<IStream>> mStreams;
   std::shared_ptr<PipedSink> mSink;
   std::vector<std::shared_ptr<PatchPanel>> mPatchPanels;
 
@@ -45,6 +46,7 @@ public:
 
   virtual HalResult openOutputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata, std::shared_ptr<IStreamOut>& pOutStream, audio_config& outSuggestedConfig);
   virtual HalResult openInputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata, std::shared_ptr<IStreamIn>& pOutInStream, audio_config& outSuggestedConfig);
+  virtual void onCloseStream(std::shared_ptr<IStream> pStream);
 
   virtual std::vector<ParameterValue> getParameters(std::vector<std::string> keys);
   virtual HalResult setParameters(std::vector<ParameterValue> parameters);

@@ -23,9 +23,29 @@
 #include "AndroidHalTypes.hpp"
 
 
-class IStream
+class IStream : public std::enable_shared_from_this<IStream>
 {
 public:
+  class StreamSessionHandler
+  {
+  public:
+    virtual void onCloseStream(std::shared_ptr<IStream> pStream) = 0;
+  };
+
+protected:
+  AudioIoHandle mIoHandle;
+  DeviceAddress mDeviceAddr;
+  audio_config mConfig;
+  std::shared_ptr<StreamSessionHandler> mSessionHandler;
+
+public:
+  IStream(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr):mIoHandle(ioHandle), mDeviceAddr(device), mConfig(config), mSessionHandler(pSessionHandler){};
+  virtual ~IStream();
+
+  virtual AudioIoHandle getAudioIoHandle(void){ return mIoHandle; };
+  virtual DeviceAddress getDeviceAddress(void){ return mDeviceAddr; };
+  virtual audio_config getAudioConfig(void){ return mConfig; };
+
   virtual uint64_t getFrameSize(void);
   virtual uint64_t getFrameCount(void);
 

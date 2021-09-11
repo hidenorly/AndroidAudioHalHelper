@@ -46,10 +46,10 @@ HalResult IDevice::close(void)
 
 HalResult IDevice::openOutputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata, std::shared_ptr<IStreamOut>& pOutStream, audio_config& outSuggestedConfig)
 {
-  pOutStream = std::make_shared<IStreamOut>(mSink, ioHandle, device, config, flags, sourceMetadata);
+  pOutStream = std::make_shared<IStreamOut>(ioHandle, device, config, flags, sourceMetadata, shared_from_this(), mSink);
   outSuggestedConfig = pOutStream->getSuggestedConfig();
 
-  mStreams.push_back( pOutStream );
+  mStreams.insert_or_assign( ioHandle, pOutStream );
 
   return HalResult::OK;
 }
@@ -59,6 +59,15 @@ HalResult IDevice::openInputStream(AudioIoHandle ioHandle, DeviceAddress device,
   return HalResult::NOT_SUPPORTED;
 }
 
+void IDevice::onCloseStream(std::shared_ptr<IStream> pStream)
+{
+  if( pStream ){
+    AudioIoHandle ioHandle = pStream->getAudioIoHandle();
+    if( mStreams.contains( ioHandle ) ){
+      mStreams.erase( ioHandle );
+    }
+  }
+}
 
 std::vector<ParameterValue> IDevice::getParameters(std::vector<std::string> keys)
 {
