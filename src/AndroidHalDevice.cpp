@@ -15,38 +15,88 @@
 */
 
 #include "AndroidHalDevice.hpp"
-#include "PatchPanel.hpp"
 #include "AudioPortHelper.hpp"
+#include "DeviceAddressHelper.hpp"
 
-IDevice::IDevice(std::shared_ptr<ISink> pSink)
+#include "PatchPanel.hpp"
+#include "PipedSink.hpp"
+#include "PipedSource.hpp"
+
+void IDevice::attachSink(DeviceAddress deviceAddr, std::shared_ptr<ISink> pSink)
 {
-  if( std::dynamic_pointer_cast<PipedSink>(pSink) ){
-    mSink = std::dynamic_pointer_cast<PipedSink>(pSink);
-  } else {
-    mSink = std::make_shared<PipedSink>(pSink);
+  std::shared_ptr<ISourceSinkCommon> pDevice = pSink;
+  if( !std::dynamic_pointer_cast<PipedSink>(pSink) ){
+    pDevice = std::make_shared<PipedSink>( pSink );
+  }
+  if( pDevice ){
+    mSourceSinks.insert_or_assign( AndroidDeviceAddressHelper::getStringFromDeviceAddr(deviceAddr), pDevice );
   }
 }
 
-IDevice::~IDevice()
+void IDevice::attachSource(DeviceAddress deviceAddr, std::shared_ptr<ISource> pSource)
 {
+  std::shared_ptr<ISourceSinkCommon> pDevice = pSource;
+  if( !std::dynamic_pointer_cast<PipedSource>(pSource) ){
+    std::shared_ptr<PipedSource> pPipedSource = std::make_shared<PipedSource>();
+    pPipedSource->attachSource( pSource );
+    pDevice = pPipedSource;
+  }
+  if( pDevice ){
+    mSourceSinks.insert_or_assign( AndroidDeviceAddressHelper::getStringFromDeviceAddr(deviceAddr), pDevice );
+  }
+}
+
+void IDevice::detachSourceSinkByDeviceAddr(DeviceAddress deviceAddr)
+{
+  std::string deviceAddrStr = AndroidDeviceAddressHelper::getStringFromDeviceAddr(deviceAddr);
+  if( mSourceSinks.contains( deviceAddrStr ) ){
+    mSourceSinks.erase( deviceAddrStr );
+  }
+}
+
+void IDevice::detachSourceSink(std::shared_ptr<ISourceSinkCommon> pSourceSink)
+{
+  std::string targetAddr;
+  for( auto& [deviceAddr, pDevice] : mSourceSinks ){
+    if( pDevice == pSourceSink ){
+      targetAddr = deviceAddr;
+      break;
+    }
+  }
+  if( mSourceSinks.contains( targetAddr ) ){
+    mSourceSinks.erase( targetAddr );
+  }
 }
 
 HalResult IDevice::initCheck(void)
 {
-  return mSink ? HalResult::OK : HalResult::NOT_INITIALIZED;
+  return mSourceSinks.size() ? HalResult::OK : HalResult::NOT_INITIALIZED;
 }
 
 HalResult IDevice::close(void)
 {
   mPatchPanels.clear();
-  mSink.reset();
+  mSourceSinks.clear();
   return HalResult::OK;
 }
 
-
-HalResult IDevice::openOutputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata, std::shared_ptr<IStreamOut>& pOutStream, audio_config& outSuggestedConfig)
+std::shared_ptr<ISink> IDevice::getSinkFromDevice(DeviceAddress deviceAddr)
 {
-  pOutStream = std::make_shared<IStreamOut>(ioHandle, device, config, flags, sourceMetadata, shared_from_this(), mSink);
+  std::shared_ptr<ISink> result;
+
+  std::string deviceAddrStr = AndroidDeviceAddressHelper::getStringFromDeviceAddr(deviceAddr);
+
+  if( mSourceSinks.contains(deviceAddrStr) ){
+    result = std::dynamic_pointer_cast<ISink>( mSourceSinks[deviceAddrStr] );
+  }
+
+  return result;
+}
+
+
+HalResult IDevice::openOutputStream(AudioIoHandle ioHandle, DeviceAddress deviceAddr, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata, std::shared_ptr<IStreamOut>& pOutStream, audio_config& outSuggestedConfig)
+{
+  pOutStream = std::make_shared<IStreamOut>( ioHandle, deviceAddr, config, flags, sourceMetadata, shared_from_this(), getSinkFromDevice(deviceAddr) );
   outSuggestedConfig = pOutStream->getSuggestedConfig();
 
   mStreams.insert_or_assign( ioHandle, pOutStream );
@@ -54,7 +104,7 @@ HalResult IDevice::openOutputStream(AudioIoHandle ioHandle, DeviceAddress device
   return HalResult::OK;
 }
 
-HalResult IDevice::openInputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata, std::shared_ptr<IStreamIn>& pOutInStream, audio_config& outSuggestedConfig)
+HalResult IDevice::openInputStream(AudioIoHandle ioHandle, DeviceAddress deviceAddr, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata, std::shared_ptr<IStreamIn>& pOutInStream, audio_config& outSuggestedConfig)
 {
   return HalResult::NOT_SUPPORTED;
 }
@@ -68,6 +118,7 @@ void IDevice::onCloseStream(std::shared_ptr<IStream> pStream)
     }
   }
 }
+
 
 std::vector<ParameterValue> IDevice::getParameters(std::vector<std::string> keys)
 {
@@ -103,9 +154,11 @@ HalResult IDevice::releaseAudioPatch(audio_patch_handle_t patch)
 
 audio_port IDevice::getAudioPort(audio_port port)
 {
-  audio_port result;
-  uint32_t id = (uint32_t)((uint64_t)(this) & 0xFFFFFFFF);
-  AndroidAudioPortHelper::getAndroidPortFromSourceSink(&result, mSink, "1", id );
+  audio_port result = port;
+  if( port.type == AUDIO_PORT_TYPE_DEVICE ){
+    // TODO: resolve port to ISourceSinkCommon
+    AndroidAudioPortHelper::getAndroidPortFromSourceSink(&result, getSinkFromDevice( AndroidDeviceAddressHelper::getDeviceAddrFromString( port.ext.device.address )), port.ext.device.address, mHwModule, port.ext.device.type );
+  }
 
   return result;
 }
@@ -130,36 +183,30 @@ HalResult IDevice::removeDeviceEffect(audio_port_handle_t device, uint64_t effec
 
 HalResult IDevice::setMasterVolume(float volume)
 {
-  if( mSink ){
-    mSink->setVolume(volume);
+  mMasterVolume = volume;
+  for(auto& [ deviceAddr, pDevice] : mSourceSinks ){
+    std::shared_ptr<ISink> pSink = std::dynamic_pointer_cast<ISink>( pDevice );
+    if( pSink ){
+      pSink->setVolume( volume );
+    }
   }
   return HalResult::OK;
 }
 
 float IDevice::getMasterVolume(void)
 {
-  float result = 100.0f;
-  if( mSink ){
-    result = mSink->getVolume();
-  }
-  return result;
+  return mMasterVolume;
 }
 
 HalResult IDevice::setMasterMute(bool mute)
 {
-  if( mSink ){
-    mSink->setVolume(0);
-  }
+  setMasterVolume(0.0f);
   return HalResult::OK;
 }
 
 bool IDevice::getMasterMute(void)
 {
-  bool result = false;
-  if( mSink ){
-    result = ( mSink->getVolume() == 0.0f ) ? true : false;
-  }
-  return result;
+  return ( mMasterVolume == 0.0f );
 }
 
 HalResult IDevice::setMicMute(bool mute)

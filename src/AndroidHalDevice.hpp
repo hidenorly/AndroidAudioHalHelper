@@ -25,7 +25,8 @@
 #include "AndroidHalStreamOut.hpp"
 #include "AndroidHalStreamIn.hpp"
 #include "PatchPanel.hpp"
-#include "PipedSink.hpp"
+#include "Sink.hpp"
+#include "Source.hpp"
 #include <vector>
 #include <memory>
 #include <map>
@@ -34,18 +35,26 @@ class IDevice : public IStream::StreamSessionHandler, public std::enable_shared_
 {
 protected:
   std::map<AudioIoHandle, std::shared_ptr<IStream>> mStreams;
-  std::shared_ptr<PipedSink> mSink;
+  std::map<std::string, std::shared_ptr<ISourceSinkCommon>> mSourceSinks;
   std::vector<std::shared_ptr<PatchPanel>> mPatchPanels;
+  float mMasterVolume;
+  audio_module_handle_t mHwModule;
 
 public:
-  IDevice(std::shared_ptr<ISink> pSink = nullptr);
-  virtual ~IDevice();
+  IDevice(audio_module_handle_t hwModule):mMasterVolume(100.0f), mHwModule(hwModule){};
+  virtual ~IDevice(){};
+
+  virtual void attachSink(DeviceAddress deviceAddr, std::shared_ptr<ISink> pSink);
+  virtual void attachSource(DeviceAddress deviceAddr, std::shared_ptr<ISource> pSource);
+  virtual void detachSourceSinkByDeviceAddr(DeviceAddress deviceAddr);
+  virtual void detachSourceSink(std::shared_ptr<ISourceSinkCommon> pSourceSink);
+  virtual std::shared_ptr<ISink> getSinkFromDevice(DeviceAddress deviceAddr);
 
   virtual HalResult initCheck(void);
   virtual HalResult close(void);
 
-  virtual HalResult openOutputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata, std::shared_ptr<IStreamOut>& pOutStream, audio_config& outSuggestedConfig);
-  virtual HalResult openInputStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata, std::shared_ptr<IStreamIn>& pOutInStream, audio_config& outSuggestedConfig);
+  virtual HalResult openOutputStream(AudioIoHandle ioHandle, DeviceAddress deviceAddr, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata, std::shared_ptr<IStreamOut>& pOutStream, audio_config& outSuggestedConfig);
+  virtual HalResult openInputStream(AudioIoHandle ioHandle, DeviceAddress deviceAddr, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata, std::shared_ptr<IStreamIn>& pOutInStream, audio_config& outSuggestedConfig);
   virtual void onCloseStream(std::shared_ptr<IStream> pStream);
 
   virtual std::vector<ParameterValue> getParameters(std::vector<std::string> keys);
