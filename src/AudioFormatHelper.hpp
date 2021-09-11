@@ -31,6 +31,8 @@ public:
 
   static AudioFormat::CHANNEL getChannelFromAndroidChannel(uint32_t androidChannel);
   static int getAndroidChannelFromChannel(AudioFormat::CHANNEL afwChannel);
+
+  static audio_config getAndroidAudioConfigFromAudioFormat(AudioFormat afwFormat);
 };
 
 #endif /* __AUDIO_FORMAT_HELPER_HPP__ */

@@ -108,5 +108,3 @@ void AndroidAudioPortHelper::getAndroidPortConfigFromSourceSink(audio_port_confi
     strncpy( pOutAudioPort->ext.device.address, address.c_str(), AUDIO_DEVICE_MAX_ADDRESS_LEN );
   }
 }
-
-

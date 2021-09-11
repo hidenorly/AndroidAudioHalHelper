@@ -21,6 +21,7 @@
 #include <system/audio.h>
 #include <stdint.h>
 #include "AndroidHalTypes.hpp"
+#include "Pipe.hpp"
 
 
 class IStream : public std::enable_shared_from_this<IStream>
@@ -37,6 +38,11 @@ protected:
   DeviceAddress mDeviceAddr;
   audio_config mConfig;
   std::shared_ptr<StreamSessionHandler> mSessionHandler;
+  std::shared_ptr<IPipe> mPipe;
+
+protected:
+  AudioFormat getPipeAudioFormat(void);
+  virtual std::vector<AudioFormat> getPipeSupportedAudioFormats(void);
 
 public:
   IStream(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr):mIoHandle(ioHandle), mDeviceAddr(device), mConfig(config), mSessionHandler(pSessionHandler){};
@@ -45,6 +51,8 @@ public:
   virtual AudioIoHandle getAudioIoHandle(void){ return mIoHandle; };
   virtual DeviceAddress getDeviceAddress(void){ return mDeviceAddr; };
   virtual audio_config getAudioConfig(void){ return mConfig; };
+
+  virtual audio_config getSuggestedConfig(void);
 
   virtual uint64_t getFrameSize(void);
   virtual uint64_t getFrameCount(void);
@@ -56,7 +64,7 @@ public:
   virtual HalResult setSampleRate(uint32_t sampleRateHz);
 
   virtual audio_channel_mask_t getChannelMask(void);
-  virtual std::vector<audio_channel_mask_t> getSupportedChannelMasks(AudioFormat format);
+  virtual std::vector<audio_channel_mask_t> getSupportedChannelMasks(audio_format_t androidEncoding);
   virtual HalResult setChannelMask(audio_channel_mask_t mask);
 
   virtual audio_format_t getFormat(void);

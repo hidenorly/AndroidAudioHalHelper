@@ -198,3 +198,18 @@ int AndroidFormatHelper::getAndroidChannelFromChannel(AudioFormat::CHANNEL afwCh
 
   return result;
 }
+
+
+
+audio_config AndroidFormatHelper::getAndroidAudioConfigFromAudioFormat(AudioFormat afwFormat)
+{
+  audio_config result;
+
+  result.sample_rate = afwFormat.getSamplingRate();
+  result.channel_mask = getAndroidChannelFromChannel( afwFormat.getChannels() );
+  result.format = getAndroidEncodingFromEncoding( afwFormat.getEncoding() );
+  result.offload_info = {0};
+  result.frame_count = 0;
+
+  return result;
+}

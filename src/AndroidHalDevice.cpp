@@ -80,21 +80,38 @@ HalResult IDevice::close(void)
   return HalResult::OK;
 }
 
-std::shared_ptr<ISink> IDevice::getSinkFromDevice(DeviceAddress deviceAddr)
+std::shared_ptr<ISourceSinkCommon> IDevice::getSourceSinkFromDevice(DeviceAddress deviceAddr)
 {
-  std::shared_ptr<ISink> result;
+  std::shared_ptr<ISourceSinkCommon> result;
 
   std::string deviceAddrStr = AndroidDeviceAddressHelper::getStringFromDeviceAddr(deviceAddr);
 
   if( mSourceSinks.contains(deviceAddrStr) ){
-    result = std::dynamic_pointer_cast<ISink>( mSourceSinks[deviceAddrStr] );
+    result = mSourceSinks[deviceAddrStr];
   }
 
   return result;
 }
 
+std::shared_ptr<ISink> IDevice::getSinkFromDevice(DeviceAddress deviceAddr)
+{
+  return std::dynamic_pointer_cast<ISink>( getSourceSinkFromDevice(deviceAddr) );
+}
 
-HalResult IDevice::openOutputStream(AudioIoHandle ioHandle, DeviceAddress deviceAddr, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata, std::shared_ptr<IStreamOut>& pOutStream, audio_config& outSuggestedConfig)
+std::shared_ptr<ISource> IDevice::getSourceFromDevice(DeviceAddress deviceAddr)
+{
+  return std::dynamic_pointer_cast<ISource>( getSourceSinkFromDevice(deviceAddr) );
+}
+
+
+HalResult IDevice::openOutputStream(
+  AudioIoHandle ioHandle,
+    DeviceAddress deviceAddr,
+    audio_config config,
+    audio_output_flags_t flags,
+    SourceMetadata sourceMetadata,
+  std::shared_ptr<IStreamOut>& pOutStream,
+    audio_config& outSuggestedConfig)
 {
   pOutStream = std::make_shared<IStreamOut>( ioHandle, deviceAddr, config, flags, sourceMetadata, shared_from_this(), getSinkFromDevice(deviceAddr) );
   outSuggestedConfig = pOutStream->getSuggestedConfig();
@@ -104,9 +121,18 @@ HalResult IDevice::openOutputStream(AudioIoHandle ioHandle, DeviceAddress device
   return HalResult::OK;
 }
 
-HalResult IDevice::openInputStream(AudioIoHandle ioHandle, DeviceAddress deviceAddr, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata, std::shared_ptr<IStreamIn>& pOutInStream, audio_config& outSuggestedConfig)
+HalResult IDevice::openInputStream(
+  AudioIoHandle ioHandle,
+    DeviceAddress deviceAddr,
+    audio_config config,
+    audio_input_flags_t flags,
+    SinkMetadata sinkMetadata,
+  std::shared_ptr<IStreamIn>& pOutInStream,
+    audio_config& outSuggestedConfig)
 {
-  return HalResult::NOT_SUPPORTED;
+  pOutInStream = std::make_shared<IStreamIn>( ioHandle, deviceAddr, config, flags, sinkMetadata, shared_from_this(), getSourceFromDevice(deviceAddr) );
+  outSuggestedConfig = pOutInStream->getSuggestedConfig();
+  return HalResult::OK;
 }
 
 void IDevice::onCloseStream(std::shared_ptr<IStream> pStream)

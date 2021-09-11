@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 #include "PipeAndFilterCommon.hpp"
+#include "AudioFormat.hpp"
 
 class AndroidAudioPortHelper
 {

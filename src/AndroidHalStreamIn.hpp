@@ -70,8 +70,16 @@ public:
     ReadPipeInfo(int bufferSize = 4096):commandMQ(1), dataMQ(bufferSize, true), statusMQ(1){};
     virtual ~ReadPipeInfo(){};
   };
+protected:
+  std::shared_ptr<ReadPipeInfo> mReadPipeInfo;
+  std::shared_ptr<ISource> mSource;
+  audio_input_flags_t mInputFlags;
+  SinkMetadata mSinkMetadata;
 
 public:
+  IStreamIn(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, audio_input_flags_t flags=AUDIO_INPUT_FLAG_NONE, SinkMetadata sinkMetadata=SinkMetadata(), std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr, std::shared_ptr<ISource> pSource = nullptr) : IStream(ioHandle, device, config, pSessionHandler), mSource(pSource), mInputFlags(flags), mSinkMetadata(sinkMetadata){};
+  virtual ~IStreamIn(){};
+
   virtual ReadPipeInfo prepareForReading(uint32_t frameSize, uint32_t framesCount);
 
   virtual uint32_t getInputFramesLost(void);

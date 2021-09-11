@@ -40,6 +40,11 @@ protected:
   float mMasterVolume;
   audio_module_handle_t mHwModule;
 
+protected:
+  virtual std::shared_ptr<ISourceSinkCommon> getSourceSinkFromDevice(DeviceAddress deviceAddr);
+  virtual std::shared_ptr<ISink> getSinkFromDevice(DeviceAddress deviceAddr);
+  virtual std::shared_ptr<ISource> getSourceFromDevice(DeviceAddress deviceAddr);
+
 public:
   IDevice(audio_module_handle_t hwModule):mMasterVolume(100.0f), mHwModule(hwModule){};
   virtual ~IDevice(){};
@@ -48,7 +53,6 @@ public:
   virtual void attachSource(DeviceAddress deviceAddr, std::shared_ptr<ISource> pSource);
   virtual void detachSourceSinkByDeviceAddr(DeviceAddress deviceAddr);
   virtual void detachSourceSink(std::shared_ptr<ISourceSinkCommon> pSourceSink);
-  virtual std::shared_ptr<ISink> getSinkFromDevice(DeviceAddress deviceAddr);
 
   virtual HalResult initCheck(void);
   virtual HalResult close(void);

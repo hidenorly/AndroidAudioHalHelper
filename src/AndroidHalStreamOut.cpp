@@ -34,12 +34,6 @@ void IStreamOut::AndroidAudioSource::readPrimitive(IAudioBuffer& buf)
   }
 }
 
-
-audio_config IStreamOut::getSuggestedConfig(void)
-{
-  return audio_config();
-}
-
 std::shared_ptr<IStreamOut::WritePipeInfo> IStreamOut::prepareForWriting(uint32_t frameSize, uint32_t framesCount)
 {
   mWritePipeInfo.reset();
