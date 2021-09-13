@@ -278,3 +278,22 @@ HalResult IStream::close(void)
 
   return result;
 }
+
+void IStream::onRunnerStatusChanged(bool bRunning)
+{
+  if( mPipe ){
+    std::vector<std::shared_ptr<ThreadBase>> runnables;
+    runnables.push_back( std::dynamic_pointer_cast<ThreadBase>( mPipe->getSinkRef() ) );
+    runnables.push_back( std::dynamic_pointer_cast<ThreadBase>( mPipe->getSourceRef() ) );
+
+    for( auto& pRunnable : runnables ){
+      if( pRunnable ){
+        if( bRunning ){
+          pRunnable->run();
+        } else {
+          pRunnable->stop();
+        }
+      }
+    }
+  }
+}

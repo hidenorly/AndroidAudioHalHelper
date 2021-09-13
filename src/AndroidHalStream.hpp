@@ -22,9 +22,10 @@
 #include <stdint.h>
 #include "AndroidHalTypes.hpp"
 #include "Pipe.hpp"
+#include "ThreadBase.hpp"
 
 
-class IStream : public std::enable_shared_from_this<IStream>
+class IStream : public std::enable_shared_from_this<IStream>, public ThreadBase::RunnerListener
 {
 public:
   class StreamSessionHandler
@@ -90,6 +91,7 @@ public:
   virtual HalResult start(void);
   virtual HalResult stop(void);
   virtual HalResult close(void);
+  virtual void onRunnerStatusChanged(bool bRunning);
 };
 
 #endif /* __ANDROID_HAL_STREAM_HPP__ */
