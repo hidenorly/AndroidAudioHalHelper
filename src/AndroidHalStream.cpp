@@ -17,6 +17,17 @@
 #include "AndroidHalStream.hpp"
 #include "AudioFormatHelper.hpp"
 #include <set>
+#include "ParameterManager.hpp"
+#include "Filter.hpp"
+#include "AudioEffectHelper.hpp"
+
+
+IStream::IStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, std::shared_ptr<StreamSessionHandler> pSessionHandler):mIoHandle(ioHandle), mDeviceAddr(device), mConfig(config), mSessionHandler(pSessionHandler)
+{
+  mPipe = std::make_shared<PipeMultiThread>();
+  mPipe->registerRunnerStatusListener( shared_from_this() );
+  mPipe->addFilterToTail( std::make_shared<PassThroughFilter>() ); // dummy. TODO: remove this
+}
 
 
 IStream::~IStream()
@@ -195,12 +206,31 @@ AudioFormat IStream::getAudioProperties(void)
 
 HalResult IStream::addEffect(uint64_t effectId)
 {
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::INVALID_ARGUMENTS;
+
+  if( mPipe ){
+    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getEffect( effectId );
+    if( pFilter ){
+      mPipe->addFilterToTail( pFilter );
+      result = HalResult::OK;
+    }
+  }
+
+  return result;
 }
 
 HalResult IStream::removeEffect(uint64_t effectId)
 {
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::INVALID_ARGUMENTS;
+
+  if( mPipe ){
+    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getEffect( effectId );
+    if( pFilter ){
+      result = mPipe->removeFilter( pFilter ) ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
+    }
+  }
+
+  return result;
 }
 
 
@@ -229,12 +259,32 @@ HalResult IStream::setHwAvSync(AudioHwSync hwAvSync)
 
 HalResult IStream::getParameters(std::vector<std::string> keys, std::vector<ParameterValue>& values)
 {
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::OK;
+  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
+
+  for( auto& aKey : keys ){
+    std::string value = pParams->getParameter( aKey );
+    if( value.empty() ){
+      result = HalResult::INVALID_ARGUMENTS;
+    } else {
+      values.push_back( ParameterValue(aKey, value) );
+    }
+  }
+
+  return HalResult::OK;
 }
 
 HalResult IStream::setParameters(std::vector<ParameterValue> values)
 {
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::OK;
+  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
+
+  for( auto& aParam : values ){
+    pParams->setParameter( aParam.key, aParam.value );
+    // TODO : if needs to check unexpected value, result = HalResult::INVALID_ARGUMENTS
+  }
+
+  return result;
 }
 
 
@@ -268,7 +318,8 @@ HalResult IStream::close(void)
 
   if( mPipe ){
     result = HalResult::OK;
-    mPipe->stopAndFlush();
+    stop();
+    mPipe->unregisterRunnerStatusListener( shared_from_this() );
     mPipe.reset();
     if( mSessionHandler ){
       mSessionHandler->onCloseStream( shared_from_this() );

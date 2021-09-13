@@ -53,6 +53,7 @@ struct ParameterValue
 {
   std::string key;
   std::string value;
+  ParameterValue(std::string key, std::string value):key(key),value(value){};
 };
 
 typedef uint32_t AudioHwSync;

@@ -21,7 +21,7 @@
 #include <system/audio.h>
 #include <stdint.h>
 #include "AndroidHalTypes.hpp"
-#include "Pipe.hpp"
+#include "PipeMultiThread.hpp"
 #include "ThreadBase.hpp"
 
 
@@ -46,7 +46,7 @@ protected:
   virtual std::vector<AudioFormat> getPipeSupportedAudioFormats(void);
 
 public:
-  IStream(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr):mIoHandle(ioHandle), mDeviceAddr(device), mConfig(config), mSessionHandler(pSessionHandler){};
+  IStream(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr);
   virtual ~IStream();
 
   virtual AudioIoHandle getAudioIoHandle(void){ return mIoHandle; };

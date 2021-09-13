@@ -21,6 +21,18 @@
 #include "PatchPanel.hpp"
 #include "PipedSink.hpp"
 #include "PipedSource.hpp"
+#include "AudioEffectHelper.hpp"
+
+IDevice::IDevice(audio_module_handle_t hwModule, std::string filterPlugInPath):mMasterVolume(100.0f), mHwModule(hwModule)
+{
+  AudioEffectHelper::initialize( filterPlugInPath );
+}
+
+IDevice::~IDevice()
+{
+  AudioEffectHelper::terminate();
+}
+
 
 void IDevice::attachSink(DeviceAddress deviceAddr, std::shared_ptr<ISink> pSink)
 {
