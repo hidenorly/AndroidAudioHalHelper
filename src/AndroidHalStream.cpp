@@ -17,9 +17,9 @@
 #include "AndroidHalStream.hpp"
 #include "AudioFormatHelper.hpp"
 #include <set>
-#include "ParameterManager.hpp"
 #include "Filter.hpp"
 #include "AudioEffectHelper.hpp"
+#include "ParameterHelper.hpp"
 
 
 IStream::IStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, std::shared_ptr<StreamSessionHandler> pSessionHandler):mIoHandle(ioHandle), mDeviceAddr(device), mConfig(config), mSessionHandler(pSessionHandler)
@@ -259,32 +259,12 @@ HalResult IStream::setHwAvSync(AudioHwSync hwAvSync)
 
 HalResult IStream::getParameters(std::vector<std::string> keys, std::vector<ParameterValue>& values)
 {
-  HalResult result = HalResult::OK;
-  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
-
-  for( auto& aKey : keys ){
-    std::string value = pParams->getParameter( aKey );
-    if( value.empty() ){
-      result = HalResult::INVALID_ARGUMENTS;
-    } else {
-      values.push_back( ParameterValue(aKey, value) );
-    }
-  }
-
-  return HalResult::OK;
+  return ParameterManagerHelper::getParameters( keys, values );
 }
 
 HalResult IStream::setParameters(std::vector<ParameterValue> values)
 {
-  HalResult result = HalResult::OK;
-  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
-
-  for( auto& aParam : values ){
-    pParams->setParameter( aParam.key, aParam.value );
-    // TODO : if needs to check unexpected value, result = HalResult::INVALID_ARGUMENTS
-  }
-
-  return result;
+  return ParameterManagerHelper::setParameters( values );
 }
 
 

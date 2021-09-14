@@ -35,24 +35,15 @@ class IDevice : public IStream::StreamSessionHandler, public std::enable_shared_
 {
 protected:
   std::map<AudioIoHandle, std::shared_ptr<IStream>> mStreams;
-  std::map<std::string, std::shared_ptr<ISourceSinkCommon>> mSourceSinks;
   std::vector<std::shared_ptr<PatchPanel>> mPatchPanels;
   float mMasterVolume;
   audio_module_handle_t mHwModule;
 
-protected:
-  virtual std::shared_ptr<ISourceSinkCommon> getSourceSinkFromDevice(DeviceAddress deviceAddr);
-  virtual std::shared_ptr<ISink> getSinkFromDevice(DeviceAddress deviceAddr);
-  virtual std::shared_ptr<ISource> getSourceFromDevice(DeviceAddress deviceAddr);
 
 public:
   IDevice(audio_module_handle_t hwModule, std::string filterPlugInPath=".");
   virtual ~IDevice();
 
-  virtual void attachSink(DeviceAddress deviceAddr, std::shared_ptr<ISink> pSink);
-  virtual void attachSource(DeviceAddress deviceAddr, std::shared_ptr<ISource> pSource);
-  virtual void detachSourceSinkByDeviceAddr(DeviceAddress deviceAddr);
-  virtual void detachSourceSink(std::shared_ptr<ISourceSinkCommon> pSourceSink);
 
   virtual HalResult initCheck(void);
   virtual HalResult close(void);
@@ -61,8 +52,8 @@ public:
   virtual HalResult openInputStream(AudioIoHandle ioHandle, DeviceAddress deviceAddr, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata, std::shared_ptr<IStreamIn>& pOutInStream, audio_config& outSuggestedConfig);
   virtual void onCloseStream(std::shared_ptr<IStream> pStream);
 
-  virtual std::vector<ParameterValue> getParameters(std::vector<std::string> keys);
-  virtual HalResult setParameters(std::vector<ParameterValue> parameters);
+  virtual HalResult getParameters(std::vector<std::string> keys, std::vector<ParameterValue>& values);
+  virtual HalResult setParameters(std::vector<ParameterValue> values);
 
   virtual bool supportsAudioPatches(void);
   virtual audio_patch_handle_t createAudioPatch(std::vector<audio_port_config> sources, std::vector<audio_port_config> sinks);
