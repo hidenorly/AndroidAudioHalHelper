@@ -20,6 +20,7 @@
 #include "Filter.hpp"
 #include "AudioEffectHelper.hpp"
 #include "ParameterHelper.hpp"
+#include "SourceSinkManager.hpp"
 
 
 IStream::IStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, std::shared_ptr<StreamSessionHandler> pSessionHandler):mIoHandle(ioHandle), mDeviceAddr(device), mConfig(config), mSessionHandler(pSessionHandler)
@@ -242,12 +243,30 @@ HalResult IStream::standby(void)
 
 HalResult IStream::getDevices(std::vector<DeviceAddress>& devices)
 {
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::INVALID_ARGUMENTS;
+
+  if( mPipe ){
+    DeviceAddress deviceAddr = SourceSinkManager::getDeviceAddress( mPipe->getSinkRef() );
+    if( !AndroidDeviceAddressHelper::getStringFromDeviceAddr(deviceAddr).empty() ){
+      devices.push_back( deviceAddr );
+      result = HalResult::OK;
+    }
+  }
+
+  return result;
 }
 
 HalResult IStream::setDevices(std::vector<DeviceAddress> devices)
 {
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::INVALID_ARGUMENTS;
+  if( mPipe && !devices.empty() ){
+    std::shared_ptr<ISink> pSink = SourceSinkManager::getSink( devices[0] );
+    if( pSink ){
+      mPipe->attachSink( pSink );
+      result = HalResult::OK;
+    }
+  }
+  return result;
 }
 
 

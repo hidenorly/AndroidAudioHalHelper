@@ -39,15 +39,31 @@ public:
   static void attachSource(DeviceAddress deviceAddr, std::shared_ptr<ISource> pSource);
   static void detachSourceSinkByDeviceAddr(DeviceAddress deviceAddr);
   static void detachSourceSink(std::shared_ptr<ISourceSinkCommon> pSourceSink);
+  static DeviceAddress getDeviceAddress(std::shared_ptr<ISourceSinkCommon> pSourceSink);
 
-  static std::shared_ptr<ISourceSinkCommon> getSourceSinkFromDevice(DeviceAddress deviceAddr);
-  static std::shared_ptr<ISink> getSinkFromDevice(DeviceAddress deviceAddr);
-  static std::shared_ptr<ISource> getSourceFromDevice(DeviceAddress deviceAddr);
+  static std::shared_ptr<ISourceSinkCommon> getSourceSink(DeviceAddress deviceAddr);
+  static std::shared_ptr<ISink> getSink(DeviceAddress deviceAddr);
+  static std::shared_ptr<ISource> getSource(DeviceAddress deviceAddr);
 
   static std::vector<std::shared_ptr<ISink>> getSinkDevices(void);
 
+  static audio_port_handle_t getAudioPortHandle(const audio_port_config& audioPortConfig);
+  static audio_port_handle_t getAudioPortHandle(const audio_port& audioPort);
+
   static void associateByAudioPortConfig(const audio_port_config& audioPortConfig);
   static void associateByAudioPort(const audio_port& audioPort);
+
+  static std::shared_ptr<ISourceSinkCommon> getSourceSink(audio_port_handle_t audioPortHandle);
+  static std::shared_ptr<ISink> getSink(audio_port_handle_t audioPortHandle);
+  static std::shared_ptr<ISource> getSource(audio_port_handle_t audioPortHandle);
+
+  static std::shared_ptr<ISourceSinkCommon> getSourceSink(const audio_port_config& audioPortConfig);
+  static std::shared_ptr<ISink> getSink(const audio_port_config& audioPortConfig);
+  static std::shared_ptr<ISource> getSource(const audio_port_config& audioPortConfig);
+
+  static std::shared_ptr<ISourceSinkCommon> getSourceSink(const audio_port& audioPort);
+  static std::shared_ptr<ISink> getSink(const audio_port& audioPort);
+  static std::shared_ptr<ISource> getSource(const audio_port& audioPort);
 };
 
 #endif /* __SOURCE_SINK_MANAGER_HPP__ */
