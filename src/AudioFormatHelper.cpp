@@ -213,3 +213,14 @@ audio_config AndroidFormatHelper::getAndroidAudioConfigFromAudioFormat(AudioForm
 
   return result;
 }
+
+AudioFormat AndroidFormatHelper::getAudioFormatFromAndroidPortConfig(const audio_port_config& config)
+{
+  return AudioFormat( getEncodingFromAndroidEncoding( config.format ), config.sample_rate, getChannelFromAndroidChannel( config.channel_mask ) );
+}
+
+AudioFormat AndroidFormatHelper::getAudioFormatFromAndroidAudioConfig(const audio_config& config)
+{
+  return AudioFormat( getEncodingFromAndroidEncoding( config.format ), config.sample_rate, getChannelFromAndroidChannel( config.channel_mask ) );
+}
+

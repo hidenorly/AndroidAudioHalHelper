@@ -16,13 +16,13 @@
 
 #include "AndroidHalDevice.hpp"
 #include "AudioPortHelper.hpp"
+#include "AudioFormatHelper.hpp"
 
 #include "SourceSinkManager.hpp"
 #include "PatchPanel.hpp"
 #include "AudioEffectHelper.hpp"
 #include "ParameterHelper.hpp"
 
-// TODO: AudioEffect
 // TODO: Input stream and the devices support
 
 IDevice::IDevice(audio_module_handle_t hwModule, std::string filterPlugInPath):mMasterVolume(100.0f), mHwModule(hwModule), mPatchHandleCount(0)
@@ -202,8 +202,7 @@ audio_port IDevice::getAudioPort(audio_port port)
   audio_port result = port;
 
   if( port.type == AUDIO_PORT_TYPE_DEVICE ){
-    // TODO: resolve port to ISourceSinkCommon
-    AndroidAudioPortHelper::getAndroidPortFromSourceSink(&result, SourceSinkManager::getSink( AndroidDeviceAddressHelper::getDeviceAddrFromString( port.ext.device.address )), port.ext.device.address, mHwModule, port.ext.device.type );
+    AndroidAudioPortHelper::getAndroidPortFromSourceSink(&result, SourceSinkManager::getSink( port ), port.ext.device.address, mHwModule, port.ext.device.type );
     SourceSinkManager::associateByAudioPort( result );
   }
 
@@ -212,26 +211,83 @@ audio_port IDevice::getAudioPort(audio_port port)
 
 HalResult IDevice::setAudioPortConfig(audio_port_config config)
 {
+  HalResult result = HalResult::INVALID_ARGUMENTS;
+
   SourceSinkManager::associateByAudioPortConfig( config );
 
-  // TODO: set config
+  std::shared_ptr<ISourceSinkCommon> pSourceSink = SourceSinkManager::getSourceSink( config );
+  if( pSourceSink ){
+    bool bSuccess = pSourceSink->setAudioFormat( AndroidFormatHelper::getAudioFormatFromAndroidPortConfig( config ) );
+    result = bSuccess ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
+  }
 
-  return HalResult::NOT_SUPPORTED;
+  return result;
+}
+
+std::shared_ptr<IStream> IDevice::getStream(audio_port_handle_t device)
+{
+  std::shared_ptr<IStream> result;
+
+  std::shared_ptr<ISourceSinkCommon> pSourceSink = SourceSinkManager::getSourceSink( device );
+  if( pSourceSink ){
+    for( auto& [audioIoHandle, pStream] : mStreams ){
+      if( pStream ){
+        std::shared_ptr<IPipe> pPipe = pStream->getPipe();
+        if( pPipe ){
+          if( pPipe->getSourceRef() == pSourceSink || pPipe->getSinkRef() == pSourceSink ){
+            result = pStream;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+std::shared_ptr<IPipe> IDevice::getPipe(audio_port_handle_t device)
+{
+  std::shared_ptr<IPipe> result;
+
+  std::shared_ptr<IStream> pStream = getStream( device );
+  if( pStream ){
+    result = pStream->getPipe();
+  }
+
+  return result;
 }
 
 
 HalResult IDevice::addDeviceEffect(audio_port_handle_t device, uint64_t effectId)
 {
-  // TODO : get the sink's pipe from patch's MixerSplitter
-  // TODO : attach the filter to the pipe
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::INVALID_ARGUMENTS;
+
+  std::shared_ptr<IPipe> pPipe = getPipe( device );
+  if( pPipe ){
+    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getEffect( effectId );
+    if( pFilter ){
+      pPipe->addFilterToTail( pFilter );
+      result = HalResult::OK;
+    }
+  }
+
+  return result;
 }
 
 HalResult IDevice::removeDeviceEffect(audio_port_handle_t device, uint64_t effectId)
 {
-  // TODO : get the sink's pipe from patch's MixerSplitter
-  // TODO : deattach the filter from the pipe
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::INVALID_ARGUMENTS;
+
+  std::shared_ptr<IPipe> pPipe = getPipe( device );
+  if( pPipe ){
+    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getEffect( effectId );
+    if( pFilter ){
+      result = pPipe->removeFilter( pFilter ) ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
+    }
+  }
+
+  return result;
 }
 
 
@@ -277,7 +333,9 @@ std::vector<audio_microphone_characteristic_t> IDevice::getMicrophones(void)
 
 uint64_t IDevice::getInputBufferSize(audio_config config)
 {
-  return 0;
+  AudioFormat format = AndroidFormatHelper::getAudioFormatFromAndroidAudioConfig( config );
+
+  return format.getChannelsSampleByte() * config.frame_count;
 }
 
 HalResult IDevice::setConnectedState(DeviceAddress address, bool connected)

@@ -52,6 +52,7 @@ public:
   virtual AudioIoHandle getAudioIoHandle(void){ return mIoHandle; };
   virtual DeviceAddress getDeviceAddress(void){ return mDeviceAddr; };
   virtual audio_config getAudioConfig(void){ return mConfig; };
+  virtual std::shared_ptr<IPipe> getPipe(void){ return mPipe; };
 
   virtual audio_config getSuggestedConfig(void);
 

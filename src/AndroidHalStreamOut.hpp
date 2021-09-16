@@ -149,6 +149,9 @@ public:
   virtual HalResult setAudioDescriptionMixLevel(float leveldB);
 
   virtual void updateSourceMetadata(SourceMetadata sourceMetadata);
+
+  virtual HalResult getDevices(std::vector<DeviceAddress>& devices);
+  virtual HalResult setDevices(std::vector<DeviceAddress> devices);
 };
 
 

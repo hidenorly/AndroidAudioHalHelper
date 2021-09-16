@@ -18,6 +18,7 @@
 #include <algorithm>
 #include "Buffer.hpp"
 #include "PipeMultiThread.hpp"
+#include "SourceSinkManager.hpp"
 
 void IStreamOut::AndroidAudioSource::readPrimitive(IAudioBuffer& buf)
 {
@@ -223,3 +224,33 @@ void IStreamOut::updateSourceMetadata(SourceMetadata sourceMetadata)
 {
 
 }
+
+HalResult IStreamOut::getDevices(std::vector<DeviceAddress>& devices)
+{
+  HalResult result = HalResult::INVALID_ARGUMENTS;
+
+  if( mPipe ){
+    DeviceAddress deviceAddr = SourceSinkManager::getDeviceAddress( mPipe->getSinkRef() );
+    if( !AndroidDeviceAddressHelper::getStringFromDeviceAddr(deviceAddr).empty() ){
+      devices.push_back( deviceAddr );
+      result = HalResult::OK;
+    }
+  }
+
+  return result;
+}
+
+HalResult IStreamOut::setDevices(std::vector<DeviceAddress> devices)
+{
+  HalResult result = HalResult::INVALID_ARGUMENTS;
+  if( mPipe && !devices.empty() ){
+    std::shared_ptr<ISink> pSink = SourceSinkManager::getSink( devices[0] );
+    // TODO: if devices.size()>1 then use MultiSink and support it
+    if( pSink ){
+      mPipe->attachSink( pSink );
+      result = HalResult::OK;
+    }
+  }
+  return result;
+}
+

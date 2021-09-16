@@ -47,17 +47,25 @@ audio_config IStream::getSuggestedConfig(void)
 
 uint64_t IStream::getFrameSize(void)
 {
-  return 0;
+  uint64_t result = getPipeAudioFormat().getChannelsSampleByte();
+
+  return result;
 }
 
 uint64_t IStream::getFrameCount(void)
 {
-  return 0;
+  uint64_t result = 0;
+
+  if( mPipe ){
+    result = getPipeAudioFormat().getSamplingRate() * mPipe->getWindowSizeUsec() / 1000000;
+  }
+
+  return result;
 }
 
 uint64_t IStream::getBufferSize(void)
 {
-  return 0;
+  return getFrameSize() * getFrameCount();
 }
 
 AudioFormat IStream::getPipeAudioFormat(void)
@@ -127,7 +135,10 @@ HalResult IStream::setSampleRate(uint32_t sampleRateHz)
   if( mPipe ){
     AudioFormat format = getPipeAudioFormat();
     AudioFormat nextFormat = AudioFormat( format.getEncoding(), sampleRateHz, format.getChannels() );
-    result = mPipe->getSinkRef()->setAudioFormat( nextFormat ) ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
+    bool bSuccess = true;
+    bSuccess &= mPipe->getSinkRef()->setAudioFormat( nextFormat );
+    bSuccess &= mPipe->getSourceRef()->setAudioFormat( nextFormat );
+    result = bSuccess ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
   }
   return result;
 }
@@ -159,7 +170,10 @@ HalResult IStream::setChannelMask(audio_channel_mask_t mask)
   if( mPipe ){
     AudioFormat format = getPipeAudioFormat();
     AudioFormat nextFormat = AudioFormat( format.getEncoding(), format.getSamplingRate(), AndroidFormatHelper::getChannelFromAndroidChannel( mask ) );
-    result = mPipe->getSinkRef()->setAudioFormat( nextFormat ) ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
+    bool bSuccess = true;
+    bSuccess &= mPipe->getSinkRef()->setAudioFormat( nextFormat );
+    bSuccess &= mPipe->getSourceRef()->setAudioFormat( nextFormat );
+    result = bSuccess ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
   }
   return result;
 }
@@ -193,7 +207,10 @@ HalResult IStream::setFormat(audio_format_t androidFormatEncoding)
   if( mPipe ){
     AudioFormat format = getPipeAudioFormat();
     AudioFormat nextFormat = AudioFormat( AndroidFormatHelper::getEncodingFromAndroidEncoding(androidFormatEncoding), format.getSamplingRate(), format.getChannels() );
-    result = mPipe->getSinkRef()->setAudioFormat( nextFormat ) ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
+    bool bSuccess = true;
+    bSuccess &= mPipe->getSinkRef()->setAudioFormat( nextFormat );
+    bSuccess &= mPipe->getSourceRef()->setAudioFormat( nextFormat );
+    result = bSuccess ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
   }
   return result;
 }
@@ -243,30 +260,12 @@ HalResult IStream::standby(void)
 
 HalResult IStream::getDevices(std::vector<DeviceAddress>& devices)
 {
-  HalResult result = HalResult::INVALID_ARGUMENTS;
-
-  if( mPipe ){
-    DeviceAddress deviceAddr = SourceSinkManager::getDeviceAddress( mPipe->getSinkRef() );
-    if( !AndroidDeviceAddressHelper::getStringFromDeviceAddr(deviceAddr).empty() ){
-      devices.push_back( deviceAddr );
-      result = HalResult::OK;
-    }
-  }
-
-  return result;
+  return HalResult::NOT_SUPPORTED;
 }
 
 HalResult IStream::setDevices(std::vector<DeviceAddress> devices)
 {
-  HalResult result = HalResult::INVALID_ARGUMENTS;
-  if( mPipe && !devices.empty() ){
-    std::shared_ptr<ISink> pSink = SourceSinkManager::getSink( devices[0] );
-    if( pSink ){
-      mPipe->attachSink( pSink );
-      result = HalResult::OK;
-    }
-  }
-  return result;
+  return HalResult::NOT_SUPPORTED;
 }
 
 

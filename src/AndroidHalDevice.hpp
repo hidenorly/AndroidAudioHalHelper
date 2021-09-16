@@ -43,6 +43,8 @@ protected:
 protected:
   std::vector<std::shared_ptr<ISource>> getSources(std::vector<audio_port_config> sources);
   std::vector<std::shared_ptr<ISink>> getSinks(std::vector<audio_port_config> sinks);
+  std::shared_ptr<IStream> getStream(audio_port_handle_t device);
+  std::shared_ptr<IPipe> getPipe(audio_port_handle_t device);
 
 public:
   IDevice(audio_module_handle_t hwModule, std::string filterPlugInPath=".");
