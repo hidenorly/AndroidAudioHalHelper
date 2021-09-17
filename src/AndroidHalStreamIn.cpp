@@ -16,9 +16,39 @@
 
 #include "AndroidHalStreamIn.hpp"
 
-IStreamIn::ReadPipeInfo IStreamIn::prepareForReading(uint32_t frameSize, uint32_t framesCount)
+void IStreamIn::AndroidAudioSink::writePrimitive(IAudioBuffer& buf)
 {
-  return ReadPipeInfo();
+  if( mDataMQ ){
+    int nBufSize = buf.getRawBufferSize();
+    int nCount = 0;
+    while( nCount < nBufSize ){
+      int availToWrite = mDataMQ->availableToWrite();
+      if( nBufSize && availToWrite ){
+        int nWriteSize = std::min(nBufSize-nCount, availToWrite);
+        nWriteSize = ( nWriteSize >= 0 ) ? nWriteSize : 0;
+        ByteBuffer rawBuf = buf.getRawBuffer();
+        mDataMQ->write( rawBuf.data()+nCount, nWriteSize );
+        nCount += nWriteSize;
+      }
+      // TODO: need to wait if nCount isn't read enough to full with buf
+    }
+  }
+}
+
+
+std::shared_ptr<IStreamIn::ReadPipeInfo> IStreamIn::prepareForReading(uint32_t frameSize, uint32_t framesCount)
+{
+  mReadPipeInfo.reset();
+  mSource.reset();
+  mPipe.reset();
+
+  mReadPipeInfo = std::make_shared<ReadPipeInfo>();
+  mSink = std::make_shared<IStreamIn::AndroidAudioSink>( mReadPipeInfo->dataMQ );
+  mPipe = std::make_shared<PipeMultiThread>();
+  mPipe->attachSource( mSource );
+  mPipe->attachSink( mSink );
+
+  return mReadPipeInfo;
 }
 
 uint32_t IStreamIn::getInputFramesLost(void)

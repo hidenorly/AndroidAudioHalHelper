@@ -76,8 +76,8 @@ public:
     //ThreadInfo threadInfo;
 
     WritePipeInfo(
-      std::shared_ptr<CommandMQ> commandMQ = std::make_shared<CommandMQ>(1), 
-      std::shared_ptr<DataMQ> dataMQ = std::make_shared<DataMQ>(1), 
+      std::shared_ptr<CommandMQ> commandMQ = std::make_shared<CommandMQ>(1),
+      std::shared_ptr<DataMQ> dataMQ = std::make_shared<DataMQ>(1),
       std::shared_ptr<StatusMQ> statusMQ = std::make_shared<StatusMQ>(4096, true)) : commandMQ(commandMQ), dataMQ(dataMQ), statusMQ(statusMQ){};
     virtual ~WritePipeInfo(){};
   };
@@ -154,7 +154,6 @@ public:
   virtual HalResult setDevices(std::vector<DeviceAddress> devices);
 };
 
-
 class StreamOutContext : public StrategyContext
 {
 public:
@@ -168,6 +167,5 @@ public:
   StreamOutContext(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata):ioHandle(ioHandle), device(device), config(config), flags(flags), sourceMetadata(sourceMetadata){};
   virtual ~StreamOutContext(){};
 };
-
 
 #endif /* __ANDROID_HAL_STREAM_OUT_HPP__ */

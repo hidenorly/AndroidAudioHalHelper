@@ -20,6 +20,9 @@
 #include "AndroidHalStream.hpp"
 #include <fmq/MessageQueue.h>
 #include <vector>
+#include "Source.hpp"
+#include "Sink.hpp"
+#include "Strategy.hpp"
 
 class IStreamIn : public IStream
 {
@@ -61,18 +64,43 @@ public:
   class ReadPipeInfo
   {
   public:
-    //TODO: will be update
-    CommandMQ commandMQ;
-    StatusMQ dataMQ;
-    DataMQ statusMQ;
+    std::shared_ptr<CommandMQ> commandMQ;
+    std::shared_ptr<DataMQ> dataMQ;
+    std::shared_ptr<StatusMQ> statusMQ;
     //ThreadInfo threadInfo;
 
-    ReadPipeInfo(int bufferSize = 4096):commandMQ(1), dataMQ(bufferSize, true), statusMQ(1){};
+    ReadPipeInfo(
+      std::shared_ptr<CommandMQ> commandMQ = std::make_shared<CommandMQ>(1),
+      std::shared_ptr<DataMQ> dataMQ = std::make_shared<DataMQ>(1),
+      std::shared_ptr<StatusMQ> statusMQ = std::make_shared<StatusMQ>(4096, true)) : commandMQ(commandMQ), dataMQ(dataMQ), statusMQ(statusMQ){};
     virtual ~ReadPipeInfo(){};
   };
+
+  class AndroidAudioSink : public ISink
+  {
+  protected:
+    std::shared_ptr<DataMQ> mDataMQ;
+    AudioFormat mFormat;
+
+  protected:
+    void setAudioFormatPrimitive(AudioFormat format){ mFormat = format; };
+    virtual void writePrimitive(IAudioBuffer& buf);
+
+  public:
+    AndroidAudioSink(std::shared_ptr<DataMQ> dataMQ = nullptr) : mDataMQ(dataMQ){};
+    virtual ~AndroidAudioSink(){
+      mDataMQ.reset();
+    };
+    virtual bool isAvailableFormat(AudioFormat format){ return true; };
+    virtual std::string toString(void){ return "AndroidAudioSink"; };
+    virtual void dump(void){};
+    virtual AudioFormat getAudioFormat(void){ return mFormat; };
+  };
+
 protected:
   std::shared_ptr<ReadPipeInfo> mReadPipeInfo;
   std::shared_ptr<ISource> mSource;
+  std::shared_ptr<AndroidAudioSink> mSink;
   audio_input_flags_t mInputFlags;
   SinkMetadata mSinkMetadata;
 
@@ -80,7 +108,7 @@ public:
   IStreamIn(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, audio_input_flags_t flags=AUDIO_INPUT_FLAG_NONE, SinkMetadata sinkMetadata=SinkMetadata(), std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr, std::shared_ptr<ISource> pSource = nullptr) : IStream(ioHandle, device, config, pSessionHandler), mSource(pSource), mInputFlags(flags), mSinkMetadata(sinkMetadata){};
   virtual ~IStreamIn(){};
 
-  virtual ReadPipeInfo prepareForReading(uint32_t frameSize, uint32_t framesCount);
+  virtual std::shared_ptr<ReadPipeInfo> prepareForReading(uint32_t frameSize, uint32_t framesCount);
 
   virtual uint32_t getInputFramesLost(void);
   virtual PresentationPosition getCapturePosition(void);
@@ -96,5 +124,18 @@ public:
   virtual void updateSinkMetadata(SinkMetadata sinkMetadata);
 };
 
-#endif /* __ANDROID_HAL_STREAM_IN_HPP__ */
+class StreamInContext : public StrategyContext
+{
+public:
+  AudioIoHandle ioHandle;
+  DeviceAddress device;
+  audio_config config;
+  audio_input_flags_t flags;
+  SinkMetadata sinkMetadata;
 
+public:
+  StreamInContext(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata):ioHandle(ioHandle), device(device), config(config), flags(flags), sinkMetadata(sinkMetadata){};
+  virtual ~StreamInContext(){};
+};
+
+#endif /* __ANDROID_HAL_STREAM_IN_HPP__ */
