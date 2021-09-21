@@ -85,12 +85,15 @@ struct TimeSpec
 {
   uint64_t tvSec;   // seconds
   uint64_t tvNSec;  // nanoseconds
+  TimeSpec(uint64_t tvSec = 0, uint64_t tvNSec = 0):tvSec(tvSec), tvNSec(tvNSec){};
+  TimeSpec(const TimeSpec& timeSpec):tvSec(timeSpec.tvSec), tvNSec(timeSpec.tvNSec){};
 };
 
 struct PresentationPosition
 {
   uint64_t frames;
   TimeSpec timeStamp;
+  PresentationPosition(uint64_t frames = 0, TimeSpec timeStamp = TimeSpec()):frames(frames), timeStamp(timeStamp){};
 };
 
 
@@ -111,6 +114,7 @@ struct PlaybackRate {
   float pitch;
   TimestretchMode timestretchMode;
   TimestretchFallbackMode fallbackMode;
+  PlaybackRate():speed(1.0), pitch(1.0), timestretchMode(TimestretchMode::DEFAULT), fallbackMode(TimestretchFallbackMode::MUTE){};
 };
 
 #ifndef PAGE_SIZE

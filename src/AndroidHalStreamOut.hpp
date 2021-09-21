@@ -61,6 +61,7 @@ public:
         PresentationPosition presentationPosition;
         uint32_t latencyMs;
     } reply;
+    WriteStatus():retval(HalResult::OK), replyTo(WriteCommand::WRITE), reply{0}{};
   };
 
   typedef android::hardware::MessageQueue<IStreamOut::WriteCommand, android::hardware::kSynchronizedReadWrite> CommandMQ;
@@ -86,10 +87,12 @@ public:
   {
   protected:
     std::shared_ptr<DataMQ> mDataMQ;
+    std::shared_ptr<StatusMQ> mStatusMQ;
   public:
-    AndroidAudioSource(std::shared_ptr<DataMQ> dataMQ = nullptr) : mDataMQ(dataMQ){};
+    AndroidAudioSource(std::shared_ptr<DataMQ> dataMQ = nullptr, std::shared_ptr<StatusMQ> statusMQ = nullptr) : mDataMQ(dataMQ), mStatusMQ(statusMQ){};
     virtual ~AndroidAudioSource(){
       mDataMQ.reset();
+      mStatusMQ.reset();
     };
     virtual bool isAvailableFormat(AudioFormat format){ return true; };
 

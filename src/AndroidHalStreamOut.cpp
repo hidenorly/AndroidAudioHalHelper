@@ -32,6 +32,12 @@ void IStreamOut::AndroidAudioSource::readPrimitive(IAudioBuffer& buf)
     rawBuf.resize( nReadSize );
     mDataMQ->read( rawBuf.data(), nReadSize );
     buf.setRawBuffer( rawBuf ); // just in case. basically not be required.
+
+    IStreamOut::WriteStatus status;
+    status.replyTo = IStreamOut::WriteCommand::WRITE;
+    status.retval = HalResult::OK;
+    status.reply.written = nReadSize;
+    mStatusMQ->write( &status );
   }
 }
 
