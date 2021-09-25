@@ -286,7 +286,7 @@ HalResult IStream::setParameters(std::vector<ParameterValue> values)
 }
 
 
-HalResult IStream::start(void)
+HalResult IStream::streamStart(void)
 {
   HalResult result = HalResult::NOT_INITIALIZED;
 
@@ -298,7 +298,7 @@ HalResult IStream::start(void)
   return result;
 }
 
-HalResult IStream::stop(void)
+HalResult IStream::streamStop(void)
 {
   HalResult result = HalResult::NOT_INITIALIZED;
 
@@ -310,13 +310,13 @@ HalResult IStream::stop(void)
   return result;
 }
 
-HalResult IStream::close(void)
+HalResult IStream::streamClose(void)
 {
   HalResult result = HalResult::NOT_INITIALIZED;
 
   if( mPipe ){
     result = HalResult::OK;
-    stop();
+    streamStop();
     mPipe->unregisterRunnerStatusListener( shared_from_this() );
     mPipe.reset();
     if( mSessionHandler ){
@@ -334,6 +334,7 @@ void IStream::onRunnerStatusChanged(bool bRunning)
     std::vector<std::shared_ptr<ThreadBase>> runnables;
     runnables.push_back( std::dynamic_pointer_cast<ThreadBase>( mPipe->getSinkRef() ) );
     runnables.push_back( std::dynamic_pointer_cast<ThreadBase>( mPipe->getSourceRef() ) );
+    runnables.push_back( std::dynamic_pointer_cast<ThreadBase>( shared_from_this() ) );
 
     for( auto& pRunnable : runnables ){
       if( pRunnable ){
@@ -345,4 +346,10 @@ void IStream::onRunnerStatusChanged(bool bRunning)
       }
     }
   }
+}
+
+
+void IStream::process(void)
+{
+  
 }

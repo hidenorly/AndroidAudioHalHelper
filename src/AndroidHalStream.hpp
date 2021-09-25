@@ -23,9 +23,11 @@
 #include "AndroidHalTypes.hpp"
 #include "PipeMultiThread.hpp"
 #include "ThreadBase.hpp"
+#include <fmq/EventFlag.h>
+#include "deleters.hpp"
 
 
-class IStream : public std::enable_shared_from_this<IStream>, public ThreadBase::RunnerListener
+class IStream : public std::enable_shared_from_this<IStream>, public ThreadBase, public ThreadBase::RunnerListener
 {
 public:
   class StreamSessionHandler
@@ -40,10 +42,12 @@ protected:
   audio_config mConfig;
   std::shared_ptr<StreamSessionHandler> mSessionHandler;
   std::shared_ptr<IPipe> mPipe;
+  std::unique_ptr<::android::hardware::EventFlag, deleters::forEventFlag> mEfGroup;
 
 protected:
   AudioFormat getPipeAudioFormat(void);
   virtual std::vector<AudioFormat> getPipeSupportedAudioFormats(void);
+  virtual void process(void);
 
 public:
   IStream(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr);
@@ -89,9 +93,9 @@ public:
   virtual HalResult getParameters(std::vector<std::string> keys, std::vector<ParameterValue>& values);
   virtual HalResult setParameters(std::vector<ParameterValue> values);
 
-  virtual HalResult start(void);
-  virtual HalResult stop(void);
-  virtual HalResult close(void);
+  virtual HalResult streamStart(void);
+  virtual HalResult streamStop(void);
+  virtual HalResult streamClose(void);
   virtual void onRunnerStatusChanged(bool bRunning);
 };
 

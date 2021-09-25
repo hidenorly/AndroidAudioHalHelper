@@ -110,6 +110,9 @@ protected:
   audio_output_flags_t mOutputFlags;
   SourceMetadata mSourceMetadata;
 
+protected:
+  virtual void process(void);
+
 public:
   IStreamOut(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, audio_output_flags_t flags=AUDIO_OUTPUT_FLAG_NONE, SourceMetadata sourceMetadata=SourceMetadata(), std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr, std::shared_ptr<ISink> pSink = nullptr) : IStream(ioHandle, device, config, pSessionHandler), mSink(pSink), mOutputFlags(flags), mSourceMetadata(sourceMetadata){};
   virtual ~IStreamOut(){};
