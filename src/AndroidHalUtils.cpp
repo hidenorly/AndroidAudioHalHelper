@@ -45,6 +45,18 @@ status_t EventFlag::deleteEventFlag(EventFlag** evFlag)
   return BAD_VALUE;
 }
 
+status_t EventFlag::wake(uint32_t bitmask)
+{
+  status_t status = NO_ERROR;
+  return status;
+}
+
+status_t EventFlag::wait(uint32_t bitmask, uint32_t* efState, int64_t timeoutNanoSeconds, bool retry)
+{
+  status_t status = NO_ERROR;
+  return status;
+}
+
 namespace details {
 
 void logAlwaysFatal(const char *message)

@@ -24,8 +24,14 @@ void IStreamOut::AndroidAudioSource::readPrimitive(IAudioBuffer& buf)
 {
   if( mDataMQ ){
     int availToRead = mDataMQ->availableToRead();
+
+    while( !availToRead ){ // TODO: check this stream is actually running or not (only wait during running)
+      uint32_t efState = 0;
+      mEfGroup->wait( MessageQueueFlagBits::NOT_EMPTY, &efState);
+      availToRead = mDataMQ->availableToRead();
+    }
+
     int nBufSize = buf.getRawBufferSize();
-    availToRead = availToRead ? availToRead : nBufSize;
     nBufSize = nBufSize ? nBufSize : availToRead;
     int nReadSize = std::min(nBufSize, availToRead);
 
@@ -260,13 +266,3 @@ HalResult IStreamOut::setDevices(std::vector<DeviceAddress> devices)
   }
   return result;
 }
-
-
-
-void IStreamOut::process(void)
-{
-  while( mbIsRunning ){
-    
-  }
-}
-

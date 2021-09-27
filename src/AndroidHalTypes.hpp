@@ -121,9 +121,13 @@ struct PlaybackRate {
 #define PAGE_SIZE 4096
 #endif /* PAGE_SIZE */
 
-
 typedef int32_t AudioPatchHandle;
 typedef int32_t AudioPortHandle;
 typedef int32_t AudioIoHandle;
+
+enum MessageQueueFlagBits {
+  NOT_EMPTY = 1 << 0,
+  NOT_FULL = 1 << 1
+};
 
 #endif /* __ANDROID_HAL_TYPES_HPP__ */
