@@ -334,6 +334,7 @@ void IStream::onRunnerStatusChanged(bool bRunning)
     std::vector<std::shared_ptr<ThreadBase>> runnables;
     runnables.push_back( std::dynamic_pointer_cast<ThreadBase>( mPipe->getSinkRef() ) );
     runnables.push_back( std::dynamic_pointer_cast<ThreadBase>( mPipe->getSourceRef() ) );
+    runnables.push_back( std::dynamic_pointer_cast<ThreadBase>( shared_from_this() ) );
 
     for( auto& pRunnable : runnables ){
       if( pRunnable ){
@@ -345,4 +346,9 @@ void IStream::onRunnerStatusChanged(bool bRunning)
       }
     }
   }
+}
+
+
+void IStream::process(void)
+{
 }

@@ -19,6 +19,7 @@
 #include "Buffer.hpp"
 #include "PipeMultiThread.hpp"
 #include "SourceSinkManager.hpp"
+#include <chrono>
 
 void IStreamOut::AndroidAudioSource::readPrimitive(IAudioBuffer& buf)
 {
@@ -28,7 +29,9 @@ void IStreamOut::AndroidAudioSource::readPrimitive(IAudioBuffer& buf)
     while( !availToRead ){ // TODO: check this stream is actually running or not (only wait during running)
       uint32_t efState = 0;
       mEfGroup->wait( MessageQueueFlagBits::NOT_EMPTY, &efState);
-      availToRead = mDataMQ->availableToRead();
+      if( efState & MessageQueueFlagBits::NOT_EMPTY ){
+        availToRead = mDataMQ->availableToRead();
+      }
     }
 
     int nBufSize = buf.getRawBufferSize();
@@ -47,6 +50,17 @@ void IStreamOut::AndroidAudioSource::readPrimitive(IAudioBuffer& buf)
     mStatusMQ->write( &status );
   }
 }
+
+void IStreamOut::AndroidAudioSource::notifyDoRead(void)
+{
+  mEfGroup->wake( MessageQueueFlagBits::NOT_EMPTY );
+}
+
+void IStreamOut::AndroidAudioSource::notifyNextCommand(void)
+{
+  mEfGroup->wake( MessageQueueFlagBits::NOT_FULL );
+}
+
 
 std::shared_ptr<IStreamOut::WritePipeInfo> IStreamOut::prepareForWriting(uint32_t frameSize, uint32_t framesCount)
 {
@@ -265,4 +279,47 @@ HalResult IStreamOut::setDevices(std::vector<DeviceAddress> devices)
     }
   }
   return result;
+}
+
+void IStreamOut::process(void)
+{
+  while( mbIsRunning ){
+    IStreamOut::WriteCommand wCommand;
+
+    if( mWritePipeInfo && mWritePipeInfo->commandMQ && mWritePipeInfo->commandMQ->read( &wCommand ) ){
+      IStreamOut::WriteStatus wStatus;
+        wStatus.retval = HalResult::INVALID_ARGUMENTS;
+        wStatus.replyTo = wCommand;
+        wStatus.reply.written = 0;
+
+      switch (wCommand) {
+        case IStreamOut::WriteCommand::WRITE:
+          if( mSource ){
+            mSource->notifyDoRead(); // wake up the blocking
+          }
+          break;
+
+        case IStreamOut::WriteCommand::GET_PRESENTATION_POSITION:
+          wStatus.reply.presentationPosition = getPresentationPosition();
+          break;
+
+        case IStreamOut::WriteCommand::GET_LATENCY:
+          wStatus.reply.latencyMs = getLatencyMsec();
+          break;
+
+        default:
+          wStatus.retval = HalResult::NOT_SUPPORTED;
+          break;
+      }
+
+      if( mWritePipeInfo->statusMQ ){
+        mWritePipeInfo->statusMQ->write( &wStatus );
+      }
+      if( mSource ){
+        mSource->notifyNextCommand();
+      }
+    } else {
+      std::this_thread::sleep_for(std::chrono::microseconds(10000));
+    }
+  }
 }

@@ -24,7 +24,7 @@
 #include "PipeMultiThread.hpp"
 #include "ThreadBase.hpp"
 
-class IStream : public std::enable_shared_from_this<IStream>, public ThreadBase::RunnerListener
+class IStream : public std::enable_shared_from_this<IStream>, public ThreadBase, public ThreadBase::RunnerListener
 {
 public:
   class StreamSessionHandler
@@ -43,6 +43,9 @@ protected:
 protected:
   AudioFormat getPipeAudioFormat(void);
   virtual std::vector<AudioFormat> getPipeSupportedAudioFormats(void);
+  virtual void process(void);
+
+
 
 public:
   IStream(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr);
