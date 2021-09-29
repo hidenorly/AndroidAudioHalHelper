@@ -115,6 +115,7 @@ std::vector<std::shared_ptr<ISource>> IDevice::getSources(std::vector<audio_port
     SourceSinkManager::associateByAudioPortConfig( aSourceAudioPort );
     std::shared_ptr<ISource> pSource = SourceSinkManager::getSource( aSourceAudioPort );
     if( pSource ){
+      pSource->setAudioFormat( AndroidFormatHelper::getAudioFormatFromAndroidPortConfig( aSourceAudioPort ) );
       pSources.push_back( pSource );
     }
   }
@@ -130,6 +131,7 @@ std::vector<std::shared_ptr<ISink>> IDevice::getSinks(std::vector<audio_port_con
     SourceSinkManager::associateByAudioPortConfig( aSinkAudioPort );
     std::shared_ptr<ISink> pSink = SourceSinkManager::getSink( aSinkAudioPort );
     if( pSink ){
+      pSink->setAudioFormat( AndroidFormatHelper::getAudioFormatFromAndroidPortConfig( aSinkAudioPort ) );
       pSinks.push_back( pSink );
     }
   }
@@ -146,7 +148,6 @@ audio_patch_handle_t IDevice::createAudioPatch(std::vector<audio_port_config> so
   std::vector<std::shared_ptr<ISink>> pSinks = getSinks( sinks );
 
   // TODO: check the source, sink are already used in existing patch or not
-  // TODO: Apply requested audio config (incl. audio format, volume) to the pSource, pSink
 
   if( pSources.size() && pSinks.size() ){
     result = mPatchHandleCount++;
