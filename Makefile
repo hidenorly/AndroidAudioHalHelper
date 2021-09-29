@@ -31,6 +31,7 @@ ANDROID_FMQ_INC=$(ANDROID_HOME)/system/libfmq/include
 ANDROID_UTILS_INC=$(ANDROID_HOME)/system/core/libutils/include
 ANDROID_HIDL_INC=$(ANDROID_HOME)/system/libhidl/base/include
 ANDROID_LOG_INC=$(ANDROID_HOME)/system/core/liblog/include
+ANDROID_LIBFMQ=$(ANDROID_HOME)/out/soong/.intermediates/packages/modules/vndk/apex/com.android.vndk.current/android_common_image/image.apex/lib
 
 # --- source code config --------------
 HELPER_SRCS = $(wildcard $(HELPER_DIR)/*.cpp)
@@ -56,15 +57,21 @@ default: $(HELPER_SO_TARGET)
 $(HELPER_SO_TARGET): $(HELPER_OBJS)
 	@[ -d $(LIB_DIR) ] || mkdir -p $(LIB_DIR)
 	@[ -d $(LIB_HELPER_DIR) ] || mkdir -p $(LIB_HELPER_DIR)
-	$(CXX) $(LDFLAGS) $(SHARED_CXXFLAGS) $(HELPER_OBJS) -o $@ $(LDLIBS) $(AFW_SO_TARGET)
+	$(CXX) $(LDFLAGS) $(SHARED_CXXFLAGS) $(HELPER_OBJS) -o $@ $(LDLIBS) $(AFW_SO_TARGET) $(LIBFMQ)
 
 $(HELPER_OBJS): $(HELPER_SRCS)
 	echo Android home is $(ANDROID_HOME)
 
 	@[ -d $(OBJ_DIR) ] || mkdir -p $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) -I $(INC_DIR) -I $(ANDROID_MEDIA_INC) -I $(ANDROID_CUTIL_INC) -I $(ANDROID_FMQ_INC) -I $(ANDROID_UTILS_INC) -I $(ANDROID_HIDL_INC) -I $(ANDROID_LOG_INC) -c $(HELPER_DIR)/$(notdir $(@:.o=.cpp)) -o $@
+	$(CXX) $(CXXFLAGS) $(EXT_CXXFLAGS) -I $(INC_DIR) -I $(ANDROID_MEDIA_INC) -I $(ANDROID_CUTIL_INC) -I $(ANDROID_FMQ_INC) -I $(ANDROID_UTILS_INC) -I $(ANDROID_HIDL_INC) -I $(ANDROID_LOG_INC) -c $(HELPER_DIR)/$(notdir $(@:.o=.cpp)) -o $@
 
 -include $(HELPER_DEPS)
+
+
+hal: EXT_CXXFLAGS = -DANDROI_AUDIO_HAL_HELPER_STANDALONE_BUILD=0
+hal: LIBFMQ = $(ANDROID_LIBFMQ)/libfmq.so
+hal: $(HELPER_SO_TARGET)
+
 
 # --- clean up ------------------------
 clean:
