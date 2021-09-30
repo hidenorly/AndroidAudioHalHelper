@@ -17,8 +17,10 @@
 #ifndef __AUDIOEFFECT_HELPER_HPP__
 #define __AUDIOEFFECT_HELPER_HPP__
 
+#include <memory>
 #include <string>
 #include "Filter.hpp"
+#include "AndroidHalEffect.hpp"
 
 class AudioEffectHelper
 {
@@ -28,6 +30,9 @@ protected:
 public:
   static void initialize(std::string filterPlugInPath);
   static void terminate(void);
+
+  static void associateEffect(uint64_t effectId, std::string effectIdString);
+  static void associateEffect(std::shared_ptr<IEffect> pEffect, std::string effectIdString);
 
   static std::string getEffectIdString(uint64_t effectId);
   static uint64_t getEffectIdFromEffectIdString(std::string effectIdString);

@@ -23,7 +23,7 @@
 #include "AudioEffectHelper.hpp"
 #include "ParameterHelper.hpp"
 
-// TODO: Input stream and the devices support
+// TODO: the devices support
 
 IDevice::IDevice(audio_module_handle_t hwModule, std::string filterPlugInPath):mMasterVolume(100.0f), mHwModule(hwModule), mPatchHandleCount(0)
 {

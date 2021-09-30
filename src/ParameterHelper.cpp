@@ -35,13 +35,12 @@ HalResult ParameterManagerHelper::getParameters(std::vector<std::string> keys, s
 
 HalResult ParameterManagerHelper::setParameters(std::vector<ParameterValue> values)
 {
-  HalResult result = HalResult::OK;
+  bool result = true;
   std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
 
   for( auto& aParam : values ){
-    pParams->setParameter( aParam.key, aParam.value );
-    // TODO : if needs to check unexpected value, result = HalResult::INVALID_ARGUMENTS
+    result &= pParams->setParameter( aParam.key, aParam.value );
   }
 
-  return result;
+  return result ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
 }

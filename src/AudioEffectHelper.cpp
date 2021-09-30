@@ -26,6 +26,7 @@ void AudioEffectHelper::initialize(std::string filterPlugInPath)
   if( pManager ){
     pManager->initialize();
   }
+  mFiltersIdResolver.clear();
 }
 
 void AudioEffectHelper::terminate(void)
@@ -35,7 +36,21 @@ void AudioEffectHelper::terminate(void)
   if( pManager ){
     pManager->terminate();
   }
+  mFiltersIdResolver.clear();
 }
+
+void AudioEffectHelper::associateEffect(uint64_t effectId, std::string effectIdString)
+{
+  mFiltersIdResolver.insert_or_assign( effectId, effectIdString );
+}
+
+void AudioEffectHelper::associateEffect(std::shared_ptr<IEffect> pEffect, std::string effectIdString)
+{
+  if( pEffect ){
+    associateEffect( pEffect->getEffectId(), effectIdString );
+  }
+}
+
 
 std::string AudioEffectHelper::getEffectIdString(uint64_t effectId)
 {

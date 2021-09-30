@@ -21,7 +21,8 @@ limitations under the License.
 #include <vector>
 #include <system/audio.h>
 
-enum HalResult {
+enum HalResult
+{
   OK,
   NOT_INITIALIZED,
   INVALID_ARGUMENTS,
@@ -31,7 +32,8 @@ enum HalResult {
 
 typedef uint8_t MacAddress[6];
 
-struct DeviceAddress {
+struct DeviceAddress
+{
   uint32_t device;
   union Address {
     MacAddress mac;
@@ -109,7 +111,8 @@ enum TimestretchFallbackMode
   FAIL = 2,
 };
 
-struct PlaybackRate {
+struct PlaybackRate
+{
   float speed;
   float pitch;
   TimestretchMode timestretchMode;
@@ -125,9 +128,25 @@ typedef int32_t AudioPatchHandle;
 typedef int32_t AudioPortHandle;
 typedef int32_t AudioIoHandle;
 
-enum MessageQueueFlagBits {
+enum MessageQueueFlagBits
+{
   NOT_EMPTY = 1 << 0,
   NOT_FULL = 1 << 1
+};
+
+typedef std::string Uuid;
+typedef int32_t AudioSession;
+typedef int32_t EffectFlags;
+
+struct EffectDescriptor
+{
+  Uuid type;
+  Uuid uuid;
+  EffectFlags flags;
+  uint16_t cpuLoad;
+  uint16_t memoryUsage;
+  uint8_t name[64];
+  uint8_t implementor[64];
 };
 
 #endif /* __ANDROID_HAL_TYPES_HPP__ */
