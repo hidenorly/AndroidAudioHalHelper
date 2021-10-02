@@ -20,6 +20,7 @@ limitations under the License.
 #include <string>
 #include <vector>
 #include <system/audio.h>
+#include "Buffer.hpp"
 
 enum HalResult
 {
@@ -64,6 +65,10 @@ typedef uint32_t AudioContentType;
 typedef int32_t AudioDrain;
 typedef int32_t DualMonoMode;
 typedef int32_t AudioSource;
+typedef uint32_t AudioChannelMask;
+typedef uint32_t AndroidAudioFormat;
+typedef uint32_t AudioDevice;
+typedef int32_t AudioMode;
 
 struct PlaybackTrackMetadata
 {
@@ -148,5 +153,56 @@ struct EffectDescriptor
   uint8_t name[64];
   uint8_t implementor[64];
 };
+
+struct AndroidAudioBuffer {
+  uint64_t id;
+  uint32_t frameCount;
+  ByteBuffer buf;
+};
+
+enum EffectBufferAccess
+{
+  ACCESS_WRITE,
+  ACCESS_READ,
+  ACCESS_ACCUMULATE
+};
+
+enum EffectConfigParameters
+{
+  BUFFER = 0x0001,
+  SMP_RATE = 0x0002,
+  CHANNELS = 0x0004,
+  FORMAT = 0x0008,
+  ACC_MODE = 0x0010,
+};
+
+struct EffectBufferConfig
+{
+  AndroidAudioBuffer buffer;
+  uint32_t samplingRateHz;
+  AudioChannelMask channels;
+  AndroidAudioFormat format;
+  EffectBufferAccess accessMode;
+  EffectConfigParameters mask;
+};
+
+struct EffectConfig
+{
+  EffectBufferConfig inputCfg;
+  EffectBufferConfig outputCfg;
+};
+
+struct EffectAuxChannelsConfig
+{
+  AudioChannelMask mainChannels;
+  AudioChannelMask auxChannels;
+};
+
+struct EffectOffloadParameter
+{
+  bool isOffload;
+  AudioIoHandle ioHandle;
+};
+
 
 #endif /* __ANDROID_HAL_TYPES_HPP__ */
