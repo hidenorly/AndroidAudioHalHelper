@@ -26,3 +26,197 @@ IEffect::~IEffect()
 
 }
 
+EffectDescriptor IEffect::getDescriptor(void)
+{
+  EffectDescriptor result;
+
+  return result;
+}
+
+HalResult IEffect::init(void)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+HalResult IEffect::reset(void)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+HalResult IEffect::enable(void)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+HalResult IEffect::disable(void)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+HalResult IEffect::close(void)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+HalResult IEffect::setDevice(AudioDevice device)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+HalResult IEffect::setInputDevice(AudioDevice device)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+HalResult IEffect::setAudioSource(AudioSource source)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+HalResult IEffect::setAudioMode(AudioMode mode)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+
+std::vector<uint32_t> IEffect::setAndGetVolume(std::vector<uint32_t> channelVolumes)
+{
+  std::vector<uint32_t> result;
+
+  return result;
+}
+
+HalResult IEffect::volumeChangeNotification(std::vector<uint32_t> channelVolumes)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+HalResult IEffect::setConfig(const EffectConfig& config, std::shared_ptr<IEffectBufferProviderCallback> inputBufferProvider, std::shared_ptr<IEffectBufferProviderCallback> outputBufferProvider)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+EffectConfig IEffect::getConfig(void)
+{
+  EffectConfig result;
+
+  return result;
+}
+
+HalResult IEffect::setConfigReverse(const EffectConfig& config, std::shared_ptr<IEffectBufferProviderCallback> inputBufferProvider, std::shared_ptr<IEffectBufferProviderCallback> outputBufferProvider)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+EffectConfig IEffect::getConfigReverse(void)
+{
+  EffectConfig result;
+
+  return result;
+}
+
+std::vector<EffectAuxChannelsConfig> IEffect::getSupportedAuxChannelsConfigs(uint32_t maxConfigs)
+{
+  std::vector<EffectAuxChannelsConfig> result;
+
+  return result;
+}
+
+HalResult IEffect::setAuxChannelsConfig(EffectAuxChannelsConfig& config)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+EffectAuxChannelsConfig IEffect::getAuxChannelsConfig(void)
+{
+  EffectAuxChannelsConfig result;
+
+  return result;
+}
+
+HalResult IEffect::offload(EffectOffloadParameter param)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+std::shared_ptr<IEffect::StatusMQ> IEffect::prepareForProcessing(void)
+{
+  std::shared_ptr<IEffect::StatusMQ> result;
+  return result;
+
+}
+
+HalResult IEffect::setProcessBuffers(std::shared_ptr<AndroidAudioBuffer> inBuffer, std::shared_ptr<AndroidAudioBuffer> outBuffer)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+uint32_t IEffect::command(uint32_t commandId, const std::vector<uint8_t>& inData, std::vector<uint8_t>& outData, const uint32_t resultMaxSize)
+{
+  return 0;
+}
+
+HalResult IEffect::setParameter(const std::vector<uint8_t>& parameter, const std::vector<uint8_t>& value)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+HalResult IEffect::getParameter(const std::vector<uint8_t>& parameter, std::vector<uint8_t>& outValue, const uint32_t valueMaxSize)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+std::vector<uint8_t> IEffect::getSupportedConfigsForFeature(uint32_t featureId, uint32_t maxConfigs, uint32_t configSize)
+{
+  std::vector<uint8_t> result;
+
+  return result;
+}
+
+HalResult IEffect::setCurrentConfigForFeature(uint32_t featureId, const std::vector<uint8_t>& configData)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
+
+HalResult IEffect::getCurrentConfigForFeature(uint32_t featureId, std::vector<uint8_t>& outConfigData, uint32_t configSize)
+{
+  HalResult result = HalResult::OK;
+
+  return result;
+}
