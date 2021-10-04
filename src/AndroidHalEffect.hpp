@@ -24,6 +24,7 @@
 #include <fmq/MessageQueue.h>
 
 #include "Filter.hpp"
+#include "Pipe.hpp"
 
 class IEffectBufferProviderCallback;
 
@@ -31,12 +32,15 @@ class IEffect
 {
 protected:
   std::shared_ptr<IFilter> mFilter;
+  std::shared_ptr<IPipe> mPipe;
+  std::string mUuid;
 
 public:
-  IEffect(std::shared_ptr<IFilter> pFilter);
+  IEffect(std::string uuid = "", std::shared_ptr<IFilter> pFilter = nullptr);
   virtual ~IEffect();
 
   uint64_t getEffectId(void);
+  std::string getUuidId(void);
   EffectDescriptor getDescriptor(void);
 
   HalResult init(void);

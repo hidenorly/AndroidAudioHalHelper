@@ -16,7 +16,7 @@
 
 #include "AndroidHalEffect.hpp"
 
-IEffect::IEffect(std::shared_ptr<IFilter> pFilter):mFilter(pFilter)
+IEffect::IEffect(std::string uuid, std::shared_ptr<IFilter> pFilter):mUuid(uuid), mFilter(pFilter)
 {
 
 }
@@ -31,9 +31,25 @@ uint64_t IEffect::getEffectId(void)
   return reinterpret_cast<uint64_t>( mFilter.get() );
 }
 
+std::string IEffect::getUuidId(void)
+{
+  return mUuid;
+}
+
 EffectDescriptor IEffect::getDescriptor(void)
 {
   EffectDescriptor result;
+  result.uuid = mUuid;
+
+  if( mFilter ){
+    //result.flags = // TODO: get flags from AudioEffectHelper
+    result.cpuLoad = mFilter->getExpectedProcessingUSec();
+    std::shared_ptr<FilterPlugIn> pPlugIn = std::dynamic_pointer_cast<FilterPlugIn>(mFilter);
+    if( pPlugIn ){
+      strncpy( (char*)result.name, pPlugIn->toString().c_str(), sizeof( result.name ) );
+      strncpy( (char*)result.implementor, pPlugIn->toString().c_str(), sizeof( result.implementor ) );
+    }
+  }
 
   return result;
 }
@@ -56,6 +72,10 @@ HalResult IEffect::enable(void)
 {
   HalResult result = HalResult::OK;
 
+  if( mPipe ){
+    mPipe->run();
+  }
+
   return result;
 }
 
@@ -63,12 +83,21 @@ HalResult IEffect::disable(void)
 {
   HalResult result = HalResult::OK;
 
+  if( mPipe ){
+    mPipe->stop();
+  }
+
   return result;
 }
 
 HalResult IEffect::close(void)
 {
   HalResult result = HalResult::OK;
+
+  if( mPipe ){
+    mPipe->stop();
+    mPipe.reset();
+  }
 
   return result;
 }
