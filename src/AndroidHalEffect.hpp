@@ -23,18 +23,20 @@
 #include <stdint.h>
 #include <fmq/MessageQueue.h>
 
+#include "Filter.hpp"
+
 class IEffectBufferProviderCallback;
 
 class IEffect
 {
 protected:
-  uint64_t mEffectId;
+  std::shared_ptr<IFilter> mFilter;
 
 public:
-  IEffect(uint64_t effectId = 0);
+  IEffect(std::shared_ptr<IFilter> pFilter);
   virtual ~IEffect();
 
-  uint64_t getEffectId(void){ return mEffectId; };
+  uint64_t getEffectId(void);
   EffectDescriptor getDescriptor(void);
 
   HalResult init(void);

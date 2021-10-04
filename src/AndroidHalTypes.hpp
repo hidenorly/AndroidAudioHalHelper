@@ -152,12 +152,17 @@ struct EffectDescriptor
   uint16_t memoryUsage;
   uint8_t name[64];
   uint8_t implementor[64];
+  EffectDescriptor():type(""), uuid(""), flags(0), cpuLoad(0), memoryUsage(0){
+    memset(name, 0, sizeof(name));
+    memset(implementor, 0, sizeof(implementor));
+  };
 };
 
 struct AndroidAudioBuffer {
   uint64_t id;
   uint32_t frameCount;
   ByteBuffer buf;
+  AndroidAudioBuffer():id(0), frameCount(0){};
 };
 
 enum EffectBufferAccess
@@ -167,7 +172,7 @@ enum EffectBufferAccess
   ACCESS_ACCUMULATE
 };
 
-enum EffectConfigParameters
+enum EffectConfigParameter
 {
   BUFFER = 0x0001,
   SMP_RATE = 0x0002,
@@ -175,6 +180,7 @@ enum EffectConfigParameters
   FORMAT = 0x0008,
   ACC_MODE = 0x0010,
 };
+typedef int32_t EffectConfigParameters;
 
 struct EffectBufferConfig
 {
@@ -184,6 +190,8 @@ struct EffectBufferConfig
   AndroidAudioFormat format;
   EffectBufferAccess accessMode;
   EffectConfigParameters mask;
+
+  EffectBufferConfig():buffer(), samplingRateHz(0), channels(0), format(0), accessMode(EffectBufferAccess::ACCESS_ACCUMULATE), mask(EffectConfigParameter::BUFFER | EffectConfigParameter::SMP_RATE | EffectConfigParameter::CHANNELS | EffectConfigParameter::FORMAT | EffectConfigParameter::ACC_MODE){};
 };
 
 struct EffectConfig
@@ -196,12 +204,14 @@ struct EffectAuxChannelsConfig
 {
   AudioChannelMask mainChannels;
   AudioChannelMask auxChannels;
+  EffectAuxChannelsConfig():mainChannels(0), auxChannels(0){};
 };
 
 struct EffectOffloadParameter
 {
   bool isOffload;
   AudioIoHandle ioHandle;
+  EffectOffloadParameter():isOffload(false), ioHandle(0){};
 };
 
 

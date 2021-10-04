@@ -16,7 +16,7 @@
 
 #include "AndroidHalEffect.hpp"
 
-IEffect::IEffect(uint64_t effectId):mEffectId(effectId)
+IEffect::IEffect(std::shared_ptr<IFilter> pFilter):mFilter(pFilter)
 {
 
 }
@@ -24,6 +24,11 @@ IEffect::IEffect(uint64_t effectId):mEffectId(effectId)
 IEffect::~IEffect()
 {
 
+}
+
+uint64_t IEffect::getEffectId(void)
+{
+  return reinterpret_cast<uint64_t>( mFilter.get() );
 }
 
 EffectDescriptor IEffect::getDescriptor(void)
