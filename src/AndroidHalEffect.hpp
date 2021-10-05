@@ -18,6 +18,7 @@
 #define __ANDROID_HAL_EFFECT_HPP__
 
 #include "AndroidHalTypes.hpp"
+#include "AndroidHalEffectBufferProvider.hpp"
 #include <vector>
 #include <memory>
 #include <stdint.h>
@@ -26,14 +27,13 @@
 #include "Filter.hpp"
 #include "Pipe.hpp"
 
-class IEffectBufferProviderCallback;
 
 class IEffect
 {
 protected:
+  std::string mUuid;
   std::shared_ptr<IFilter> mFilter;
   std::shared_ptr<IPipe> mPipe;
-  std::string mUuid;
 
 public:
   IEffect(std::string uuid = "", std::shared_ptr<IFilter> pFilter = nullptr);
@@ -42,6 +42,7 @@ public:
   uint64_t getEffectId(void);
   std::string getUuidId(void);
   EffectDescriptor getDescriptor(void);
+  EffectFlags getDefaultEffectFlags(void);
 
   HalResult init(void);
   HalResult reset(void);
@@ -77,10 +78,10 @@ public:
   std::shared_ptr<StatusMQ> prepareForProcessing(void);
   HalResult setProcessBuffers(std::shared_ptr<AndroidAudioBuffer> inBuffer, std::shared_ptr<AndroidAudioBuffer> outBuffer);
 
+  // vendor specific command & parameters
   uint32_t command(uint32_t commandId, const std::vector<uint8_t>& inData, std::vector<uint8_t>& outData, const uint32_t resultMaxSize = UINT_MAX);
   HalResult setParameter(const std::vector<uint8_t>& parameter, const std::vector<uint8_t>& value);
   HalResult getParameter(const std::vector<uint8_t>& parameter, std::vector<uint8_t>& outValue, const uint32_t valueMaxSize = UINT_MAX);
-
   std::vector<uint8_t> getSupportedConfigsForFeature(uint32_t featureId, uint32_t maxConfigs = UINT_MAX, uint32_t configSize = UINT_MAX);
   HalResult setCurrentConfigForFeature(uint32_t featureId, const std::vector<uint8_t>& configData);
   HalResult getCurrentConfigForFeature(uint32_t featureId, std::vector<uint8_t>& outConfigData, uint32_t configSize = UINT_MAX);

@@ -15,6 +15,7 @@
 */
 
 #include "AndroidHalEffect.hpp"
+#include <iostream>
 
 IEffect::IEffect(std::string uuid, std::shared_ptr<IFilter> pFilter):mUuid(uuid), mFilter(pFilter)
 {
@@ -36,13 +37,30 @@ std::string IEffect::getUuidId(void)
   return mUuid;
 }
 
+EffectFlags IEffect::getDefaultEffectFlags(void)
+{
+  EffectFlags result =
+    EffectFlag::TYPE_POST_PROC |
+    EffectFlag::INSERT_ANY |
+    EffectFlag::VOLUME_NONE |
+    EffectFlag::DEVICE_IND |
+    EffectFlag::INPUT_DIRECT |
+    EffectFlag::OUTPUT_DIRECT |
+    EffectFlag::HW_ACC_TUNNEL |
+    EffectFlag::AUDIO_MODE_IND |
+    EffectFlag::AUDIO_SOURCE_IND |
+    EffectFlag::OFFLOAD_SUPPORTED;
+
+  return result;
+}
+
 EffectDescriptor IEffect::getDescriptor(void)
 {
   EffectDescriptor result;
   result.uuid = mUuid;
 
   if( mFilter ){
-    //result.flags = // TODO: get flags from AudioEffectHelper
+    result.flags = getDefaultEffectFlags();
     result.cpuLoad = mFilter->getExpectedProcessingUSec();
     std::shared_ptr<FilterPlugIn> pPlugIn = std::dynamic_pointer_cast<FilterPlugIn>(mFilter);
     if( pPlugIn ){
@@ -126,6 +144,37 @@ HalResult IEffect::setAudioSource(AudioSource source)
 HalResult IEffect::setAudioMode(AudioMode mode)
 {
   HalResult result = HalResult::OK;
+
+  enum AudioModeVal
+  {
+    NORMAL           = 0,
+    RINGTONE         = 1,
+    IN_CALL          = 2,
+    IN_COMMUNICATION = 3,
+    CALL_SCREEN      = 4,
+  };
+
+  std::string modeString;
+  switch( mode )
+  {
+    case AudioModeVal::NORMAL:
+      modeString = "NORMAL";
+      break;
+    case AudioModeVal::RINGTONE:
+      modeString = "RINGTONE";
+      break;
+    case AudioModeVal::IN_CALL:
+      modeString = "IN_CALL";
+      break;
+    case AudioModeVal::IN_COMMUNICATION:
+      modeString = "IN_COMMUNICATION";
+      break;
+    case AudioModeVal::CALL_SCREEN:
+      modeString = "CALL_SCREEN";
+      break;
+  }
+
+  std::cout << "setMode( " << modeString << " )" << std::endl;
 
   return result;
 }
