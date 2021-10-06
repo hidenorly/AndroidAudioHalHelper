@@ -34,7 +34,7 @@
 class IDevice : public IStream::StreamSessionHandler, public std::enable_shared_from_this<IDevice>
 {
 protected:
-  std::map<AudioIoHandle, std::shared_ptr<IStream>> mStreams;
+  static inline std::map<AudioIoHandle, std::shared_ptr<IStream>> mStreams;
   std::map<audio_patch_handle_t, std::shared_ptr<PatchPanel>> mPatchPanels;
   float mMasterVolume;
   audio_module_handle_t mHwModule;
@@ -49,7 +49,6 @@ protected:
 public:
   IDevice(audio_module_handle_t hwModule, std::string filterPlugInPath=".");
   virtual ~IDevice();
-
 
   virtual HalResult initCheck(void);
   virtual HalResult close(void);
@@ -88,6 +87,8 @@ public:
   virtual AudioHwSync getHwAvSync(void);
 
   virtual HalResult setScreenState(bool turnedOn);
+
+  static std::shared_ptr<IStream> getStreamByIoHandle(AudioIoHandle ioHandle);
 };
 
 #endif /* __ANDROID_HAL_DEVICE_HPP__ */

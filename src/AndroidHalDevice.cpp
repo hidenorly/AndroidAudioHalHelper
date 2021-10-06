@@ -35,6 +35,16 @@ IDevice::~IDevice()
   AudioEffectHelper::terminate();
 }
 
+std::shared_ptr<IStream> IDevice::getStreamByIoHandle(AudioIoHandle ioHandle)
+{
+  std::shared_ptr<IStream> result;
+
+  if( mStreams.contains( ioHandle) ){
+    result = mStreams[ ioHandle ];
+  }
+
+  return result;
+}
 
 
 HalResult IDevice::initCheck(void)

@@ -34,6 +34,11 @@ protected:
   std::string mUuid;
   std::shared_ptr<IFilter> mFilter;
   std::shared_ptr<IPipe> mPipe;
+  EffectConfig mEffectConfig;
+  AudioFormat mInputFormat;
+  AudioFormat mOutputFormat;
+  std::shared_ptr<IEffectBufferProviderCallback> mInputBufferProvider;
+  std::shared_ptr<IEffectBufferProviderCallback> mOutputBufferProvider;
 
 public:
   IEffect(std::string uuid = "", std::shared_ptr<IFilter> pFilter = nullptr);

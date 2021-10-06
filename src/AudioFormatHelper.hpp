@@ -20,6 +20,7 @@
 #include "AudioFormat.hpp"
 #include <system/audio.h>
 #include <stdint.h>
+#include "AndroidHalTypes.hpp"
 
 #include "PipeAndFilterCommon.hpp"
 
@@ -29,12 +30,13 @@ public:
   static AudioFormat::ENCODING getEncodingFromAndroidEncoding(audio_format_t androidEncoding);
   static audio_format_t getAndroidEncodingFromEncoding(AudioFormat::ENCODING afwEncoding);
 
-  static AudioFormat::CHANNEL getChannelFromAndroidChannel(uint32_t androidChannel);
-  static int getAndroidChannelFromChannel(AudioFormat::CHANNEL afwChannel);
+  static AudioFormat::CHANNEL getChannelFromAndroidChannel(AudioChannelMask androidChannel);
+  static AudioChannelMask getAndroidChannelFromChannel(AudioFormat::CHANNEL afwChannel);
 
   static audio_config getAndroidAudioConfigFromAudioFormat(AudioFormat afwFormat);
   static AudioFormat getAudioFormatFromAndroidPortConfig(const audio_port_config& audioPortConfig);
   static AudioFormat getAudioFormatFromAndroidAudioConfig(const audio_config& audioConfig);
+  static AudioFormat getAudioFormatFromAndroidEffectConfig(const EffectBufferConfig& effectConfig);
 };
 
 #endif /* __AUDIO_FORMAT_HELPER_HPP__ */

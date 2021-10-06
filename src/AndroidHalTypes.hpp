@@ -66,7 +66,7 @@ typedef int32_t AudioDrain;
 typedef int32_t DualMonoMode;
 typedef int32_t AudioSource;
 typedef uint32_t AudioChannelMask;
-typedef uint32_t AndroidAudioFormat;
+typedef audio_format_t AndroidAudioFormat;
 typedef uint32_t AudioDevice;
 typedef int32_t AudioMode;
 
@@ -268,7 +268,7 @@ struct EffectBufferConfig
   EffectBufferAccess accessMode;
   EffectConfigParameters mask;
 
-  EffectBufferConfig():buffer(), samplingRateHz(0), channels(0), format(0), accessMode(EffectBufferAccess::ACCESS_ACCUMULATE), mask(EffectConfigParameter::BUFFER | EffectConfigParameter::SMP_RATE | EffectConfigParameter::CHANNELS | EffectConfigParameter::FORMAT | EffectConfigParameter::ACC_MODE){};
+  EffectBufferConfig():buffer(), samplingRateHz(0), channels(0), format(AUDIO_FORMAT_DEFAULT), accessMode(EffectBufferAccess::ACCESS_ACCUMULATE), mask(EffectConfigParameter::BUFFER | EffectConfigParameter::SMP_RATE | EffectConfigParameter::CHANNELS | EffectConfigParameter::FORMAT | EffectConfigParameter::ACC_MODE){};
 };
 
 struct EffectConfig

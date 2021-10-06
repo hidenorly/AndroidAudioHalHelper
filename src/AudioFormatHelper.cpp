@@ -169,7 +169,7 @@ AudioChannelConversionTable* getAudioChannelConversionTable(void)
   return conversionTable;
 }
 
-AudioFormat::CHANNEL AndroidFormatHelper::getChannelFromAndroidChannel(uint32_t androidChannel)
+AudioFormat::CHANNEL AndroidFormatHelper::getChannelFromAndroidChannel(AudioChannelMask androidChannel)
 {
   AudioFormat::CHANNEL result = AudioFormat::CHANNEL::CHANNEL_DEFAULT;
   AudioChannelConversionTable* pTable = getAudioChannelConversionTable();
@@ -184,7 +184,7 @@ AudioFormat::CHANNEL AndroidFormatHelper::getChannelFromAndroidChannel(uint32_t 
   return result;
 }
 
-int AndroidFormatHelper::getAndroidChannelFromChannel(AudioFormat::CHANNEL afwChannel)
+AudioChannelMask AndroidFormatHelper::getAndroidChannelFromChannel(AudioFormat::CHANNEL afwChannel)
 {
   uint32_t result = AUDIO_CHANNEL_OUT_STEREO;
   AudioChannelConversionTable* pTable = getAudioChannelConversionTable();
@@ -222,5 +222,14 @@ AudioFormat AndroidFormatHelper::getAudioFormatFromAndroidPortConfig(const audio
 AudioFormat AndroidFormatHelper::getAudioFormatFromAndroidAudioConfig(const audio_config& config)
 {
   return AudioFormat( getEncodingFromAndroidEncoding( config.format ), config.sample_rate, getChannelFromAndroidChannel( config.channel_mask ) );
+}
+
+AudioFormat AndroidFormatHelper::getAudioFormatFromAndroidEffectConfig(const EffectBufferConfig& effectConfig)
+{
+  AudioFormat result(
+    getEncodingFromAndroidEncoding(effectConfig.format),
+    effectConfig.samplingRateHz,
+    getChannelFromAndroidChannel( effectConfig.channels ) );
+  return result;
 }
 

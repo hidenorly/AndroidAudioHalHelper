@@ -15,7 +15,9 @@
 */
 
 #include "AndroidHalEffect.hpp"
+#include "AudioFormatHelper.hpp"
 #include <iostream>
+#include "AndroidHalDevice.hpp"
 
 IEffect::IEffect(std::string uuid, std::shared_ptr<IFilter> pFilter):mUuid(uuid), mFilter(pFilter)
 {
@@ -76,6 +78,13 @@ HalResult IEffect::init(void)
 {
   HalResult result = HalResult::OK;
 
+  mEffectConfig = EffectConfig();
+  mInputFormat = AudioFormat();
+  mOutputFormat = AudioFormat();
+  mInputBufferProvider.reset();
+  mOutputBufferProvider.reset();
+
+
   return result;
 }
 
@@ -120,6 +129,7 @@ HalResult IEffect::close(void)
   return result;
 }
 
+// for output
 HalResult IEffect::setDevice(AudioDevice device)
 {
   HalResult result = HalResult::OK;
@@ -127,6 +137,7 @@ HalResult IEffect::setDevice(AudioDevice device)
   return result;
 }
 
+// for input chain
 HalResult IEffect::setInputDevice(AudioDevice device)
 {
   HalResult result = HalResult::OK;
@@ -134,6 +145,7 @@ HalResult IEffect::setInputDevice(AudioDevice device)
   return result;
 }
 
+// for input chain
 HalResult IEffect::setAudioSource(AudioSource source)
 {
   HalResult result = HalResult::OK;
@@ -198,28 +210,28 @@ HalResult IEffect::setConfig(const EffectConfig& config, std::shared_ptr<IEffect
 {
   HalResult result = HalResult::OK;
 
+  mEffectConfig = config;
+  mInputFormat = AndroidFormatHelper::getAudioFormatFromAndroidEffectConfig( config.inputCfg );
+  mOutputFormat = AndroidFormatHelper::getAudioFormatFromAndroidEffectConfig( config.outputCfg );
+  mInputBufferProvider = inputBufferProvider;
+  mOutputBufferProvider = outputBufferProvider;
+
   return result;
 }
 
 EffectConfig IEffect::getConfig(void)
 {
-  EffectConfig result;
-
-  return result;
+  return mEffectConfig;
 }
 
 HalResult IEffect::setConfigReverse(const EffectConfig& config, std::shared_ptr<IEffectBufferProviderCallback> inputBufferProvider, std::shared_ptr<IEffectBufferProviderCallback> outputBufferProvider)
 {
-  HalResult result = HalResult::OK;
-
-  return result;
+  return setConfig(config, inputBufferProvider, outputBufferProvider);
 }
 
 EffectConfig IEffect::getConfigReverse(void)
 {
-  EffectConfig result;
-
-  return result;
+  return getConfig();
 }
 
 std::vector<EffectAuxChannelsConfig> IEffect::getSupportedAuxChannelsConfigs(uint32_t maxConfigs)
@@ -246,6 +258,12 @@ EffectAuxChannelsConfig IEffect::getAuxChannelsConfig(void)
 HalResult IEffect::offload(EffectOffloadParameter param)
 {
   HalResult result = HalResult::OK;
+  if( param.isOffload ){
+    std::shared_ptr<IStream> pStream = IDevice::getStreamByIoHandle( param.ioHandle );
+    if( pStream ){
+      pStream->addEffect( getEffectId() );
+    }
+  }
 
   return result;
 }
