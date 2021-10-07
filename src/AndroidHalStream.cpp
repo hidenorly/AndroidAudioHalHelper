@@ -23,7 +23,7 @@
 #include "SourceSinkManager.hpp"
 
 
-IStream::IStream(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, std::shared_ptr<StreamSessionHandler> pSessionHandler):mIoHandle(ioHandle), mDeviceAddr(device), mConfig(config), mSessionHandler(pSessionHandler)
+IStream::IStream(AudioIoHandle ioHandle, DeviceAddress device, AudioConfig config, std::shared_ptr<StreamSessionHandler> pSessionHandler):mIoHandle(ioHandle), mDeviceAddr(device), mConfig(config), mSessionHandler(pSessionHandler)
 {
   mPipe = std::make_shared<PipeMultiThread>();
   mPipe->registerRunnerStatusListener( shared_from_this() );
@@ -39,7 +39,7 @@ IStream::~IStream()
 }
 
 
-audio_config IStream::getSuggestedConfig(void)
+AudioConfig IStream::getSuggestedConfig(void)
 {
   return AndroidFormatHelper::getAndroidAudioConfigFromAudioFormat( mPipe ? mPipe->getFilterAudioFormat() : AudioFormat() );
 }
@@ -114,7 +114,7 @@ uint32_t IStream::getSampleRate(void)
   return getPipeAudioFormat().getSamplingRate();
 }
 
-std::vector<uint32_t> IStream::getSupportedSampleRates(audio_format_t androidEncoding)
+std::vector<uint32_t> IStream::getSupportedSampleRates(AndroidAudioFormat androidEncoding)
 {
   std::vector<uint32_t> result;
   AudioFormat::ENCODING afwEncoding = AndroidFormatHelper::getEncodingFromAndroidEncoding(androidEncoding);
@@ -144,14 +144,14 @@ HalResult IStream::setSampleRate(uint32_t sampleRateHz)
 }
 
 
-audio_channel_mask_t IStream::getChannelMask(void)
+AudioChannelMask IStream::getChannelMask(void)
 {
   return AndroidFormatHelper::getAndroidChannelFromChannel( getPipeAudioFormat().getChannels() );
 }
 
-std::vector<audio_channel_mask_t> IStream::getSupportedChannelMasks(audio_format_t androidEncoding)
+std::vector<AudioChannelMask> IStream::getSupportedChannelMasks(AndroidAudioFormat androidEncoding)
 {
-  std::vector<audio_channel_mask_t> result;
+  std::vector<AudioChannelMask> result;
   AudioFormat::ENCODING afwEncoding = AndroidFormatHelper::getEncodingFromAndroidEncoding(androidEncoding);
 
   auto&& supportedFormats = getPipeSupportedAudioFormats();
@@ -164,7 +164,7 @@ std::vector<audio_channel_mask_t> IStream::getSupportedChannelMasks(audio_format
   return result;
 }
 
-HalResult IStream::setChannelMask(audio_channel_mask_t mask)
+HalResult IStream::setChannelMask(AudioChannelMask mask)
 {
   HalResult result = HalResult::NOT_INITIALIZED;
   if( mPipe ){
@@ -179,15 +179,15 @@ HalResult IStream::setChannelMask(audio_channel_mask_t mask)
 }
 
 
-audio_format_t IStream::getFormat(void)
+AndroidAudioFormat IStream::getFormat(void)
 {
   return AndroidFormatHelper::getAndroidEncodingFromEncoding( getPipeAudioFormat().getEncoding() );
 }
 
 
-std::vector<audio_format_t> IStream::getSupportedFormats(void)
+std::vector<AndroidAudioFormat> IStream::getSupportedFormats(void)
 {
-  std::vector<audio_format_t> result;
+  std::vector<AndroidAudioFormat> result;
   std::set<AudioFormat::ENCODING> encodings;
 
   auto&& supportedFormats = getPipeSupportedAudioFormats();
@@ -201,7 +201,7 @@ std::vector<audio_format_t> IStream::getSupportedFormats(void)
   return result;
 }
 
-HalResult IStream::setFormat(audio_format_t androidFormatEncoding)
+HalResult IStream::setFormat(AndroidAudioFormat androidFormatEncoding)
 {
   HalResult result = HalResult::NOT_INITIALIZED;
   if( mPipe ){

@@ -25,7 +25,7 @@
 
 // TODO: the devices support
 
-IDevice::IDevice(audio_module_handle_t hwModule, std::string filterPlugInPath):mMasterVolume(100.0f), mHwModule(hwModule), mPatchHandleCount(0)
+IDevice::IDevice(AudioModuleHandle hwModule, std::string filterPlugInPath):mMasterVolume(100.0f), mHwModule(hwModule), mPatchHandleCount(0)
 {
   AudioEffectHelper::initialize( filterPlugInPath );
 }
@@ -62,11 +62,11 @@ HalResult IDevice::close(void)
 HalResult IDevice::openOutputStream(
   AudioIoHandle ioHandle,
     DeviceAddress deviceAddr,
-    audio_config config,
-    audio_output_flags_t flags,
+    AudioConfig config,
+    AudioOutputFlags flags,
     SourceMetadata sourceMetadata,
   std::shared_ptr<IStreamOut>& pOutStream,
-    audio_config& outSuggestedConfig)
+    AudioConfig& outSuggestedConfig)
 {
   pOutStream = std::make_shared<IStreamOut>( ioHandle, deviceAddr, config, flags, sourceMetadata, shared_from_this(), SourceSinkManager::getSink(deviceAddr) );
   outSuggestedConfig = pOutStream->getSuggestedConfig();
@@ -79,11 +79,11 @@ HalResult IDevice::openOutputStream(
 HalResult IDevice::openInputStream(
   AudioIoHandle ioHandle,
     DeviceAddress deviceAddr,
-    audio_config config,
-    audio_input_flags_t flags,
+    AudioConfig config,
+    AudioInputFlags flags,
     SinkMetadata sinkMetadata,
   std::shared_ptr<IStreamIn>& pOutInStream,
-    audio_config& outSuggestedConfig)
+    AudioConfig& outSuggestedConfig)
 {
   pOutInStream = std::make_shared<IStreamIn>( ioHandle, deviceAddr, config, flags, sinkMetadata, shared_from_this(), SourceSinkManager::getSource(deviceAddr) );
   outSuggestedConfig = pOutInStream->getSuggestedConfig();
@@ -117,7 +117,7 @@ bool IDevice::supportsAudioPatches(void)
   return true;
 }
 
-std::vector<std::shared_ptr<ISource>> IDevice::getSources(std::vector<audio_port_config> sources)
+std::vector<std::shared_ptr<ISource>> IDevice::getSources(std::vector<AudioPortConfig> sources)
 {
   std::vector<std::shared_ptr<ISource>> pSources;
 
@@ -133,7 +133,7 @@ std::vector<std::shared_ptr<ISource>> IDevice::getSources(std::vector<audio_port
   return pSources;
 }
 
-std::vector<std::shared_ptr<ISink>> IDevice::getSinks(std::vector<audio_port_config> sinks)
+std::vector<std::shared_ptr<ISink>> IDevice::getSinks(std::vector<AudioPortConfig> sinks)
 {
   std::vector<std::shared_ptr<ISink>> pSinks;
 
@@ -150,9 +150,9 @@ std::vector<std::shared_ptr<ISink>> IDevice::getSinks(std::vector<audio_port_con
 }
 
 
-audio_patch_handle_t IDevice::createAudioPatch(std::vector<audio_port_config> sources, std::vector<audio_port_config> sinks)
+AudioPatchHandle IDevice::createAudioPatch(std::vector<AudioPortConfig> sources, std::vector<AudioPortConfig> sinks)
 {
-  audio_patch_handle_t result = 0;
+  AudioPatchHandle result = 0;
 
   std::vector<std::shared_ptr<ISource>> pSources = getSources( sources );
   std::vector<std::shared_ptr<ISink>> pSinks = getSinks( sinks );
@@ -170,9 +170,9 @@ audio_patch_handle_t IDevice::createAudioPatch(std::vector<audio_port_config> so
   return result;
 }
 
-audio_patch_handle_t IDevice::updateAudioPatch(audio_patch_handle_t previousPatch, std::vector<audio_port_config> sources, std::vector<audio_port_config> sinks)
+AudioPatchHandle IDevice::updateAudioPatch(AudioPatchHandle previousPatch, std::vector<AudioPortConfig> sources, std::vector<AudioPortConfig> sinks)
 {
-  audio_patch_handle_t result = 0;
+  AudioPatchHandle result = 0;
 
   std::vector<std::shared_ptr<ISource>> pSources = getSources( sources );
   std::vector<std::shared_ptr<ISink>> pSinks = getSinks( sinks );
@@ -194,7 +194,7 @@ audio_patch_handle_t IDevice::updateAudioPatch(audio_patch_handle_t previousPatc
   return result;
 }
 
-HalResult IDevice::releaseAudioPatch(audio_patch_handle_t patch)
+HalResult IDevice::releaseAudioPatch(AudioPatchHandle patch)
 {
   HalResult result = HalResult::INVALID_ARGUMENTS;
 
@@ -209,9 +209,9 @@ HalResult IDevice::releaseAudioPatch(audio_patch_handle_t patch)
 }
 
 
-audio_port IDevice::getAudioPort(audio_port port)
+AudioPort IDevice::getAudioPort(AudioPort port)
 {
-  audio_port result = port;
+  AudioPort result = port;
 
   if( port.type == AUDIO_PORT_TYPE_DEVICE ){
     AndroidAudioPortHelper::getAndroidPortFromSourceSink(&result, SourceSinkManager::getSink( port ), port.ext.device.address, mHwModule, port.ext.device.type );
@@ -221,7 +221,7 @@ audio_port IDevice::getAudioPort(audio_port port)
   return result;
 }
 
-HalResult IDevice::setAudioPortConfig(audio_port_config config)
+HalResult IDevice::setAudioPortConfig(AudioPortConfig config)
 {
   HalResult result = HalResult::INVALID_ARGUMENTS;
 
@@ -236,7 +236,7 @@ HalResult IDevice::setAudioPortConfig(audio_port_config config)
   return result;
 }
 
-std::shared_ptr<IStream> IDevice::getStream(audio_port_handle_t device)
+std::shared_ptr<IStream> IDevice::getStream(AudioPortHandle device)
 {
   std::shared_ptr<IStream> result;
 
@@ -258,7 +258,7 @@ std::shared_ptr<IStream> IDevice::getStream(audio_port_handle_t device)
   return result;
 }
 
-std::shared_ptr<IPipe> IDevice::getPipe(audio_port_handle_t device)
+std::shared_ptr<IPipe> IDevice::getPipe(AudioPortHandle device)
 {
   std::shared_ptr<IPipe> result;
 
@@ -271,7 +271,7 @@ std::shared_ptr<IPipe> IDevice::getPipe(audio_port_handle_t device)
 }
 
 
-HalResult IDevice::addDeviceEffect(audio_port_handle_t device, uint64_t effectId)
+HalResult IDevice::addDeviceEffect(AudioPortHandle device, uint64_t effectId)
 {
   HalResult result = HalResult::INVALID_ARGUMENTS;
 
@@ -287,7 +287,7 @@ HalResult IDevice::addDeviceEffect(audio_port_handle_t device, uint64_t effectId
   return result;
 }
 
-HalResult IDevice::removeDeviceEffect(audio_port_handle_t device, uint64_t effectId)
+HalResult IDevice::removeDeviceEffect(AudioPortHandle device, uint64_t effectId)
 {
   HalResult result = HalResult::INVALID_ARGUMENTS;
 
@@ -338,12 +338,12 @@ bool IDevice::getMicMute(void)
   return false;
 }
 
-std::vector<audio_microphone_characteristic_t> IDevice::getMicrophones(void)
+std::vector<AudioMicrophoneCharacteristic> IDevice::getMicrophones(void)
 {
-  return std::vector<audio_microphone_characteristic_t>();
+  return std::vector<AudioMicrophoneCharacteristic>();
 }
 
-uint64_t IDevice::getInputBufferSize(audio_config config)
+uint64_t IDevice::getInputBufferSize(AudioConfig config)
 {
   AudioFormat format = AndroidFormatHelper::getAudioFormatFromAndroidAudioConfig( config );
 

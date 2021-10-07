@@ -21,7 +21,7 @@
 #include <set>
 #include <functional>
 
-void AndroidAudioPortHelper::getAndroidPortFromSourceSink(audio_port* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, audio_module_handle_t hwModule, int androidAudioDeviceType)
+void AndroidAudioPortHelper::getAndroidPortFromSourceSink(AudioPort* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, AudioModuleHandle hwModule, AudioDevice androidAudioDeviceType)
 {
   if( pOutAudioPort && pSourceSink ){
     pOutAudioPort->id = std::hash<std::string>()( pSourceSink->toString() );
@@ -36,8 +36,8 @@ void AndroidAudioPortHelper::getAndroidPortFromSourceSink(audio_port* pOutAudioP
 
     std::vector supportedAudioFormats = pSourceSink->getSupportedAudioFormats();
     std::set<int> samplingRates;
-    std::set<int> channels;
-    std::set<audio_format_t> encodings;
+    std::set<AudioChannelMask> channels;
+    std::set<AndroidAudioFormat> encodings;
     for( auto& anAudioFormat : supportedAudioFormats ){
       samplingRates.insert( anAudioFormat.getSamplingRate() );
       channels.insert( AndroidFormatHelper::getAndroidChannelFromChannel( anAudioFormat.getChannels() ) );
@@ -74,7 +74,7 @@ void AndroidAudioPortHelper::getAndroidPortFromSourceSink(audio_port* pOutAudioP
     assert( pOutAudioPort->num_gains < AUDIO_PORT_MAX_GAINS );
     // TODO : struct audio_gain gains[AUDIO_PORT_MAX_GAINS] are expected to be configured.
 
-    // set active audio_port_config
+    // set active AudioPort_config
     getAndroidPortConfigFromSourceSink( &pOutAudioPort->active_config, pSourceSink, address, hwModule, androidAudioDeviceType);
 
     pOutAudioPort->ext.device.hw_module = hwModule;
@@ -83,7 +83,7 @@ void AndroidAudioPortHelper::getAndroidPortFromSourceSink(audio_port* pOutAudioP
   }
 }
 
-void AndroidAudioPortHelper::getAndroidPortConfigFromSourceSink(audio_port_config* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, audio_module_handle_t hwModule, int androidAudioDeviceType)
+void AndroidAudioPortHelper::getAndroidPortConfigFromSourceSink(AudioPortConfig* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, AudioModuleHandle hwModule, AudioDevice androidAudioDeviceType)
 {
   if( pOutAudioPort && pSourceSink ){
     pOutAudioPort->id = std::hash<std::string>()( pSourceSink->toString() );
@@ -101,7 +101,7 @@ void AndroidAudioPortHelper::getAndroidPortConfigFromSourceSink(audio_port_confi
     pOutAudioPort->sample_rate = currentFormat.getSamplingRate();
     pOutAudioPort->channel_mask = AndroidFormatHelper::getAndroidChannelFromChannel( currentFormat.getChannels() );
     pOutAudioPort->format = AndroidFormatHelper::getAndroidEncodingFromEncoding( currentFormat.getEncoding() );
-    memset( &pOutAudioPort->gain, 0, sizeof( struct audio_gain_config) );
+    memset( &pOutAudioPort->gain, 0, sizeof( AudioGainConfig) );
 
     pOutAudioPort->ext.device.hw_module = hwModule;
     pOutAudioPort->ext.device.type = androidAudioDeviceType;

@@ -36,7 +36,7 @@ public:
 protected:
   AudioIoHandle mIoHandle;
   DeviceAddress mDeviceAddr;
-  audio_config mConfig;
+  AudioConfig mConfig;
   std::shared_ptr<StreamSessionHandler> mSessionHandler;
   std::shared_ptr<IPipe> mPipe;
 
@@ -48,15 +48,15 @@ protected:
 
 
 public:
-  IStream(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr);
+  IStream(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), AudioConfig config={0}, std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr);
   virtual ~IStream();
 
   virtual AudioIoHandle getAudioIoHandle(void){ return mIoHandle; };
   virtual DeviceAddress getDeviceAddress(void){ return mDeviceAddr; };
-  virtual audio_config getAudioConfig(void){ return mConfig; };
+  virtual AudioConfig getAudioConfig(void){ return mConfig; };
   virtual std::shared_ptr<IPipe> getPipe(void){ return mPipe; };
 
-  virtual audio_config getSuggestedConfig(void);
+  virtual AudioConfig getSuggestedConfig(void);
 
   virtual uint64_t getFrameSize(void);
   virtual uint64_t getFrameCount(void);
@@ -64,16 +64,16 @@ public:
   virtual uint64_t getBufferSize(void);
 
   virtual uint32_t getSampleRate(void);
-  virtual std::vector<uint32_t> getSupportedSampleRates(audio_format_t androidEncoding);
+  virtual std::vector<uint32_t> getSupportedSampleRates(AndroidAudioFormat androidEncoding);
   virtual HalResult setSampleRate(uint32_t sampleRateHz);
 
-  virtual audio_channel_mask_t getChannelMask(void);
-  virtual std::vector<audio_channel_mask_t> getSupportedChannelMasks(audio_format_t androidEncoding);
-  virtual HalResult setChannelMask(audio_channel_mask_t mask);
+  virtual AudioChannelMask getChannelMask(void);
+  virtual std::vector<AudioChannelMask> getSupportedChannelMasks(AndroidAudioFormat androidEncoding);
+  virtual HalResult setChannelMask(AudioChannelMask mask);
 
-  virtual audio_format_t getFormat(void);
-  virtual std::vector<audio_format_t> getSupportedFormats(void);
-  virtual HalResult setFormat(audio_format_t format);
+  virtual AndroidAudioFormat getFormat(void);
+  virtual std::vector<AndroidAudioFormat> getSupportedFormats(void);
+  virtual HalResult setFormat(AndroidAudioFormat format);
 
   virtual AudioFormat getAudioProperties(void);
 

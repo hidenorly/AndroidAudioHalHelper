@@ -101,11 +101,11 @@ protected:
   std::shared_ptr<ReadPipeInfo> mReadPipeInfo;
   std::shared_ptr<ISource> mSource;
   std::shared_ptr<AndroidAudioSink> mSink;
-  audio_input_flags_t mInputFlags;
+  AudioInputFlags mInputFlags;
   SinkMetadata mSinkMetadata;
 
 public:
-  IStreamIn(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), audio_config config={0}, audio_input_flags_t flags=AUDIO_INPUT_FLAG_NONE, SinkMetadata sinkMetadata=SinkMetadata(), std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr, std::shared_ptr<ISource> pSource = nullptr) : IStream(ioHandle, device, config, pSessionHandler), mSource(pSource), mInputFlags(flags), mSinkMetadata(sinkMetadata){};
+  IStreamIn(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), AudioConfig config={0}, AudioInputFlags flags=AUDIO_INPUT_FLAG_NONE, SinkMetadata sinkMetadata=SinkMetadata(), std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr, std::shared_ptr<ISource> pSource = nullptr) : IStream(ioHandle, device, config, pSessionHandler), mSource(pSource), mInputFlags(flags), mSinkMetadata(sinkMetadata){};
   virtual ~IStreamIn(){};
 
   virtual std::shared_ptr<ReadPipeInfo> prepareForReading(uint32_t frameSize, uint32_t framesCount);
@@ -117,8 +117,8 @@ public:
 
   virtual AudioSource getAudioSource(void);
 
-  virtual std::vector<audio_microphone_characteristic_t> getActiveMicrophones(void);
-  virtual HalResult setMicrophoneDirection(audio_microphone_direction_t direction);
+  virtual std::vector<AudioMicrophoneCharacteristic> getActiveMicrophones(void);
+  virtual HalResult setMicrophoneDirection(AudioMicrophoneDirection direction);
   virtual HalResult setMicrophoneFieldDimension(float zoom);
 
   virtual void updateSinkMetadata(SinkMetadata sinkMetadata);
@@ -129,12 +129,12 @@ class StreamInContext : public StrategyContext
 public:
   AudioIoHandle ioHandle;
   DeviceAddress device;
-  audio_config config;
-  audio_input_flags_t flags;
+  AudioConfig config;
+  AudioInputFlags flags;
   SinkMetadata sinkMetadata;
 
 public:
-  StreamInContext(AudioIoHandle ioHandle, DeviceAddress device, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata):ioHandle(ioHandle), device(device), config(config), flags(flags), sinkMetadata(sinkMetadata){};
+  StreamInContext(AudioIoHandle ioHandle, DeviceAddress device, AudioConfig config, AudioInputFlags flags, SinkMetadata sinkMetadata):ioHandle(ioHandle), device(device), config(config), flags(flags), sinkMetadata(sinkMetadata){};
   virtual ~StreamInContext(){};
 };
 

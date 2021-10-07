@@ -27,7 +27,7 @@ class SourceSinkManager
 {
 protected:
   static inline std::map<std::string, std::shared_ptr<ISourceSinkCommon>> mSourceSinksByDeviceAddr;
-  static inline std::map<audio_port_handle_t, std::shared_ptr<ISourceSinkCommon>> mSourceSinksByAudioPortHandle;
+  static inline std::map<AudioPortHandle, std::shared_ptr<ISourceSinkCommon>> mSourceSinksByAudioPortHandle;
 
 public:
   static void initialize(void);
@@ -47,23 +47,23 @@ public:
 
   static std::vector<std::shared_ptr<ISink>> getSinkDevices(void);
 
-  static audio_port_handle_t getAudioPortHandle(const audio_port_config& audioPortConfig);
-  static audio_port_handle_t getAudioPortHandle(const audio_port& audioPort);
+  static AudioPortHandle getAudioPortHandle(const AudioPortConfig& audioPortConfig);
+  static AudioPortHandle getAudioPortHandle(const AudioPort& audioPort);
 
-  static void associateByAudioPortConfig(const audio_port_config& audioPortConfig);
-  static void associateByAudioPort(const audio_port& audioPort);
+  static void associateByAudioPortConfig(const AudioPortConfig& audioPortConfig);
+  static void associateByAudioPort(const AudioPort& audioPort);
 
-  static std::shared_ptr<ISourceSinkCommon> getSourceSink(audio_port_handle_t audioPortHandle);
-  static std::shared_ptr<ISink> getSink(audio_port_handle_t audioPortHandle);
-  static std::shared_ptr<ISource> getSource(audio_port_handle_t audioPortHandle);
+  static std::shared_ptr<ISourceSinkCommon> getSourceSink(AudioPortHandle audioPortHandle);
+  static std::shared_ptr<ISink> getSink(AudioPortHandle audioPortHandle);
+  static std::shared_ptr<ISource> getSource(AudioPortHandle audioPortHandle);
 
-  static std::shared_ptr<ISourceSinkCommon> getSourceSink(const audio_port_config& audioPortConfig);
-  static std::shared_ptr<ISink> getSink(const audio_port_config& audioPortConfig);
-  static std::shared_ptr<ISource> getSource(const audio_port_config& audioPortConfig);
+  static std::shared_ptr<ISourceSinkCommon> getSourceSink(const AudioPortConfig& audioPortConfig);
+  static std::shared_ptr<ISink> getSink(const AudioPortConfig& audioPortConfig);
+  static std::shared_ptr<ISource> getSource(const AudioPortConfig& audioPortConfig);
 
-  static std::shared_ptr<ISourceSinkCommon> getSourceSink(const audio_port& audioPort);
-  static std::shared_ptr<ISink> getSink(const audio_port& audioPort);
-  static std::shared_ptr<ISource> getSource(const audio_port& audioPort);
+  static std::shared_ptr<ISourceSinkCommon> getSourceSink(const AudioPort& audioPort);
+  static std::shared_ptr<ISink> getSink(const AudioPort& audioPort);
+  static std::shared_ptr<ISource> getSource(const AudioPort& audioPort);
 };
 
 #endif /* __SOURCE_SINK_MANAGER_HPP__ */

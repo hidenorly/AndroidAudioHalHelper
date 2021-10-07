@@ -22,12 +22,13 @@
 
 #include "PipeAndFilterCommon.hpp"
 #include "AudioFormat.hpp"
+#include "AndroidHalTypes.hpp"
 
 class AndroidAudioPortHelper
 {
 public:
-  static void getAndroidPortFromSourceSink(audio_port* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, audio_module_handle_t hwModule, int androidAudioDeviceType = AUDIO_DEVICE_OUT_SPEAKER);
-  static void getAndroidPortConfigFromSourceSink(audio_port_config* pOutAudioPortConfig, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, audio_module_handle_t hwModule, int androidAudioDeviceType = AUDIO_DEVICE_OUT_SPEAKER);
+  static void getAndroidPortFromSourceSink(AudioPort* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, AudioModuleHandle hwModule, AudioDevice androidAudioDeviceType = AUDIO_DEVICE_OUT_SPEAKER);
+  static void getAndroidPortConfigFromSourceSink(AudioPortConfig* pOutAudioPortConfig, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, AudioModuleHandle hwModule, AudioDevice androidAudioDeviceType = AUDIO_DEVICE_OUT_SPEAKER);
 };
 
 #endif /* __AUDIO_PORT_HELPER_HPP__ */

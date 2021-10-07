@@ -35,41 +35,41 @@ class IDevice : public IStream::StreamSessionHandler, public std::enable_shared_
 {
 protected:
   static inline std::map<AudioIoHandle, std::shared_ptr<IStream>> mStreams;
-  std::map<audio_patch_handle_t, std::shared_ptr<PatchPanel>> mPatchPanels;
+  std::map<AudioPatchHandle, std::shared_ptr<PatchPanel>> mPatchPanels;
   float mMasterVolume;
-  audio_module_handle_t mHwModule;
-  audio_patch_handle_t mPatchHandleCount;
+  AudioModuleHandle mHwModule;
+  AudioPatchHandle mPatchHandleCount;
 
 protected:
-  std::vector<std::shared_ptr<ISource>> getSources(std::vector<audio_port_config> sources);
-  std::vector<std::shared_ptr<ISink>> getSinks(std::vector<audio_port_config> sinks);
-  std::shared_ptr<IStream> getStream(audio_port_handle_t device);
-  std::shared_ptr<IPipe> getPipe(audio_port_handle_t device);
+  std::vector<std::shared_ptr<ISource>> getSources(std::vector<AudioPortConfig> sources);
+  std::vector<std::shared_ptr<ISink>> getSinks(std::vector<AudioPortConfig> sinks);
+  std::shared_ptr<IStream> getStream(AudioPortHandle device);
+  std::shared_ptr<IPipe> getPipe(AudioPortHandle device);
 
 public:
-  IDevice(audio_module_handle_t hwModule, std::string filterPlugInPath=".");
+  IDevice(AudioModuleHandle hwModule, std::string filterPlugInPath=".");
   virtual ~IDevice();
 
   virtual HalResult initCheck(void);
   virtual HalResult close(void);
 
-  virtual HalResult openOutputStream(AudioIoHandle ioHandle, DeviceAddress deviceAddr, audio_config config, audio_output_flags_t flags, SourceMetadata sourceMetadata, std::shared_ptr<IStreamOut>& pOutStream, audio_config& outSuggestedConfig);
-  virtual HalResult openInputStream(AudioIoHandle ioHandle, DeviceAddress deviceAddr, audio_config config, audio_input_flags_t flags, SinkMetadata sinkMetadata, std::shared_ptr<IStreamIn>& pOutInStream, audio_config& outSuggestedConfig);
+  virtual HalResult openOutputStream(AudioIoHandle ioHandle, DeviceAddress deviceAddr, AudioConfig config, AudioOutputFlags flags, SourceMetadata sourceMetadata, std::shared_ptr<IStreamOut>& pOutStream, AudioConfig& outSuggestedConfig);
+  virtual HalResult openInputStream(AudioIoHandle ioHandle, DeviceAddress deviceAddr, AudioConfig config, AudioInputFlags flags, SinkMetadata sinkMetadata, std::shared_ptr<IStreamIn>& pOutInStream, AudioConfig& outSuggestedConfig);
   virtual void onCloseStream(std::shared_ptr<IStream> pStream);
 
   virtual HalResult getParameters(std::vector<std::string> keys, std::vector<ParameterValue>& values);
   virtual HalResult setParameters(std::vector<ParameterValue> values);
 
   virtual bool supportsAudioPatches(void);
-  virtual audio_patch_handle_t createAudioPatch(std::vector<audio_port_config> sources, std::vector<audio_port_config> sinks);
-  virtual audio_patch_handle_t updateAudioPatch(audio_patch_handle_t previousPatch, std::vector<audio_port_config> sources, std::vector<audio_port_config> sinks);
-  virtual HalResult releaseAudioPatch(audio_patch_handle_t patch);
+  virtual AudioPatchHandle createAudioPatch(std::vector<AudioPortConfig> sources, std::vector<AudioPortConfig> sinks);
+  virtual AudioPatchHandle updateAudioPatch(AudioPatchHandle previousPatch, std::vector<AudioPortConfig> sources, std::vector<AudioPortConfig> sinks);
+  virtual HalResult releaseAudioPatch(AudioPatchHandle patch);
 
-  virtual audio_port getAudioPort(audio_port port);
-  virtual HalResult setAudioPortConfig(audio_port_config config);
+  virtual AudioPort getAudioPort(AudioPort port);
+  virtual HalResult setAudioPortConfig(AudioPortConfig config);
 
-  virtual HalResult addDeviceEffect(audio_port_handle_t device, uint64_t effectId);
-  virtual HalResult removeDeviceEffect(audio_port_handle_t device, uint64_t effectId);
+  virtual HalResult addDeviceEffect(AudioPortHandle device, uint64_t effectId);
+  virtual HalResult removeDeviceEffect(AudioPortHandle device, uint64_t effectId);
 
   virtual HalResult setMasterVolume(float volume);
   virtual float getMasterVolume(void);
@@ -78,9 +78,9 @@ public:
 
   virtual HalResult setMicMute(bool mute);
   virtual bool getMicMute(void);
-  virtual std::vector<audio_microphone_characteristic_t> getMicrophones(void);
+  virtual std::vector<AudioMicrophoneCharacteristic> getMicrophones(void);
 
-  virtual uint64_t getInputBufferSize(audio_config config);
+  virtual uint64_t getInputBufferSize(AudioConfig config);
 
   virtual HalResult setConnectedState(DeviceAddress address, bool connected);
 

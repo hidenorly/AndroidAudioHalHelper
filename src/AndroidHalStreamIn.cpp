@@ -71,12 +71,12 @@ AudioSource IStreamIn::getAudioSource(void)
   return 0;
 }
 
-std::vector<audio_microphone_characteristic_t> IStreamIn::getActiveMicrophones(void)
+std::vector<AudioMicrophoneCharacteristic> IStreamIn::getActiveMicrophones(void)
 {
-  return std::vector<audio_microphone_characteristic_t>();
+  return std::vector<AudioMicrophoneCharacteristic>();
 }
 
-HalResult IStreamIn::setMicrophoneDirection(audio_microphone_direction_t direction)
+HalResult IStreamIn::setMicrophoneDirection(AudioMicrophoneDirection direction)
 {
   return HalResult::NOT_SUPPORTED;
 }

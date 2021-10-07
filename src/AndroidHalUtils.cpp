@@ -74,6 +74,11 @@ void check(bool bCheck)
 
 }
 
+void errorWriteLog(int tag, const char* info)
+{
+
+}
+
 
 }
 }

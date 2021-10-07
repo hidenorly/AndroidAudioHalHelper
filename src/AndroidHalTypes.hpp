@@ -65,10 +65,30 @@ typedef uint32_t AudioContentType;
 typedef int32_t AudioDrain;
 typedef int32_t DualMonoMode;
 typedef int32_t AudioSource;
-typedef uint32_t AudioChannelMask;
+typedef audio_channel_mask_t AudioChannelMask;
 typedef audio_format_t AndroidAudioFormat;
-typedef uint32_t AudioDevice;
+typedef audio_devices_t AudioDevice;
 typedef int32_t AudioMode;
+
+typedef audio_port AudioPort;
+typedef audio_port_config AudioPortConfig;
+typedef audio_port_handle_t AudioPortHandle;
+typedef int32_t AudioIoHandle;
+
+typedef audio_config AudioConfig;
+typedef audio_gain_config AudioGainConfig;
+
+typedef audio_module_handle_t AudioModuleHandle;
+
+typedef audio_patch_handle_t AudioPatchHandle;
+typedef int32_t AudioPatchHandle;
+
+typedef audio_microphone_characteristic_t AudioMicrophoneCharacteristic;
+typedef audio_microphone_direction_t AudioMicrophoneDirection;
+
+typedef audio_output_flags_t AudioOutputFlags;
+typedef audio_input_flags_t AudioInputFlags;
+
 
 struct PlaybackTrackMetadata
 {
@@ -129,9 +149,6 @@ struct PlaybackRate
 #define PAGE_SIZE 4096
 #endif /* PAGE_SIZE */
 
-typedef int32_t AudioPatchHandle;
-typedef int32_t AudioPortHandle;
-typedef int32_t AudioIoHandle;
 
 enum MessageQueueFlagBits
 {
@@ -268,7 +285,7 @@ struct EffectBufferConfig
   EffectBufferAccess accessMode;
   EffectConfigParameters mask;
 
-  EffectBufferConfig():buffer(), samplingRateHz(0), channels(0), format(AUDIO_FORMAT_DEFAULT), accessMode(EffectBufferAccess::ACCESS_ACCUMULATE), mask(EffectConfigParameter::BUFFER | EffectConfigParameter::SMP_RATE | EffectConfigParameter::CHANNELS | EffectConfigParameter::FORMAT | EffectConfigParameter::ACC_MODE){};
+  EffectBufferConfig():buffer(), samplingRateHz(0), channels(AUDIO_CHANNEL_IN_STEREO), format(AUDIO_FORMAT_DEFAULT), accessMode(EffectBufferAccess::ACCESS_ACCUMULATE), mask(EffectConfigParameter::BUFFER | EffectConfigParameter::SMP_RATE | EffectConfigParameter::CHANNELS | EffectConfigParameter::FORMAT | EffectConfigParameter::ACC_MODE){};
 };
 
 struct EffectConfig
@@ -281,7 +298,7 @@ struct EffectAuxChannelsConfig
 {
   AudioChannelMask mainChannels;
   AudioChannelMask auxChannels;
-  EffectAuxChannelsConfig():mainChannels(0), auxChannels(0){};
+  EffectAuxChannelsConfig():mainChannels(AUDIO_CHANNEL_IN_STEREO), auxChannels(AUDIO_CHANNEL_IN_STEREO){};
 };
 
 struct EffectOffloadParameter

@@ -27,15 +27,15 @@
 class AndroidFormatHelper
 {
 public:
-  static AudioFormat::ENCODING getEncodingFromAndroidEncoding(audio_format_t androidEncoding);
-  static audio_format_t getAndroidEncodingFromEncoding(AudioFormat::ENCODING afwEncoding);
+  static AudioFormat::ENCODING getEncodingFromAndroidEncoding(AndroidAudioFormat androidEncoding);
+  static AndroidAudioFormat getAndroidEncodingFromEncoding(AudioFormat::ENCODING afwEncoding);
 
   static AudioFormat::CHANNEL getChannelFromAndroidChannel(AudioChannelMask androidChannel);
   static AudioChannelMask getAndroidChannelFromChannel(AudioFormat::CHANNEL afwChannel);
 
-  static audio_config getAndroidAudioConfigFromAudioFormat(AudioFormat afwFormat);
-  static AudioFormat getAudioFormatFromAndroidPortConfig(const audio_port_config& audioPortConfig);
-  static AudioFormat getAudioFormatFromAndroidAudioConfig(const audio_config& audioConfig);
+  static AudioConfig getAndroidAudioConfigFromAudioFormat(AudioFormat afwFormat);
+  static AudioFormat getAudioFormatFromAndroidPortConfig(const AudioPortConfig& audioPortConfig);
+  static AudioFormat getAudioFormatFromAndroidAudioConfig(const AudioConfig& audioConfig);
   static AudioFormat getAudioFormatFromAndroidEffectConfig(const EffectBufferConfig& effectConfig);
 };
 

@@ -23,12 +23,12 @@ std::vector<EffectDescriptor> IEffectsFactory::getAllDescriptors(void)
   return result;
 }
 
-EffectDescriptor IEffectsFactory::getDescriptor(Uuid uid)
+EffectDescriptor IEffectsFactory::getDescriptor(Uuid uuid)
 {
   return EffectDescriptor();
 }
 
-std::shared_ptr<IEffect> IEffectsFactory::createEffect(Uuid uid, AudioSession session, AudioIoHandle ioHandle, AudioPortHandle device)
+std::shared_ptr<IEffect> IEffectsFactory::createEffect(Uuid uuid, AudioSession session, AudioIoHandle ioHandle, AudioPortHandle device)
 {
   std::shared_ptr<IEffect> pEffect;
 

@@ -36,23 +36,23 @@ int SourceSinkManager::getSourceSinkCount()
   return mSourceSinksByDeviceAddr.size();
 }
 
-audio_port_handle_t SourceSinkManager::getAudioPortHandle(const audio_port_config& audioPortConfig)
+AudioPortHandle SourceSinkManager::getAudioPortHandle(const AudioPortConfig& audioPortConfig)
 {
   return audioPortConfig.id;
 }
 
-audio_port_handle_t SourceSinkManager::getAudioPortHandle(const audio_port& audioPort)
+AudioPortHandle SourceSinkManager::getAudioPortHandle(const AudioPort& audioPort)
 {
   return audioPort.id;
 }
 
-void SourceSinkManager::associateByAudioPortConfig(const audio_port_config& audioPortConfig)
+void SourceSinkManager::associateByAudioPortConfig(const AudioPortConfig& audioPortConfig)
 {
   mSourceSinksByAudioPortHandle.insert_or_assign( getAudioPortHandle(audioPortConfig), getSourceSink(AndroidDeviceAddressHelper::getDeviceAddrFromString( audioPortConfig.ext.device.address )));
 }
 
 
-void SourceSinkManager::associateByAudioPort(const audio_port& audioPort)
+void SourceSinkManager::associateByAudioPort(const AudioPort& audioPort)
 {
   mSourceSinksByAudioPortHandle.insert_or_assign( getAudioPortHandle(audioPort), getSourceSink(AndroidDeviceAddressHelper::getDeviceAddrFromString( audioPort.ext.device.address )));
 }
@@ -154,7 +154,7 @@ std::vector<std::shared_ptr<ISink>> SourceSinkManager::getSinkDevices(void)
   return result;
 }
 
-std::shared_ptr<ISourceSinkCommon> SourceSinkManager::getSourceSink(audio_port_handle_t audioPortHandle)
+std::shared_ptr<ISourceSinkCommon> SourceSinkManager::getSourceSink(AudioPortHandle audioPortHandle)
 {
   std::shared_ptr<ISourceSinkCommon> result;
 
@@ -165,42 +165,42 @@ std::shared_ptr<ISourceSinkCommon> SourceSinkManager::getSourceSink(audio_port_h
   return result;
 }
 
-std::shared_ptr<ISink> SourceSinkManager::getSink(audio_port_handle_t audioPortHandle)
+std::shared_ptr<ISink> SourceSinkManager::getSink(AudioPortHandle audioPortHandle)
 {
   return std::dynamic_pointer_cast<ISink>( getSourceSink(audioPortHandle) );
 }
 
-std::shared_ptr<ISource> SourceSinkManager::getSource(audio_port_handle_t audioPortHandle)
+std::shared_ptr<ISource> SourceSinkManager::getSource(AudioPortHandle audioPortHandle)
 {
   return std::dynamic_pointer_cast<ISource>( getSourceSink(audioPortHandle) );
 }
 
-std::shared_ptr<ISourceSinkCommon> SourceSinkManager::getSourceSink(const audio_port_config& audioPortConfig)
+std::shared_ptr<ISourceSinkCommon> SourceSinkManager::getSourceSink(const AudioPortConfig& audioPortConfig)
 {
   return getSourceSink( getAudioPortHandle( audioPortConfig ) );
 }
 
-std::shared_ptr<ISink> SourceSinkManager::getSink(const audio_port_config& audioPortConfig)
+std::shared_ptr<ISink> SourceSinkManager::getSink(const AudioPortConfig& audioPortConfig)
 {
   return std::dynamic_pointer_cast<ISink>( getSourceSink(audioPortConfig) );
 }
 
-std::shared_ptr<ISource> SourceSinkManager::getSource(const audio_port_config& audioPortConfig)
+std::shared_ptr<ISource> SourceSinkManager::getSource(const AudioPortConfig& audioPortConfig)
 {
   return std::dynamic_pointer_cast<ISource>( getSourceSink(audioPortConfig) );
 }
 
-std::shared_ptr<ISourceSinkCommon> SourceSinkManager::getSourceSink(const audio_port& audioPort)
+std::shared_ptr<ISourceSinkCommon> SourceSinkManager::getSourceSink(const AudioPort& audioPort)
 {
   return getSourceSink( getAudioPortHandle( audioPort ) );
 }
 
-std::shared_ptr<ISink> SourceSinkManager::getSink(const audio_port& audioPort)
+std::shared_ptr<ISink> SourceSinkManager::getSink(const AudioPort& audioPort)
 {
   return std::dynamic_pointer_cast<ISink>( getSourceSink(audioPort) );
 }
 
-std::shared_ptr<ISource> SourceSinkManager::getSource(const audio_port& audioPort)
+std::shared_ptr<ISource> SourceSinkManager::getSource(const AudioPort& audioPort)
 {
   return std::dynamic_pointer_cast<ISource>( getSourceSink(audioPort) );
 }

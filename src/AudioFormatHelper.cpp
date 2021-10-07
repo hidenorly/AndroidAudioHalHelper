@@ -21,9 +21,9 @@ struct AudioEncodingConversionTable
 {
 public:
   AudioFormat::ENCODING afwEncoding;
-  audio_format_t androidEncoding;
+  AndroidAudioFormat androidEncoding;
 
-  AudioEncodingConversionTable(AudioFormat::ENCODING afwEncoding, audio_format_t androidEncoding) : afwEncoding(afwEncoding), androidEncoding(androidEncoding){};
+  AudioEncodingConversionTable(AudioFormat::ENCODING afwEncoding, AndroidAudioFormat androidEncoding) : afwEncoding(afwEncoding), androidEncoding(androidEncoding){};
 };
 
 AudioEncodingConversionTable* getAudioEncodingConversionTable(void)
@@ -108,7 +108,7 @@ AudioEncodingConversionTable* getAudioEncodingConversionTable(void)
   return conversionTable;
 }
 
-AudioFormat::ENCODING AndroidFormatHelper::getEncodingFromAndroidEncoding(audio_format_t androidEncoding)
+AudioFormat::ENCODING AndroidFormatHelper::getEncodingFromAndroidEncoding(AndroidAudioFormat androidEncoding)
 {
   AudioFormat::ENCODING result = AudioFormat::ENCODING::ENCODING_DEFAULT;
   AudioEncodingConversionTable* pTable = getAudioEncodingConversionTable();
@@ -123,9 +123,9 @@ AudioFormat::ENCODING AndroidFormatHelper::getEncodingFromAndroidEncoding(audio_
   return result;
 }
 
-audio_format_t AndroidFormatHelper::getAndroidEncodingFromEncoding(AudioFormat::ENCODING afwEncoding)
+AndroidAudioFormat AndroidFormatHelper::getAndroidEncodingFromEncoding(AudioFormat::ENCODING afwEncoding)
 {
-  audio_format_t result = AUDIO_FORMAT_PCM_16_BIT;
+  AndroidAudioFormat result = AUDIO_FORMAT_PCM_16_BIT;
   AudioEncodingConversionTable* pTable = getAudioEncodingConversionTable();
 
   for(int i=0; (pTable[i].afwEncoding!=AudioFormat::ENCODING::PCM_UNKNOWN) && (pTable[i].androidEncoding!=AUDIO_FORMAT_INVALID); i++){
@@ -143,16 +143,16 @@ struct AudioChannelConversionTable
 {
 public:
   AudioFormat::CHANNEL afwChannel;
-  uint32_t androidChannel;
+  AudioChannelMask androidChannel;
 
-  AudioChannelConversionTable(AudioFormat::CHANNEL afwChannel, uint32_t androidChannel) : afwChannel(afwChannel), androidChannel(androidChannel){};
+  AudioChannelConversionTable(AudioFormat::CHANNEL afwChannel, AudioChannelMask androidChannel) : afwChannel(afwChannel), androidChannel(androidChannel){};
 };
 
 AudioChannelConversionTable* getAudioChannelConversionTable(void)
 {
   static AudioChannelConversionTable conversionTable[]=
   {
-    AudioChannelConversionTable(AudioFormat::CHANNEL::CHANNEL_DEFAULT,          AUDIO_DEVICE_OUT_DEFAULT),
+    AudioChannelConversionTable(AudioFormat::CHANNEL::CHANNEL_DEFAULT,          AUDIO_CHANNEL_OUT_STEREO),
     AudioChannelConversionTable(AudioFormat::CHANNEL::CHANNEL_MONO,             AUDIO_CHANNEL_OUT_MONO),
     AudioChannelConversionTable(AudioFormat::CHANNEL::CHANNEL_STEREO,           AUDIO_CHANNEL_OUT_STEREO),
     AudioChannelConversionTable(AudioFormat::CHANNEL::CHANNEL_2_1CH,            AUDIO_CHANNEL_OUT_2POINT1),
@@ -160,10 +160,10 @@ AudioChannelConversionTable* getAudioChannelConversionTable(void)
     AudioChannelConversionTable(AudioFormat::CHANNEL::CHANNEL_5CH,              AUDIO_CHANNEL_OUT_PENTA),
     AudioChannelConversionTable(AudioFormat::CHANNEL::CHANNEL_5_1CH,            AUDIO_CHANNEL_OUT_5POINT1),
     AudioChannelConversionTable(AudioFormat::CHANNEL::CHANNEL_5_1_2CH,          AUDIO_CHANNEL_OUT_5POINT1POINT2),
-    AudioChannelConversionTable(AudioFormat::CHANNEL::CHANNEL_5_0_2CH,          AUDIO_CHANNEL_OUT_PENTA | AUDIO_CHANNEL_OUT_TOP_SIDE_LEFT | AUDIO_CHANNEL_OUT_TOP_SIDE_RIGHT),
+//  AudioChannelConversionTable(AudioFormat::CHANNEL::CHANNEL_5_0_2CH,          AUDIO_CHANNEL_OUT_PENTA | AUDIO_CHANNEL_OUT_TOP_SIDE_LEFT | AUDIO_CHANNEL_OUT_TOP_SIDE_RIGHT),  // Android S cannot support 5.0.2
     AudioChannelConversionTable(AudioFormat::CHANNEL::CHANNEL_7_1CH,            AUDIO_CHANNEL_OUT_7POINT1),
 
-    AudioChannelConversionTable(AudioFormat::CHANNEL::CHANNEL_UNKNOWN,          AUDIO_DEVICE_NONE)
+    AudioChannelConversionTable(AudioFormat::CHANNEL::CHANNEL_UNKNOWN,          AUDIO_CHANNEL_OUT_STEREO)
   };
 
   return conversionTable;
@@ -174,7 +174,7 @@ AudioFormat::CHANNEL AndroidFormatHelper::getChannelFromAndroidChannel(AudioChan
   AudioFormat::CHANNEL result = AudioFormat::CHANNEL::CHANNEL_DEFAULT;
   AudioChannelConversionTable* pTable = getAudioChannelConversionTable();
 
-  for(int i=0; (pTable[i].afwChannel!=AudioFormat::CHANNEL::CHANNEL_UNKNOWN) && (pTable[i].androidChannel!=AUDIO_DEVICE_NONE); i++){
+  for(int i=0; (pTable[i].afwChannel!=AudioFormat::CHANNEL::CHANNEL_UNKNOWN) && (pTable[i].androidChannel!=AUDIO_CHANNEL_OUT_STEREO); i++){
     if( pTable[i].androidChannel == androidChannel ){
       result = pTable[i].afwChannel;
       break;
@@ -186,10 +186,11 @@ AudioFormat::CHANNEL AndroidFormatHelper::getChannelFromAndroidChannel(AudioChan
 
 AudioChannelMask AndroidFormatHelper::getAndroidChannelFromChannel(AudioFormat::CHANNEL afwChannel)
 {
-  uint32_t result = AUDIO_CHANNEL_OUT_STEREO;
+  assert( afwChannel != AudioFormat::CHANNEL::CHANNEL_5_0_2CH ); // Android S cannot support 5.0.2ch
+  AudioChannelMask result = AUDIO_CHANNEL_OUT_STEREO;
   AudioChannelConversionTable* pTable = getAudioChannelConversionTable();
 
-  for(int i=0; (pTable[i].afwChannel!=AudioFormat::CHANNEL::CHANNEL_UNKNOWN) && (pTable[i].androidChannel!=AUDIO_DEVICE_NONE); i++){
+  for(int i=0; (pTable[i].afwChannel!=AudioFormat::CHANNEL::CHANNEL_UNKNOWN) && (pTable[i].androidChannel!=AUDIO_CHANNEL_OUT_STEREO); i++){
     if( pTable[i].afwChannel == afwChannel ){
       result = pTable[i].androidChannel;
       break;
@@ -201,9 +202,9 @@ AudioChannelMask AndroidFormatHelper::getAndroidChannelFromChannel(AudioFormat::
 
 
 
-audio_config AndroidFormatHelper::getAndroidAudioConfigFromAudioFormat(AudioFormat afwFormat)
+AudioConfig AndroidFormatHelper::getAndroidAudioConfigFromAudioFormat(AudioFormat afwFormat)
 {
-  audio_config result;
+  AudioConfig result;
 
   result.sample_rate = afwFormat.getSamplingRate();
   result.channel_mask = getAndroidChannelFromChannel( afwFormat.getChannels() );
@@ -214,12 +215,12 @@ audio_config AndroidFormatHelper::getAndroidAudioConfigFromAudioFormat(AudioForm
   return result;
 }
 
-AudioFormat AndroidFormatHelper::getAudioFormatFromAndroidPortConfig(const audio_port_config& config)
+AudioFormat AndroidFormatHelper::getAudioFormatFromAndroidPortConfig(const AudioPortConfig& config)
 {
   return AudioFormat( getEncodingFromAndroidEncoding( config.format ), config.sample_rate, getChannelFromAndroidChannel( config.channel_mask ) );
 }
 
-AudioFormat AndroidFormatHelper::getAudioFormatFromAndroidAudioConfig(const audio_config& config)
+AudioFormat AndroidFormatHelper::getAudioFormatFromAndroidAudioConfig(const AudioConfig& config)
 {
   return AudioFormat( getEncodingFromAndroidEncoding( config.format ), config.sample_rate, getChannelFromAndroidChannel( config.channel_mask ) );
 }
