@@ -25,19 +25,25 @@
 class AudioEffectHelper
 {
 protected:
-  static inline std::map<uint64_t, std::string> mFiltersIdResolver;
+  static inline std::map<std::string, std::string> mFiltersIdResolver; // uuid, effectIdString
+  static inline std::map<std::string, std::weak_ptr<IEffect>> mUuidEffectResolver; // uuid, IEffect
+  static inline std::map<uint64_t, std::string> mEffectIdUuidResolver; //effectId, uuid
 
 public:
   static void initialize(std::string filterPlugInPath);
   static void terminate(void);
 
-  static void associateEffect(uint64_t effectId, std::string effectIdString);
-  static void associateEffect(std::shared_ptr<IEffect> pEffect, std::string effectIdString);
+  static void associateEffect(std::weak_ptr<IEffect> pEffect);
+  static void unassociateEffect(std::weak_ptr<IEffect> pEffect);
+  static std::shared_ptr<IEffect> getEffect(std::string uuid);
 
+  static void associateFilter(std::string uuid, std::string effectIdString);
+
+  static std::string getUuidFromEffectId(uint64_t effectId);
   static std::string getEffectIdString(uint64_t effectId);
-  static uint64_t getEffectIdFromEffectIdString(std::string effectIdString);
 
-  static std::shared_ptr<IFilter> getEffect(uint64_t effectId);
+  static std::shared_ptr<IFilter> getFilterInstance(std::string uuid);
+  static std::shared_ptr<IFilter> getFilterFromEffectInstance(uint64_t effectId);
 };
 
 #endif /* __AUDIOEFFECT_HELPER_HPP__ */

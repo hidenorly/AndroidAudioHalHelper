@@ -277,7 +277,7 @@ HalResult IDevice::addDeviceEffect(AudioPortHandle device, uint64_t effectId)
 
   std::shared_ptr<IPipe> pPipe = getPipe( device );
   if( pPipe ){
-    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getEffect( effectId );
+    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getFilterFromEffectInstance( effectId );
     if( pFilter ){
       pPipe->addFilterToTail( pFilter );
       result = HalResult::OK;
@@ -293,7 +293,7 @@ HalResult IDevice::removeDeviceEffect(AudioPortHandle device, uint64_t effectId)
 
   std::shared_ptr<IPipe> pPipe = getPipe( device );
   if( pPipe ){
-    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getEffect( effectId );
+    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getFilterFromEffectInstance( effectId );
     if( pFilter ){
       result = pPipe->removeFilter( pFilter ) ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
     }

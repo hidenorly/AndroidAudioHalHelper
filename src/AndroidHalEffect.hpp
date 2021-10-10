@@ -26,13 +26,15 @@
 
 #include "Filter.hpp"
 #include "Pipe.hpp"
+#include <tuple>
 
 
-class IEffect
+class IEffect : public std::enable_shared_from_this<IEffect>
 {
 public:
   typedef android::hardware::MessageQueue<HalResult, android::hardware::kSynchronizedReadWrite> StatusMQ;
   const int DEFAUT_SIZE_OF_MESSAGE_QUEUE=256;
+  typedef std::tuple<std::shared_ptr<AndroidAudioBuffer>, std::shared_ptr<AndroidAudioBuffer>> EffectBuffer;
 
 protected:
   std::string mUuid;
@@ -46,14 +48,17 @@ protected:
   std::shared_ptr<IEffectBufferProviderCallback> mOutputBufferProvider;
   std::shared_ptr<StatusMQ> mStatusMQ;
 
+  std::vector<EffectBuffer> mAudioBuffers;
+
 public:
   IEffect(std::string uuid = "", std::shared_ptr<IFilter> pFilter = nullptr);
   virtual ~IEffect();
 
   uint64_t getEffectId(void);
-  std::string getUuidId(void);
+  std::string getUuid(void);
   EffectDescriptor getDescriptor(void);
   EffectFlags getDefaultEffectFlags(void);
+  std::shared_ptr<IFilter> getFilter(void);
 
   HalResult init(void);
   HalResult reset(void);

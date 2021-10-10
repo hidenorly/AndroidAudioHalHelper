@@ -18,15 +18,16 @@
 #include "AudioFormatHelper.hpp"
 #include <iostream>
 #include "AndroidHalDevice.hpp"
+#include "AudioEffectHelper.hpp"
 
 IEffect::IEffect(std::string uuid, std::shared_ptr<IFilter> pFilter):mUuid(uuid), mFilter(pFilter)
 {
-
+  AudioEffectHelper::associateEffect( shared_from_this() );
 }
 
 IEffect::~IEffect()
 {
-
+  AudioEffectHelper::unassociateEffect( shared_from_this() );
 }
 
 uint64_t IEffect::getEffectId(void)
@@ -34,7 +35,7 @@ uint64_t IEffect::getEffectId(void)
   return reinterpret_cast<uint64_t>( mFilter.get() );
 }
 
-std::string IEffect::getUuidId(void)
+std::string IEffect::getUuid(void)
 {
   return mUuid;
 }
@@ -72,6 +73,11 @@ EffectDescriptor IEffect::getDescriptor(void)
   }
 
   return result;
+}
+
+std::shared_ptr<IFilter> IEffect::getFilter(void)
+{
+  return mFilter;
 }
 
 HalResult IEffect::init(void)
@@ -280,6 +286,7 @@ std::shared_ptr<IEffect::StatusMQ> IEffect::prepareForProcessing(void)
 HalResult IEffect::setProcessBuffers(std::shared_ptr<AndroidAudioBuffer> inBuffer, std::shared_ptr<AndroidAudioBuffer> outBuffer)
 {
   HalResult result = HalResult::OK;
+  mAudioBuffers.push_back( std::make_tuple(inBuffer, outBuffer) );
 
   return result;
 }

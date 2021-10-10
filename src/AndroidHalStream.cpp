@@ -227,7 +227,7 @@ HalResult IStream::addEffect(uint64_t effectId)
   HalResult result = HalResult::INVALID_ARGUMENTS;
 
   if( mPipe ){
-    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getEffect( effectId );
+    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getFilterFromEffectInstance( effectId );
     if( pFilter ){
       mPipe->addFilterToTail( pFilter );
       result = HalResult::OK;
@@ -242,7 +242,7 @@ HalResult IStream::removeEffect(uint64_t effectId)
   HalResult result = HalResult::INVALID_ARGUMENTS;
 
   if( mPipe ){
-    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getEffect( effectId );
+    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getFilterFromEffectInstance( effectId );
     if( pFilter ){
       result = mPipe->removeFilter( pFilter ) ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
     }
