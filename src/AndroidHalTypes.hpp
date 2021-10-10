@@ -299,6 +299,7 @@ struct EffectAuxChannelsConfig
   AudioChannelMask mainChannels;
   AudioChannelMask auxChannels;
   EffectAuxChannelsConfig():mainChannels(AUDIO_CHANNEL_IN_STEREO), auxChannels(AUDIO_CHANNEL_IN_STEREO){};
+  EffectAuxChannelsConfig(const EffectAuxChannelsConfig& config):mainChannels(config.mainChannels), auxChannels(config.auxChannels){};
 };
 
 struct EffectOffloadParameter

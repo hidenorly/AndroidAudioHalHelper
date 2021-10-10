@@ -47,7 +47,9 @@ void IStreamOut::AndroidAudioSource::readPrimitive(IAudioBuffer& buf)
     status.replyTo = IStreamOut::WriteCommand::WRITE;
     status.retval = HalResult::OK;
     status.reply.written = nReadSize;
-    mStatusMQ->write( &status );
+    if( mStatusMQ ){
+      mStatusMQ->write( &status );
+    }
   }
 }
 

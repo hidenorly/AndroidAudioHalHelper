@@ -245,14 +245,14 @@ HalResult IEffect::setAuxChannelsConfig(EffectAuxChannelsConfig& config)
 {
   HalResult result = HalResult::OK;
 
+  mEffectAuxChannelConfig = config;
+
   return result;
 }
 
 EffectAuxChannelsConfig IEffect::getAuxChannelsConfig(void)
 {
-  EffectAuxChannelsConfig result;
-
-  return result;
+  return mEffectAuxChannelConfig;
 }
 
 HalResult IEffect::offload(EffectOffloadParameter param)
@@ -270,8 +270,10 @@ HalResult IEffect::offload(EffectOffloadParameter param)
 
 std::shared_ptr<IEffect::StatusMQ> IEffect::prepareForProcessing(void)
 {
-  std::shared_ptr<IEffect::StatusMQ> result;
-  return result;
+  if( !mStatusMQ ){
+    mStatusMQ = std::make_shared<IEffect::StatusMQ>(IEffect::DEFAUT_SIZE_OF_MESSAGE_QUEUE);
+  }
+  return mStatusMQ;
 
 }
 

@@ -30,15 +30,21 @@
 
 class IEffect
 {
+public:
+  typedef android::hardware::MessageQueue<HalResult, android::hardware::kSynchronizedReadWrite> StatusMQ;
+  const int DEFAUT_SIZE_OF_MESSAGE_QUEUE=256;
+
 protected:
   std::string mUuid;
   std::shared_ptr<IFilter> mFilter;
   std::shared_ptr<IPipe> mPipe;
   EffectConfig mEffectConfig;
+  EffectAuxChannelsConfig mEffectAuxChannelConfig;
   AudioFormat mInputFormat;
   AudioFormat mOutputFormat;
   std::shared_ptr<IEffectBufferProviderCallback> mInputBufferProvider;
   std::shared_ptr<IEffectBufferProviderCallback> mOutputBufferProvider;
+  std::shared_ptr<StatusMQ> mStatusMQ;
 
 public:
   IEffect(std::string uuid = "", std::shared_ptr<IFilter> pFilter = nullptr);
@@ -77,8 +83,6 @@ public:
   EffectAuxChannelsConfig getAuxChannelsConfig(void);
 
   HalResult offload(EffectOffloadParameter param);
-
-  typedef android::hardware::MessageQueue<HalResult, android::hardware::kSynchronizedReadWrite> StatusMQ;
 
   std::shared_ptr<StatusMQ> prepareForProcessing(void);
   HalResult setProcessBuffers(std::shared_ptr<AndroidAudioBuffer> inBuffer, std::shared_ptr<AndroidAudioBuffer> outBuffer);
