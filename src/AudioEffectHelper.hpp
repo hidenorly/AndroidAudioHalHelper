@@ -33,16 +33,18 @@ public:
   static void initialize(std::string filterPlugInPath);
   static void terminate(void);
 
+  // Filter
+  static void loadUuidFilterIdTable(std::string path);
+  static void associateFilter(std::string uuid, std::string effectIdString);
+  static void unassociateFilter(std::string uuid);
+  static std::shared_ptr<IFilter> getFilterInstance(std::string uuid);
+
+  // Effect
   static void associateEffect(std::weak_ptr<IEffect> pEffect);
   static void unassociateEffect(std::weak_ptr<IEffect> pEffect);
   static std::shared_ptr<IEffect> getEffect(std::string uuid);
 
-  static void associateFilter(std::string uuid, std::string effectIdString);
-
   static std::string getUuidFromEffectId(uint64_t effectId);
-  static std::string getEffectIdString(uint64_t effectId);
-
-  static std::shared_ptr<IFilter> getFilterInstance(std::string uuid);
   static std::shared_ptr<IFilter> getFilterFromEffectInstance(uint64_t effectId);
 };
 

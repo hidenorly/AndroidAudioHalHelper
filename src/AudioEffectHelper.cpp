@@ -15,6 +15,9 @@
 */
 
 #include "AudioEffectHelper.hpp"
+#include "Stream.hpp"
+#include "StringTokenizer.hpp"
+#include "StringUtil.hpp"
 
 //TODO: createEffect (resolve uuid -> FilterPlugIn Id) -> store the effectId to mFiltersIdResolver
 
@@ -43,9 +46,34 @@ void AudioEffectHelper::terminate(void)
   mEffectIdUuidResolver.clear();
 }
 
+void AudioEffectHelper::loadUuidFilterIdTable(std::string path)
+{
+  std::shared_ptr<IStream> pStream = std::make_shared<FileStream>( path );
+  std::string aLine;
+  while( !pStream->isEndOfStream() ){
+    if( pStream->readLine( aLine ) ){
+      StringTokenizer tok( aLine, "=");
+      if( tok.hasNext() ){
+        std::string uuid = StringUtil::trim( tok.getNext() );
+        std::string filterId = StringUtil::trim( tok.getNext() );
+        associateFilter( uuid, filterId );
+      }
+    }
+  }
+  pStream->close();
+}
+
+
 void AudioEffectHelper::associateFilter(std::string uuid, std::string effectIdString)
 {
   mFiltersIdResolver.insert_or_assign( uuid, effectIdString );
+}
+
+void AudioEffectHelper::unassociateFilter(std::string uuid)
+{
+  if( mFiltersIdResolver.contains( uuid ) ){
+    mFiltersIdResolver.erase( uuid );
+  }
 }
 
 std::string AudioEffectHelper::getUuidFromEffectId(uint64_t effectId)
@@ -53,17 +81,6 @@ std::string AudioEffectHelper::getUuidFromEffectId(uint64_t effectId)
   std::string result;
   if( mEffectIdUuidResolver.contains( effectId ) ){
     result = mEffectIdUuidResolver[ effectId ];
-  }
-  return result;
-}
-
-
-std::string AudioEffectHelper::getEffectIdString(uint64_t effectId)
-{
-  std::string result;
-  std::string uuid = getUuidFromEffectId( effectId );
-  if( mFiltersIdResolver.contains( uuid ) ){
-    result = mFiltersIdResolver[ uuid ];
   }
   return result;
 }
