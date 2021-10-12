@@ -19,6 +19,7 @@
 #include <iostream>
 #include "AndroidHalDevice.hpp"
 #include "AudioEffectHelper.hpp"
+#include "SourceSinkManager.hpp"
 
 IEffect::IEffect(std::string uuid, std::shared_ptr<IFilter> pFilter):mUuid(uuid), mFilter(pFilter)
 {
@@ -67,7 +68,7 @@ EffectDescriptor IEffect::getDescriptor(void)
     result.cpuLoad = mFilter->getExpectedProcessingUSec();
     std::shared_ptr<FilterPlugIn> pPlugIn = std::dynamic_pointer_cast<FilterPlugIn>(mFilter);
     if( pPlugIn ){
-      strncpy( (char*)result.name, pPlugIn->toString().c_str(), sizeof( result.name ) );
+      strncpy( (char*)result.name, pPlugIn->getId().c_str(), sizeof( result.name ) );
       strncpy( (char*)result.implementor, pPlugIn->toString().c_str(), sizeof( result.implementor ) );
     }
   }
@@ -89,6 +90,8 @@ HalResult IEffect::init(void)
   mOutputFormat = AudioFormat();
   mInputBufferProvider.reset();
   mOutputBufferProvider.reset();
+  mAudioBuffers.clear();
+  mFeatureConfigData.clear();
 
 
   return result;
@@ -97,6 +100,8 @@ HalResult IEffect::init(void)
 HalResult IEffect::reset(void)
 {
   HalResult result = HalResult::OK;
+
+  mAudioBuffers.clear();
 
   return result;
 }
@@ -138,7 +143,15 @@ HalResult IEffect::close(void)
 // for output
 HalResult IEffect::setDevice(AudioDevice device)
 {
-  HalResult result = HalResult::OK;
+  HalResult result = HalResult::INVALID_ARGUMENTS;
+
+  std::shared_ptr<ISink> pSink = SourceSinkManager::getSink( device );
+  if( pSink ){
+    if( mPipe ){
+      mPipe->attachSink( pSink );
+      result = HalResult::OK;
+    }
+  }
 
   return result;
 }
@@ -146,7 +159,15 @@ HalResult IEffect::setDevice(AudioDevice device)
 // for input chain
 HalResult IEffect::setInputDevice(AudioDevice device)
 {
-  HalResult result = HalResult::OK;
+  HalResult result = HalResult::INVALID_ARGUMENTS;
+
+  std::shared_ptr<ISource> pSource = SourceSinkManager::getSource( device );
+  if( pSource ){
+    if( mPipe ){
+      mPipe->attachSource( pSource );
+      result = HalResult::OK;
+    }
+  }
 
   return result;
 }
@@ -155,6 +176,55 @@ HalResult IEffect::setInputDevice(AudioDevice device)
 HalResult IEffect::setAudioSource(AudioSource source)
 {
   HalResult result = HalResult::OK;
+
+  std::string sourceDesc;
+
+  switch( source ){
+    case AUDIO_SOURCE_MIC:
+      sourceDesc = "AUDIO_SOURCE_MIC";
+      break;
+    case AUDIO_SOURCE_VOICE_UPLINK:
+      sourceDesc = "AUDIO_SOURCE_VOICE_UPLINK";
+      break;
+    case AUDIO_SOURCE_VOICE_DOWNLINK:
+      sourceDesc = "AUDIO_SOURCE_VOICE_DOWNLINK";
+      break;
+    case AUDIO_SOURCE_VOICE_CALL:
+      sourceDesc = "AUDIO_SOURCE_VOICE_CALL";
+      break;
+    case AUDIO_SOURCE_CAMCORDER:
+      sourceDesc = "AUDIO_SOURCE_CAMCORDER";
+      break;
+    case AUDIO_SOURCE_VOICE_RECOGNITION:
+      sourceDesc = "AUDIO_SOURCE_VOICE_RECOGNITION";
+      break;
+    case AUDIO_SOURCE_VOICE_COMMUNICATION:
+      sourceDesc = "AUDIO_SOURCE_VOICE_COMMUNICATION";
+      break;
+    case AUDIO_SOURCE_REMOTE_SUBMIX:
+      sourceDesc = "AUDIO_SOURCE_REMOTE_SUBMIX";
+      break;
+    case AUDIO_SOURCE_UNPROCESSED:
+      sourceDesc = "AUDIO_SOURCE_UNPROCESSED";
+      break;
+    case AUDIO_SOURCE_VOICE_PERFORMANCE:
+      sourceDesc = "AUDIO_SOURCE_VOICE_PERFORMANCE";
+      break;
+    case AUDIO_SOURCE_ECHO_REFERENCE:
+      sourceDesc = "AUDIO_SOURCE_ECHO_REFERENCE";
+      break;
+    case AUDIO_SOURCE_FM_TUNER:
+      sourceDesc = "AUDIO_SOURCE_FM_TUNER";
+      break;
+    case AUDIO_SOURCE_HOTWORD:
+      sourceDesc = "AUDIO_SOURCE_HOTWORD";
+      break;
+    case AUDIO_SOURCE_DEFAULT:
+    default:
+      sourceDesc = "AUDIO_SOURCE_DEFAULT";
+      break;
+  }
+  std::cout << "setAudioSource( " << sourceDesc << " )" << std::endl;
 
   return result;
 }
@@ -198,14 +268,14 @@ HalResult IEffect::setAudioMode(AudioMode mode)
 }
 
 
-std::vector<uint32_t> IEffect::setAndGetVolume(std::vector<uint32_t> channelVolumes)
+std::vector<uint32_t> IEffect::setAndGetVolume(const std::vector<uint32_t>& channelVolumes)
 {
   std::vector<uint32_t> result;
 
   return result;
 }
 
-HalResult IEffect::volumeChangeNotification(std::vector<uint32_t> channelVolumes)
+HalResult IEffect::volumeChangeNotification(const std::vector<uint32_t>& channelVolumes)
 {
   HalResult result = HalResult::OK;
 
@@ -247,7 +317,7 @@ std::vector<EffectAuxChannelsConfig> IEffect::getSupportedAuxChannelsConfigs(uin
   return result;
 }
 
-HalResult IEffect::setAuxChannelsConfig(EffectAuxChannelsConfig& config)
+HalResult IEffect::setAuxChannelsConfig(const EffectAuxChannelsConfig& config)
 {
   HalResult result = HalResult::OK;
 
@@ -261,7 +331,7 @@ EffectAuxChannelsConfig IEffect::getAuxChannelsConfig(void)
   return mEffectAuxChannelConfig;
 }
 
-HalResult IEffect::offload(EffectOffloadParameter param)
+HalResult IEffect::offload(const EffectOffloadParameter& param)
 {
   HalResult result = HalResult::OK;
   if( param.isOffload ){
@@ -310,7 +380,7 @@ HalResult IEffect::getParameter(const std::vector<uint8_t>& parameter, std::vect
   return result;
 }
 
-std::vector<uint8_t> IEffect::getSupportedConfigsForFeature(uint32_t featureId, uint32_t maxConfigs, uint32_t configSize)
+std::vector<uint8_t> IEffect::getSupportedConfigsForFeature(uint32_t featureId, uint32_t maxConfigs, const uint32_t configSize)
 {
   std::vector<uint8_t> result;
 
@@ -320,6 +390,7 @@ std::vector<uint8_t> IEffect::getSupportedConfigsForFeature(uint32_t featureId, 
 HalResult IEffect::setCurrentConfigForFeature(uint32_t featureId, const std::vector<uint8_t>& configData)
 {
   HalResult result = HalResult::OK;
+  mFeatureConfigData.insert_or_assign( featureId, configData );
 
   return result;
 }
@@ -327,6 +398,13 @@ HalResult IEffect::setCurrentConfigForFeature(uint32_t featureId, const std::vec
 HalResult IEffect::getCurrentConfigForFeature(uint32_t featureId, std::vector<uint8_t>& outConfigData, uint32_t configSize)
 {
   HalResult result = HalResult::OK;
+
+  if( mFeatureConfigData.contains( featureId ) ){
+    outConfigData = mFeatureConfigData[ featureId ];
+    if( ( configSize != UINT_MAX ) && ( outConfigData.size() > configSize ) ){
+      outConfigData.resize( configSize );
+    }
+  }
 
   return result;
 }

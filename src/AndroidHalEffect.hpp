@@ -49,6 +49,7 @@ protected:
   std::shared_ptr<StatusMQ> mStatusMQ;
 
   std::vector<EffectBuffer> mAudioBuffers;
+  std::map<uint32_t, std::vector<uint8_t>> mFeatureConfigData;
 
 public:
   IEffect(std::string uuid = "", std::shared_ptr<IFilter> pFilter = nullptr);
@@ -75,8 +76,8 @@ public:
 
   HalResult setAudioMode(AudioMode mode);
 
-  std::vector<uint32_t> setAndGetVolume(std::vector<uint32_t> channelVolumes);
-  HalResult volumeChangeNotification(std::vector<uint32_t> channelVolumes);
+  std::vector<uint32_t> setAndGetVolume(const std::vector<uint32_t>& channelVolumes);
+  HalResult volumeChangeNotification(const std::vector<uint32_t>& channelVolumes);
 
   HalResult setConfig(const EffectConfig& config, std::shared_ptr<IEffectBufferProviderCallback> inputBufferProvider, std::shared_ptr<IEffectBufferProviderCallback> outputBufferProvider);
   EffectConfig getConfig(void);
@@ -84,10 +85,10 @@ public:
   EffectConfig getConfigReverse(void);
 
   std::vector<EffectAuxChannelsConfig> getSupportedAuxChannelsConfigs(uint32_t maxConfigs);
-  HalResult setAuxChannelsConfig(EffectAuxChannelsConfig& config);
+  HalResult setAuxChannelsConfig(const EffectAuxChannelsConfig& config);
   EffectAuxChannelsConfig getAuxChannelsConfig(void);
 
-  HalResult offload(EffectOffloadParameter param);
+  HalResult offload(const EffectOffloadParameter& param);
 
   std::shared_ptr<StatusMQ> prepareForProcessing(void);
   HalResult setProcessBuffers(std::shared_ptr<AndroidAudioBuffer> inBuffer, std::shared_ptr<AndroidAudioBuffer> outBuffer);
@@ -96,7 +97,7 @@ public:
   uint32_t command(uint32_t commandId, const std::vector<uint8_t>& inData, std::vector<uint8_t>& outData, const uint32_t resultMaxSize = UINT_MAX);
   HalResult setParameter(const std::vector<uint8_t>& parameter, const std::vector<uint8_t>& value);
   HalResult getParameter(const std::vector<uint8_t>& parameter, std::vector<uint8_t>& outValue, const uint32_t valueMaxSize = UINT_MAX);
-  std::vector<uint8_t> getSupportedConfigsForFeature(uint32_t featureId, uint32_t maxConfigs = UINT_MAX, uint32_t configSize = UINT_MAX);
+  std::vector<uint8_t> getSupportedConfigsForFeature(uint32_t featureId, uint32_t maxConfigs = UINT_MAX, const uint32_t configSize = UINT_MAX);
   HalResult setCurrentConfigForFeature(uint32_t featureId, const std::vector<uint8_t>& configData);
   HalResult getCurrentConfigForFeature(uint32_t featureId, std::vector<uint8_t>& outConfigData, uint32_t configSize = UINT_MAX);
 };

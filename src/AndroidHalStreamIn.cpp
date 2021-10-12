@@ -68,7 +68,7 @@ HalResult IStreamIn::setGain(float gain)
 
 AudioSource IStreamIn::getAudioSource(void)
 {
-  return 0;
+  return AUDIO_SOURCE_DEFAULT;
 }
 
 std::vector<AudioMicrophoneCharacteristic> IStreamIn::getActiveMicrophones(void)

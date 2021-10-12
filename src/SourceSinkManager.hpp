@@ -27,6 +27,7 @@ class SourceSinkManager
 {
 protected:
   static inline std::map<std::string, std::shared_ptr<ISourceSinkCommon>> mSourceSinksByDeviceAddr;
+  static inline std::map<AudioDevice, std::shared_ptr<ISourceSinkCommon>> mSourceSinksByAudioDevice;
   static inline std::map<AudioPortHandle, std::shared_ptr<ISourceSinkCommon>> mSourceSinksByAudioPortHandle;
 
 public:
@@ -44,6 +45,10 @@ public:
   static std::shared_ptr<ISourceSinkCommon> getSourceSink(DeviceAddress deviceAddr);
   static std::shared_ptr<ISink> getSink(DeviceAddress deviceAddr);
   static std::shared_ptr<ISource> getSource(DeviceAddress deviceAddr);
+
+  static std::shared_ptr<ISourceSinkCommon> getSourceSink(AudioDevice device);
+  static std::shared_ptr<ISink> getSink(AudioDevice device);
+  static std::shared_ptr<ISource> getSource(AudioDevice device);
 
   static std::vector<std::shared_ptr<ISink>> getSinkDevices(void);
 

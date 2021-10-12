@@ -34,7 +34,7 @@ public:
   static void terminate(void);
 
   // Filter
-  static void loadUuidFilterIdTable(std::string path);
+  static void loadUuidFilterIdTable(std::string path = "uuidFilterTable.ini");
   static void associateFilter(std::string uuid, std::string effectIdString);
   static void unassociateFilter(std::string uuid);
   static std::shared_ptr<IFilter> getFilterInstance(std::string uuid);

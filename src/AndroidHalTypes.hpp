@@ -22,49 +22,12 @@ limitations under the License.
 #include <system/audio.h>
 #include "Buffer.hpp"
 
-enum HalResult
-{
-  OK,
-  NOT_INITIALIZED,
-  INVALID_ARGUMENTS,
-  INVALID_STATE,
-  NOT_SUPPORTED
-};
-
-typedef uint8_t MacAddress[6];
-
-struct DeviceAddress
-{
-  uint32_t device;
-  union Address {
-    MacAddress mac;
-    uint8_t ipv4[4];
-    struct Alsa {
-      int32_t card;
-      int32_t device;
-    } alsa;
-  } address;
-  std::string busAddress;
-  std::string rSubmixAddress;
-  DeviceAddress():device(0){
-    address.alsa.card = 0;
-    address.alsa.device = 0;
-  };
-};
-
-struct ParameterValue
-{
-  std::string key;
-  std::string value;
-  ParameterValue(std::string key, std::string value):key(key),value(value){};
-};
-
 typedef uint32_t AudioHwSync;
 typedef int32_t AudioUsage;
 typedef uint32_t AudioContentType;
 typedef int32_t AudioDrain;
 typedef int32_t DualMonoMode;
-typedef int32_t AudioSource;
+typedef audio_source_t AudioSource;
 typedef audio_channel_mask_t AudioChannelMask;
 typedef audio_format_t AndroidAudioFormat;
 typedef audio_devices_t AudioDevice;
@@ -88,6 +51,43 @@ typedef audio_microphone_direction_t AudioMicrophoneDirection;
 
 typedef audio_output_flags_t AudioOutputFlags;
 typedef audio_input_flags_t AudioInputFlags;
+
+typedef uint8_t MacAddress[6];
+
+enum HalResult
+{
+  OK,
+  NOT_INITIALIZED,
+  INVALID_ARGUMENTS,
+  INVALID_STATE,
+  NOT_SUPPORTED
+};
+
+struct DeviceAddress
+{
+  AudioDevice device;
+  union Address {
+    MacAddress mac;
+    uint8_t ipv4[4];
+    struct Alsa {
+      int32_t card;
+      int32_t device;
+    } alsa;
+  } address;
+  std::string busAddress;
+  std::string rSubmixAddress;
+  DeviceAddress():device(AUDIO_DEVICE_OUT_DEFAULT){
+    address.alsa.card = 0;
+    address.alsa.device = 0;
+  };
+};
+
+struct ParameterValue
+{
+  std::string key;
+  std::string value;
+  ParameterValue(std::string key, std::string value):key(key),value(value){};
+};
 
 
 struct PlaybackTrackMetadata

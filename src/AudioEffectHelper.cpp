@@ -19,8 +19,6 @@
 #include "StringTokenizer.hpp"
 #include "StringUtil.hpp"
 
-//TODO: createEffect (resolve uuid -> FilterPlugIn Id) -> store the effectId to mFiltersIdResolver
-
 void AudioEffectHelper::initialize(std::string filterPlugInPath)
 {
   FilterManager::setPlugInPath(filterPlugInPath);
