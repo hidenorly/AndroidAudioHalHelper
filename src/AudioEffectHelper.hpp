@@ -30,7 +30,7 @@ protected:
   static inline std::map<uint64_t, std::string> mEffectIdUuidResolver; //effectId, uuid
 
 public:
-  static void initialize(std::string filterPlugInPath);
+  static void initialize(std::string filterPlugInPath, std::string uuidFilterIdTblPath = "uuidFilterTable.ini");
   static void terminate(void);
 
   // Filter
@@ -39,6 +39,8 @@ public:
   static void unassociateFilter(std::string uuid);
   static std::shared_ptr<IFilter> getFilterInstance(std::string uuid);
 
+  static std::vector<std::string> getInstanciatableEffectsUuids(void);
+
   // Effect
   static void associateEffect(std::weak_ptr<IEffect> pEffect);
   static void unassociateEffect(std::weak_ptr<IEffect> pEffect);
@@ -46,6 +48,9 @@ public:
 
   static std::string getUuidFromEffectId(uint64_t effectId);
   static std::shared_ptr<IFilter> getFilterFromEffectInstance(uint64_t effectId);
+
+  static EffectFlags getDefaultEffectFlags(void);
+  static EffectDescriptor getDescriptor(Uuid uuid, std::shared_ptr<IFilter> pFilter = nullptr );
 };
 
 #endif /* __AUDIOEFFECT_HELPER_HPP__ */

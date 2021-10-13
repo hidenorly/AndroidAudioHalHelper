@@ -41,39 +41,10 @@ std::string IEffect::getUuid(void)
   return mUuid;
 }
 
-EffectFlags IEffect::getDefaultEffectFlags(void)
-{
-  EffectFlags result =
-    EffectFlag::TYPE_POST_PROC |
-    EffectFlag::INSERT_ANY |
-    EffectFlag::VOLUME_NONE |
-    EffectFlag::DEVICE_IND |
-    EffectFlag::INPUT_DIRECT |
-    EffectFlag::OUTPUT_DIRECT |
-    EffectFlag::HW_ACC_TUNNEL |
-    EffectFlag::AUDIO_MODE_IND |
-    EffectFlag::AUDIO_SOURCE_IND |
-    EffectFlag::OFFLOAD_SUPPORTED;
-
-  return result;
-}
 
 EffectDescriptor IEffect::getDescriptor(void)
 {
-  EffectDescriptor result;
-  result.uuid = mUuid;
-
-  if( mFilter ){
-    result.flags = getDefaultEffectFlags();
-    result.cpuLoad = mFilter->getExpectedProcessingUSec();
-    std::shared_ptr<FilterPlugIn> pPlugIn = std::dynamic_pointer_cast<FilterPlugIn>(mFilter);
-    if( pPlugIn ){
-      strncpy( (char*)result.name, pPlugIn->getId().c_str(), sizeof( result.name ) );
-      strncpy( (char*)result.implementor, pPlugIn->toString().c_str(), sizeof( result.implementor ) );
-    }
-  }
-
-  return result;
+  return AudioEffectHelper::getDescriptor( mUuid, mFilter );
 }
 
 std::shared_ptr<IFilter> IEffect::getFilter(void)
@@ -92,7 +63,6 @@ HalResult IEffect::init(void)
   mOutputBufferProvider.reset();
   mAudioBuffers.clear();
   mFeatureConfigData.clear();
-
 
   return result;
 }

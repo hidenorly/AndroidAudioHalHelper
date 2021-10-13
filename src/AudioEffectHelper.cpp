@@ -19,7 +19,7 @@
 #include "StringTokenizer.hpp"
 #include "StringUtil.hpp"
 
-void AudioEffectHelper::initialize(std::string filterPlugInPath)
+void AudioEffectHelper::initialize(std::string filterPlugInPath, std::string uuidFilterIdTblPath)
 {
   FilterManager::setPlugInPath(filterPlugInPath);
   std::weak_ptr<FilterManager> pWeakManager = FilterManager::getInstance();
@@ -30,6 +30,8 @@ void AudioEffectHelper::initialize(std::string filterPlugInPath)
   mFiltersIdResolver.clear();
   mUuidEffectResolver.clear();
   mEffectIdUuidResolver.clear();
+
+  loadUuidFilterIdTable( uuidFilterIdTblPath );
 }
 
 void AudioEffectHelper::terminate(void)
@@ -59,6 +61,20 @@ void AudioEffectHelper::loadUuidFilterIdTable(std::string path)
     }
   }
   pStream->close();
+}
+
+std::vector<std::string> AudioEffectHelper::getInstanciatableEffectsUuids(void)
+{
+  std::vector<std::string> result;
+
+  for( auto& [uuid, filterId] : mFiltersIdResolver ){
+    std::shared_ptr<IFilter> pFilter = getFilterInstance( uuid );
+    if( pFilter ){
+      result.push_back( uuid );
+    }
+  }
+
+  return result;
 }
 
 
@@ -167,5 +183,43 @@ std::shared_ptr<IEffect> AudioEffectHelper::getEffect(std::string uuid)
   if( mUuidEffectResolver.contains( uuid ) ){
     result = mUuidEffectResolver[ uuid ].lock();
   }
+  return result;
+}
+
+EffectFlags AudioEffectHelper::getDefaultEffectFlags(void)
+{
+  EffectFlags result =
+    EffectFlag::TYPE_POST_PROC |
+    EffectFlag::INSERT_ANY |
+    EffectFlag::VOLUME_NONE |
+    EffectFlag::DEVICE_IND |
+    EffectFlag::INPUT_DIRECT |
+    EffectFlag::OUTPUT_DIRECT |
+    EffectFlag::HW_ACC_TUNNEL |
+    EffectFlag::AUDIO_MODE_IND |
+    EffectFlag::AUDIO_SOURCE_IND |
+    EffectFlag::OFFLOAD_SUPPORTED;
+
+  return result;
+}
+
+EffectDescriptor AudioEffectHelper::getDescriptor(Uuid uuid, std::shared_ptr<IFilter> pFilter)
+{
+  EffectDescriptor result;
+
+  if( !pFilter ){
+    pFilter = getFilterInstance( uuid );
+  }
+  if( pFilter ){
+    result.uuid = uuid;
+    result.flags = getDefaultEffectFlags();
+    result.cpuLoad = pFilter->getExpectedProcessingUSec();
+    std::shared_ptr<FilterPlugIn> pPlugIn = std::dynamic_pointer_cast<FilterPlugIn>(pFilter);
+    if( pPlugIn ){
+      strncpy( (char*)result.name, pPlugIn->getId().c_str(), sizeof( result.name ) );
+      strncpy( (char*)result.implementor, pPlugIn->toString().c_str(), sizeof( result.implementor ) );
+    }
+  }
+
   return result;
 }

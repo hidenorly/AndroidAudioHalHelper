@@ -25,9 +25,9 @@
 class IEffectsFactory
 {
 public:
-  std::vector<EffectDescriptor> getAllDescriptors(void);
-  EffectDescriptor getDescriptor(Uuid uuid);
-  std::shared_ptr<IEffect> createEffect(Uuid uuid, AudioSession session, AudioIoHandle ioHandle, AudioPortHandle device);
+  static std::vector<EffectDescriptor> getAllDescriptors(void);
+  static EffectDescriptor getDescriptor(Uuid uuid);
+  static std::shared_ptr<IEffect> createEffect(Uuid uuid, AudioSession session, AudioIoHandle ioHandle, AudioPortHandle device);
 };
 
 #endif /* __ANDROID_HAL_EFFECT_FACTORY_HPP__ */

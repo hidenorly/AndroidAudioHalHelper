@@ -58,7 +58,6 @@ public:
   uint64_t getEffectId(void);
   std::string getUuid(void);
   EffectDescriptor getDescriptor(void);
-  EffectFlags getDefaultEffectFlags(void);
   std::shared_ptr<IFilter> getFilter(void);
 
   HalResult init(void);

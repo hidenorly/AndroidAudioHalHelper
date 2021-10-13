@@ -15,22 +15,38 @@
 */
 
 #include "AndroidHalEffectFactory.hpp"
+#include "AudioEffectHelper.hpp"
 
 std::vector<EffectDescriptor> IEffectsFactory::getAllDescriptors(void)
 {
   std::vector<EffectDescriptor> result;
+
+  std::vector<std::string> uuids = AudioEffectHelper::getInstanciatableEffectsUuids();
+  for( auto& aUuid : uuids ){
+    result.push_back( getDescriptor( aUuid ) );
+  }
 
   return result;
 }
 
 EffectDescriptor IEffectsFactory::getDescriptor(Uuid uuid)
 {
-  return EffectDescriptor();
+  return AudioEffectHelper::getDescriptor( uuid );
 }
 
 std::shared_ptr<IEffect> IEffectsFactory::createEffect(Uuid uuid, AudioSession session, AudioIoHandle ioHandle, AudioPortHandle device)
 {
-  std::shared_ptr<IEffect> pEffect;
+  std::shared_ptr<IEffect> pEffect = AudioEffectHelper::getEffect( uuid );
+  if( !pEffect ){
+    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getFilterInstance( uuid );
+    if( pFilter ){
+      // TODO : depends on the Effect ID type, need to instantiate corresponding class instance
+      pEffect = std::make_shared<IEffect>( uuid, pFilter );
+      if( pEffect ){
+        // TODO : associate session, ioHandle, device to the pEffect
+      }
+    }
+  }
 
   return pEffect;
 }
