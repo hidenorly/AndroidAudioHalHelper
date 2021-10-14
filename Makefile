@@ -18,8 +18,9 @@ LDFLAGS=-pthread
 
 # project config
 HELPER_DIR ?= ./src
+HELPER_INC_DIR ?= ./include
 AFW_DIR=../audioframework
-INC_DIR=$(AFW_DIR)/include
+AFW_INC_DIR=$(AFW_DIR)/include
 LIB_DIR=$(AFW_DIR)/lib
 LIB_HELPER_DIR=./lib
 OBJ_DIR=./out
@@ -66,7 +67,7 @@ $(HELPER_OBJS): $(HELPER_SRCS)
 	echo Android home is $(ANDROID_HOME)
 
 	@[ -d $(OBJ_DIR) ] || mkdir -p $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) $(EXT_CXXFLAGS) -I $(INC_DIR) -I $(ANDROID_MEDIA_INC) -I $(ANDROID_CUTIL_INC) -I $(ANDROID_FMQ_INC) -I $(ANDROID_FMQ_INC2) -I $(ANDROID_LIBBASE_INC) -I $(ANDROID_UTILS_INC) -I $(ANDROID_HIDL_INC) -I $(ANDROID_LOG_INC) -I $(ANDROID_LOG_S_INC) -c $(HELPER_DIR)/$(notdir $(@:.o=.cpp)) -o $@
+	$(CXX) $(CXXFLAGS) $(EXT_CXXFLAGS) -I $(HELPER_INC_DIR) -I $(AFW_INC_DIR) -I $(ANDROID_MEDIA_INC) -I $(ANDROID_CUTIL_INC) -I $(ANDROID_FMQ_INC) -I $(ANDROID_FMQ_INC2) -I $(ANDROID_LIBBASE_INC) -I $(ANDROID_UTILS_INC) -I $(ANDROID_HIDL_INC) -I $(ANDROID_LOG_INC) -I $(ANDROID_LOG_S_INC) -c $(HELPER_DIR)/$(notdir $(@:.o=.cpp)) -o $@
 
 -include $(HELPER_DEPS)
 
