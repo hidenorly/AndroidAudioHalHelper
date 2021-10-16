@@ -14,30 +14,28 @@
    limitations under the License.
 */
 
-#ifndef __ANDROID_HAL_BASS_BOOST_EFFECT_HPP__
-#define __ANDROID_HAL_BASS_BOOST_EFFECT_HPP__
+#ifndef __ANDROID_HAL_DOWN_MIX_EFFECT_HPP__
+#define __ANDROID_HAL_DOWN_MIX_EFFECT_HPP__
 
 #include "AndroidHalTypes.hpp"
 #include "AndroidHalEffect.hpp"
 
-class IBassBoostEffect : public IEffect
+class IDownmixEffect : public IEffect
 {
 public:
-  IBassBoostEffect();
-  virtual ~IBassBoostEffect();
+  IDownmixEffect();
+  virtual ~IDownmixEffect();
 
-  static inline const char* UUID = "0634f220-ddd4-11db-a0fc-0002a5d5c51b";
+  static inline const char* UUID = "93f04452-e4fe-41cc-91f9-e475b6d1d69f";
 
-  virtual bool isStrengthSupported(void);
-
-  enum StrengthRange
+  enum Type
   {
-    MIN = 0,
-    MAX = 1000
+    STRIP, // throw away the extra channels
+    FOLD   // mix the extra channels with FL/FR
   };
 
-  virtual HalResult setStrength(uint16_t strength);
-  virtual uint16_t getStrength(void);
+  virtual HalResult setType(Type preset);
+  virtual Type getType(void);
 };
 
-#endif /* __ANDROID_HAL_BASS_BOOST_EFFECT_HPP__ */
+#endif /* __ANDROID_HAL_DOWN_MIX_EFFECT_HPP__ */

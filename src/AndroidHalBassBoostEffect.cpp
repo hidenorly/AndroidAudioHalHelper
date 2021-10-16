@@ -16,7 +16,7 @@
 
 #include "AndroidHalBassBoostEffect.hpp"
 
-IBassBoostEffect::IBassBoostEffect():IEffect( UUID_BASSBOOST )
+IBassBoostEffect::IBassBoostEffect():IEffect( IBassBoostEffect::UUID )
 {
 
 }
