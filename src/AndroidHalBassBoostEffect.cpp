@@ -15,8 +15,9 @@
 */
 
 #include "AndroidHalBassBoostEffect.hpp"
+#include <algorithm>
 
-IBassBoostEffect::IBassBoostEffect():IEffect( IBassBoostEffect::UUID )
+IBassBoostEffect::IBassBoostEffect():IEffect( IBassBoostEffect::UUID ), mStrength( IBassBoostEffect::StrengthRange::MIN )
 {
 
 }
@@ -33,12 +34,14 @@ bool IBassBoostEffect::isStrengthSupported(void)
 
 HalResult IBassBoostEffect::setStrength(uint16_t strength)
 {
-  HalResult result = HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::OK;
+
+  mStrength = std::max<uint16_t>( std::min<uint16_t>( strength, StrengthRange::MAX ), StrengthRange::MIN );
 
   return result;
 }
 
 uint16_t IBassBoostEffect::getStrength(void)
 {
-  return IBassBoostEffect::StrengthRange::MIN;
+  return mStrength;
 }
