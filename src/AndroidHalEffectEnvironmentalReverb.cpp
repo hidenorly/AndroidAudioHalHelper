@@ -15,7 +15,7 @@
 */
 
 #include "AndroidHalTypes.hpp"
-#include "AndroidHalEnvironmentalReverbEffect.hpp"
+#include "AndroidHalEffectEnvironmentalReverb.hpp"
 #include <algorithm>
 
 IEnvironmentalReverbEffect::IEnvironmentalReverbEffect():IEffect( IEnvironmentalReverbEffect::UUID ), mBypass(false)

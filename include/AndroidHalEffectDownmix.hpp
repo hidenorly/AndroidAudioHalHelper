@@ -34,6 +34,10 @@ public:
     FOLD   // mix the extra channels with FL/FR
   };
 
+protected:
+  Type mType;
+
+public:
   virtual HalResult setType(Type preset);
   virtual Type getType(void);
 };

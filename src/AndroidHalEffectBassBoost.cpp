@@ -14,28 +14,34 @@
    limitations under the License.
 */
 
-#include "AndroidHalDownmixEffect.hpp"
+#include "AndroidHalEffectBassBoost.hpp"
+#include <algorithm>
 
-IDownmixEffect::IDownmixEffect():IEffect( IDownmixEffect::UUID )
+IBassBoostEffect::IBassBoostEffect():IEffect( IBassBoostEffect::UUID ), mStrength( IBassBoostEffect::StrengthRange::MIN )
 {
 
 }
 
-IDownmixEffect::~IDownmixEffect()
+IBassBoostEffect::~IBassBoostEffect()
 {
 
 }
 
-HalResult IDownmixEffect::setType(IDownmixEffect::Type preset)
+bool IBassBoostEffect::isStrengthSupported(void)
+{
+  return false;
+}
+
+HalResult IBassBoostEffect::setStrength(uint16_t strength)
 {
   HalResult result = HalResult::OK;
 
+  mStrength = std::max<uint16_t>( std::min<uint16_t>( strength, StrengthRange::MAX ), StrengthRange::MIN );
+
   return result;
 }
 
-IDownmixEffect::Type IDownmixEffect::getType(void)
+uint16_t IBassBoostEffect::getStrength(void)
 {
-  IDownmixEffect::Type result = IDownmixEffect::Type::STRIP;
-
-  return result;
+  return mStrength;
 }

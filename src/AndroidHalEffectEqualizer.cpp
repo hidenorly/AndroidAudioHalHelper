@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-#include "AndroidHalEqualizerEffect.hpp"
+#include "AndroidHalEffectEqualizer.hpp"
 
 IEqualizerEffect::IEqualizerEffect():IEffect( IEqualizerEffect::UUID )
 {
