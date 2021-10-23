@@ -14,8 +14,8 @@
    limitations under the License.
 */
 
-#ifndef __ANDROID_HAL_VISUALIZER_EFFECT_HPP__
-#define __ANDROID_HAL_VISUALIZER_EFFECT_HPP__
+#ifndef __ANDROID_HAL_VIRTUALIZER_EFFECT_HPP__
+#define __ANDROID_HAL_VIRTUALIZER_EFFECT_HPP__
 
 #include "AndroidHalTypes.hpp"
 #include "AndroidHalEffect.hpp"
@@ -55,4 +55,4 @@ public:
   virtual DeviceAddress getVirtualizationMode(void);
 };
 
-#endif /* __ANDROID_HAL_VISUALIZER_EFFECT_HPP__ */
+#endif /* __ANDROID_HAL_VIRTUALIZER_EFFECT_HPP__ */
