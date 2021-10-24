@@ -27,6 +27,7 @@ public:
   virtual ~IBassBoostEffect();
 
   static inline const char* UUID = "0634f220-ddd4-11db-a0fc-0002a5d5c51b";
+  _EffectGetInstanceIfUuidMatch(IBassBoostEffect);
 
 protected:
   uint16_t mStrength;

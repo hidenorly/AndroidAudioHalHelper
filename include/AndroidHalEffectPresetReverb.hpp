@@ -27,6 +27,7 @@ public:
   virtual ~IPresetReverbEffect();
 
   static inline const char* UUID = "47382d60-ddd8-11db-bf3a-0002a5d5c51b";
+  _EffectGetInstanceIfUuidMatch(IPresetReverbEffect);
 
 public:
   enum Preset

@@ -27,6 +27,7 @@ public:
   virtual ~IEqualizerEffect();
 
   static inline const char* UUID = "0bed4300-ddd6-11db-8f34-0002a5d5c51b";
+  _EffectGetInstanceIfUuidMatch(IEqualizerEffect);
 
   virtual uint16_t getNumBands(void);
   struct LevelRange

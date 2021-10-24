@@ -27,6 +27,7 @@ public:
   virtual ~IVisualizerEffect();
 
   static inline const char* UUID = "37cc2c00-dddd-11db-8577-0002a5d5c51b";
+  _EffectGetInstanceIfUuidMatch(IVisualizerEffect);
 
 public:
   enum CaptureSizeRange

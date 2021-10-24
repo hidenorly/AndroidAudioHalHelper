@@ -27,6 +27,7 @@ public:
   virtual ~INoiseSuppressionEffect();
 
   static inline const char* UUID = "58b4b260-8e06-11e0-aa8e-0002a5d5c51b";
+  _EffectGetInstanceIfUuidMatch(INoiseSuppressionEffect);
 
 public:
   enum Level

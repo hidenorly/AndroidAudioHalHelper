@@ -48,35 +48,33 @@ EffectDescriptor IEffectsFactory::getDescriptor(Uuid uuid)
 
 std::shared_ptr<IEffect> IEffectsFactory::createEffect(Uuid uuid, AudioSession session, AudioIoHandle ioHandle, AudioPortHandle device)
 {
+  typedef std::shared_ptr<IEffect> (*GETINSTANCE)(std::string);
+  const static GETINSTANCE GETINSTANCETBL[]=
+  {
+    IAcousticEchoCancelerEffect::getInstanceIfUuidMatch,
+    IAutomaticGainControlEffect::getInstanceIfUuidMatch,
+    IBassBoostEffect::getInstanceIfUuidMatch,
+    IDownmixEffect::getInstanceIfUuidMatch,
+    IEnvironmentalReverbEffect::getInstanceIfUuidMatch,
+    IEqualizerEffect::getInstanceIfUuidMatch,
+    ILoudnessEnhancerEffect::getInstanceIfUuidMatch,
+    INoiseSuppressionEffect::getInstanceIfUuidMatch,
+    IPresetReverbEffect::getInstanceIfUuidMatch,
+    IVirtualizerEffect::getInstanceIfUuidMatch,
+    IVisualizerEffect::getInstanceIfUuidMatch,
+    nullptr
+  };
+
   std::shared_ptr<IEffect> pEffect = AudioEffectHelper::getEffect( uuid );
   if( !pEffect ){
     std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getFilterInstance( uuid );
     if( pFilter ){
-      if( uuid == IAcousticEchoCancelerEffect::UUID ){
-        pEffect = std::make_shared<IAcousticEchoCancelerEffect>();
-      } else if (uuid == IAutomaticGainControlEffect::UUID ){
-        pEffect = std::make_shared<IAutomaticGainControlEffect>();
-      } else if (uuid == IBassBoostEffect::UUID ){
-        pEffect = std::make_shared<IBassBoostEffect>();
-      } else if (uuid == IDownmixEffect::UUID ){
-        pEffect = std::make_shared<IDownmixEffect>();
-      } else if (uuid == IEnvironmentalReverbEffect::UUID ){
-        pEffect = std::make_shared<IEnvironmentalReverbEffect>();
-      } else if (uuid == IEqualizerEffect::UUID ){
-        pEffect = std::make_shared<IEqualizerEffect>();
-      } else if (uuid == ILoudnessEnhancerEffect::UUID ){
-        pEffect = std::make_shared<ILoudnessEnhancerEffect>();
-      } else if (uuid == INoiseSuppressionEffect::UUID ){
-        pEffect = std::make_shared<INoiseSuppressionEffect>();
-      } else if (uuid == IPresetReverbEffect::UUID ){
-        pEffect = std::make_shared<IPresetReverbEffect>();
-      } else if (uuid == IVirtualizerEffect::UUID ){
-        pEffect = std::make_shared<IVirtualizerEffect>();
-      } else if (uuid == IVisualizerEffect::UUID ){
-        pEffect = std::make_shared<IVisualizerEffect>();
-      }
-      if( pEffect ){
-        // TODO : associate session, ioHandle, device to the pEffect
+      for( int i=0; GETINSTANCETBL[i]!=nullptr; i++){
+        std::shared_ptr<IEffect> pEffect = GETINSTANCETBL[i]( uuid );
+        if( pEffect ){
+          // TODO : associate session, ioHandle, device to the pEffect
+          break;
+        }
       }
     }
   }

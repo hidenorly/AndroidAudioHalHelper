@@ -27,6 +27,7 @@ public:
   virtual ~IDownmixEffect();
 
   static inline const char* UUID = "93f04452-e4fe-41cc-91f9-e475b6d1d69f";
+  _EffectGetInstanceIfUuidMatch(IDownmixEffect);
 
   enum Type
   {

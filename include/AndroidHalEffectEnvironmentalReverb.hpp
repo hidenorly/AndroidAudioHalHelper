@@ -27,6 +27,7 @@ public:
   virtual ~IEnvironmentalReverbEffect();
 
   static inline const char* UUID = "c2e5d5f0-94bd-4763-9cac-4e234d06839e";
+  _EffectGetInstanceIfUuidMatch(IEnvironmentalReverbEffect);
 
 public:
   enum ParamRange
