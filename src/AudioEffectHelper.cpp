@@ -132,28 +132,25 @@ std::shared_ptr<IFilter> AudioEffectHelper::getFilterFromEffectInstance(uint64_t
   return result;
 }
 
-void AudioEffectHelper::associateEffect(std::weak_ptr<IEffect> pEffect)
+void AudioEffectHelper::associateEffect(std::shared_ptr<IEffect> pEffect)
 {
-  std::shared_ptr<IEffect> effect = pEffect.lock();
-  if( effect ){
-    mUuidEffectResolver.insert_or_assign( effect->getUuid(), effect );
-    mEffectIdUuidResolver.insert_or_assign( effect->getEffectId(), effect->getUuid() );
+  if( pEffect ){
+    mUuidEffectResolver.insert_or_assign( pEffect->getUuid(), pEffect );
+    mEffectIdUuidResolver.insert_or_assign( pEffect->getEffectId(), pEffect->getUuid() );
   }
 }
 
-void AudioEffectHelper::unassociateEffect(std::weak_ptr<IEffect> pEffect)
+void AudioEffectHelper::unassociateEffect(std::shared_ptr<IEffect> pEffect)
 {
-  std::shared_ptr<IEffect> effect = pEffect.lock();
-  if( effect ){
+  if( pEffect ){
     // remove from mUuidEffectResolver
     std::vector<std::string> removeUuids;
     for( auto& [uuid, anEffect] : mUuidEffectResolver ){
-      std::shared_ptr<IEffect> theEffect = anEffect.lock();
-      if( theEffect == effect ){
+      if( anEffect == pEffect ){
         removeUuids.push_back( uuid );
 //        break; // to enumerate all of disposed instances
       }
-      if( !theEffect ){
+      if( !anEffect ){
         removeUuids.push_back( uuid );
       }
     }
@@ -181,7 +178,7 @@ std::shared_ptr<IEffect> AudioEffectHelper::getEffect(std::string uuid)
 {
   std::shared_ptr<IEffect> result;
   if( mUuidEffectResolver.contains( uuid ) ){
-    result = mUuidEffectResolver[ uuid ].lock();
+    result = mUuidEffectResolver[ uuid ];
   }
   return result;
 }

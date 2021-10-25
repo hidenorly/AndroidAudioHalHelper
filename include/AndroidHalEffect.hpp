@@ -28,31 +28,6 @@
 #include "Pipe.hpp"
 #include <tuple>
 
-class IEffect;
-
-// TODO: Use template?
-/*
-template<typename T, const char* C_UUID> class EffectGetInstanceIfUuidMatch
-{
-public:
-  static inline std::string UUID = std::string(C_UUID);
-  static std::shared_ptr<IEffect> getInstanceIfUuidMatch(std::string uuid)
-  {
-    if( uuid == std::string(UUID) ){
-      return std::make_shared<T>();
-    }
-    return nullptr;
-  }
-};
-*/
-#define _EffectGetInstanceIfUuidMatch(T) static std::shared_ptr<IEffect> getInstanceIfUuidMatch(std::string uuid)\
-  {\
-    if( uuid == std::string(UUID) ){\
-      return std::make_shared<T>();\
-    }\
-    return nullptr;\
-  }
-
 class IEffect : public std::enable_shared_from_this<IEffect>
 {
 public:
@@ -83,6 +58,7 @@ public:
   std::string getUuid(void);
   virtual EffectDescriptor getDescriptor(void);
   std::shared_ptr<IFilter> getFilter(void);
+  void associateFilter(std::shared_ptr<IFilter> pFilter){ mFilter = pFilter; };
 
   static std::shared_ptr<IEffect> getInstanceIfUuidMatch(std::string uuid){ return nullptr; };
 

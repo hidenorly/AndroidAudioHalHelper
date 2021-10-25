@@ -17,17 +17,10 @@
 #include "AndroidHalEffectFactory.hpp"
 #include "AudioEffectHelper.hpp"
 
-#include "AndroidHalEffectDownmix.hpp"
-#include "AndroidHalEffectNoiseSupression.hpp"
-#include "AndroidHalEffectAcousticEchoCanceler.hpp"
-#include "AndroidHalEffectEnvironmentalReverb.hpp"
-#include "AndroidHalEffectPresetReverb.hpp"
-#include "AndroidHalEffectAutomaticGainControl.hpp"
-#include "AndroidHalEffectEqualizer.hpp"
-#include "AndroidHalEffectVirtualizer.hpp"
-#include "AndroidHalEffectBassBoost.hpp"
-#include "AndroidHalEffectVisualizer.hpp"
-#include "AndroidHalEffectLoudnessEnhancer.hpp"
+EffectDescriptor IEffectsFactory::getDescriptor(Uuid uuid)
+{
+  return AudioEffectHelper::getDescriptor( uuid );
+}
 
 std::vector<EffectDescriptor> IEffectsFactory::getAllDescriptors(void)
 {
@@ -41,42 +34,18 @@ std::vector<EffectDescriptor> IEffectsFactory::getAllDescriptors(void)
   return result;
 }
 
-EffectDescriptor IEffectsFactory::getDescriptor(Uuid uuid)
-{
-  return AudioEffectHelper::getDescriptor( uuid );
-}
 
 std::shared_ptr<IEffect> IEffectsFactory::createEffect(Uuid uuid, AudioSession session, AudioIoHandle ioHandle, AudioPortHandle device)
 {
-  typedef std::shared_ptr<IEffect> (*GETINSTANCE)(std::string);
-  const static GETINSTANCE GETINSTANCETBL[]=
-  {
-    IAcousticEchoCancelerEffect::getInstanceIfUuidMatch,
-    IAutomaticGainControlEffect::getInstanceIfUuidMatch,
-    IBassBoostEffect::getInstanceIfUuidMatch,
-    IDownmixEffect::getInstanceIfUuidMatch,
-    IEnvironmentalReverbEffect::getInstanceIfUuidMatch,
-    IEqualizerEffect::getInstanceIfUuidMatch,
-    ILoudnessEnhancerEffect::getInstanceIfUuidMatch,
-    INoiseSuppressionEffect::getInstanceIfUuidMatch,
-    IPresetReverbEffect::getInstanceIfUuidMatch,
-    IVirtualizerEffect::getInstanceIfUuidMatch,
-    IVisualizerEffect::getInstanceIfUuidMatch,
-    nullptr
-  };
-
   std::shared_ptr<IEffect> pEffect = AudioEffectHelper::getEffect( uuid );
-  if( !pEffect ){
-    std::shared_ptr<IFilter> pFilter = AudioEffectHelper::getFilterInstance( uuid );
-    if( pFilter ){
-      for( int i=0; GETINSTANCETBL[i]!=nullptr; i++){
-        std::shared_ptr<IEffect> pEffect = GETINSTANCETBL[i]( uuid );
-        if( pEffect ){
-          // TODO : associate session, ioHandle, device to the pEffect
-          break;
-        }
-      }
+
+  if( pEffect ){
+    std::shared_ptr<IFilter> pFilter = pEffect->getFilter();
+    if( !pFilter ){
+      pEffect->associateFilter( AudioEffectHelper::getFilterInstance( uuid ) );
     }
+
+    // TODO : associate session, ioHandle, device to the pEffect
   }
 
   return pEffect;

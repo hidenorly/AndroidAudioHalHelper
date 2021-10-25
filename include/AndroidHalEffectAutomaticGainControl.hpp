@@ -27,7 +27,6 @@ public:
   virtual ~IAutomaticGainControlEffect();
 
   static inline const char* UUID = "0a8abfe0-654c-11e0-ba26-0002a5d5c51b";
-  _EffectGetInstanceIfUuidMatch(IAutomaticGainControlEffect);
 
 public:
   struct AllProperties

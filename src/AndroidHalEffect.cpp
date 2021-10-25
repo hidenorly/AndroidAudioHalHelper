@@ -21,9 +21,14 @@
 #include "AudioEffectHelper.hpp"
 #include "SourceSinkManager.hpp"
 
-IEffect::IEffect(std::string uuid, std::shared_ptr<IFilter> pFilter):mUuid(uuid), mFilter(pFilter)
+IEffect::IEffect(std::string uuid, std::shared_ptr<IFilter> pFilter):mUuid(uuid)
 {
   AudioEffectHelper::associateEffect( shared_from_this() );
+
+  if( !pFilter ){
+    pFilter = AudioEffectHelper::getFilterInstance( uuid );
+  }
+  mFilter = pFilter;
 }
 
 IEffect::~IEffect()

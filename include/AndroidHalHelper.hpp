@@ -14,32 +14,16 @@
    limitations under the License.
 */
 
-#ifndef __ANDROID_HAL_DOWN_MIX_EFFECT_HPP__
-#define __ANDROID_HAL_DOWN_MIX_EFFECT_HPP__
+#ifndef __ANDROID_HAL_HELPER_HPP__
+#define __ANDROID_HAL_HELPER_HPP__
 
-#include "AndroidHalTypes.hpp"
-#include "AndroidHalEffect.hpp"
+#include <string>
 
-class IDownmixEffect : public IEffect
+class AndroidHalHelper
 {
 public:
-  IDownmixEffect();
-  virtual ~IDownmixEffect();
-
-  static inline const char* UUID = "93f04452-e4fe-41cc-91f9-e475b6d1d69f";
-
-  enum Type
-  {
-    STRIP, // throw away the extra channels
-    FOLD   // mix the extra channels with FL/FR
-  };
-
-protected:
-  Type mType;
-
-public:
-  virtual HalResult setType(Type preset);
-  virtual Type getType(void);
+  static void initialize(std::string filterPlugInPath, std::string uuidFilterIdTblPath = "uuidFilterTable.ini");
+  static void terminate(void);
 };
 
-#endif /* __ANDROID_HAL_DOWN_MIX_EFFECT_HPP__ */
+#endif /* __ANDROID_HAL_HELPER_HPP__ */

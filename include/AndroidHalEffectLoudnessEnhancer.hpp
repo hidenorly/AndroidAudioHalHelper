@@ -27,7 +27,6 @@ public:
   virtual ~ILoudnessEnhancerEffect();
 
   static inline const char* UUID = "fe3199be-aed0-413f-87bb-11260eb63cf1";
-  _EffectGetInstanceIfUuidMatch(ILoudnessEnhancerEffect);
 
 protected:
   int32_t mTargetGainMb;

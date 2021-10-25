@@ -26,7 +26,7 @@ class AudioEffectHelper
 {
 protected:
   static inline std::map<std::string, std::string> mFiltersIdResolver; // uuid, effectIdString
-  static inline std::map<std::string, std::weak_ptr<IEffect>> mUuidEffectResolver; // uuid, IEffect
+  static inline std::map<std::string, std::shared_ptr<IEffect>> mUuidEffectResolver; // uuid, IEffect
   static inline std::map<uint64_t, std::string> mEffectIdUuidResolver; //effectId, uuid
 
 public:
@@ -42,8 +42,8 @@ public:
   static std::vector<std::string> getInstanciatableEffectsUuids(void);
 
   // Effect
-  static void associateEffect(std::weak_ptr<IEffect> pEffect);
-  static void unassociateEffect(std::weak_ptr<IEffect> pEffect);
+  static void associateEffect(std::shared_ptr<IEffect> pEffect);
+  static void unassociateEffect(std::shared_ptr<IEffect> pEffect);
   static std::shared_ptr<IEffect> getEffect(std::string uuid);
 
   static std::string getUuidFromEffectId(uint64_t effectId);

@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-#include "AndroidHalEffectNoiseSupression.hpp"
+#include "AndroidHalEffectNoiseSuppression.hpp"
 
 INoiseSuppressionEffect::INoiseSuppressionEffect():IEffect( INoiseSuppressionEffect::UUID )
 {

@@ -27,7 +27,6 @@ public:
   virtual ~IAcousticEchoCancelerEffect();
 
   static inline const char* UUID = "7b491460-8d4d-11e0-bd61-0002a5d5c51b";
-  _EffectGetInstanceIfUuidMatch(IAcousticEchoCancelerEffect);
 
 protected:
   uint32_t mEchoDelayMs;
