@@ -352,7 +352,8 @@ uint64_t IDevice::getInputBufferSize(AudioConfig config)
 
 HalResult IDevice::setConnectedState(DeviceAddress address, bool connected)
 {
-  return HalResult::NOT_SUPPORTED;
+  AndroidDeviceAddressHelper::setDeviceConnected( address, connected );
+  return HalResult::OK;
 }
 
 AudioHwSync IDevice::getHwAvSync(void)

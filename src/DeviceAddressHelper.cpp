@@ -15,11 +15,33 @@
 */
 
 #include "DeviceAddressHelper.hpp"
+#include <sstream>
 
-std::string AndroidDeviceAddressHelper::getStringFromDeviceAddr(DeviceAddress deviceAddr)
+std::string AndroidDeviceAddressHelper::getMacAddressString(MacAddress macAddress)
+{
+  std::stringstream ss;
+
+  for( int i=0; i<sizeof(MacAddress); i++ ){
+    ss << std::hex << int(macAddress[i]);
+  }
+
+  return ss.str();
+}
+
+std::tuple<AudioDevice, std::string, std::string> AndroidDeviceAddressHelper::getTupleFromDeviceAddreess(DeviceAddress deviceAddress)
+{
+  return std::make_tuple( deviceAddress.device, getMacAddressString(deviceAddress.address.mac), deviceAddress.busAddress );
+}
+
+std::string AndroidDeviceAddressHelper::getStringFromDeviceAddr(DeviceAddress deviceAddress)
 {
   // TODO : FIX this
-  return deviceAddr.busAddress;
+  auto&& id = getTupleFromDeviceAddreess(deviceAddress);
+  if( !mDeviceConnected.contains( id ) ){
+    mDeviceConnected.insert_or_assign( id, std::make_tuple(deviceAddress, false) );
+  }
+
+  return deviceAddress.busAddress;
 }
 
 DeviceAddress AndroidDeviceAddressHelper::getDeviceAddrFromString(std::string deviceAddrString)
@@ -27,4 +49,32 @@ DeviceAddress AndroidDeviceAddressHelper::getDeviceAddrFromString(std::string de
   DeviceAddress deviceAddr;
   deviceAddr.busAddress = deviceAddrString;
   return deviceAddr;
+}
+
+void AndroidDeviceAddressHelper::setDeviceConnected(DeviceAddress deviceAddress, bool isConnected)
+{
+  auto&& id = getTupleFromDeviceAddreess(deviceAddress);
+  mDeviceConnected.insert_or_assign( id, std::make_tuple(deviceAddress, isConnected) );
+}
+
+bool AndroidDeviceAddressHelper::getDeviceConnected(DeviceAddress deviceAddress)
+{
+  bool result = false;
+
+  auto&& id = getTupleFromDeviceAddreess(deviceAddress);
+  if( mDeviceConnected.contains( id ) ){
+    result = std::get<1>( mDeviceConnected[ id ] );
+  }
+
+  return result;
+}
+
+void AndroidDeviceAddressHelper::initialize(void)
+{
+  mDeviceConnected.clear();
+}
+
+void AndroidDeviceAddressHelper::terminate(void)
+{
+  mDeviceConnected.clear();
 }

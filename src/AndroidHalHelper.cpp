@@ -16,6 +16,7 @@
 
 #include "AndroidHalHelper.hpp"
 
+#include "DeviceAddressHelper.hpp"
 #include "SourceSinkManager.hpp"
 
 #include "AudioEffectHelper.hpp"
@@ -33,6 +34,9 @@
 
 void AndroidHalHelper::initialize(std::string filterPlugInPath, std::string uuidFilterIdTblPath)
 {
+  // --- initialize AndroidDeviceAddressHelper
+  AndroidDeviceAddressHelper::initialize();
+
   // --- initialize SourceSinkManager
   SourceSinkManager::initialize();
 
@@ -60,4 +64,7 @@ void AndroidHalHelper::terminate(void)
 
   // --- terminate SourceSinkManager
   SourceSinkManager::terminate();
+
+  // --- terminate AndroidDeviceAddressHelper
+  AndroidDeviceAddressHelper::terminate();
 }

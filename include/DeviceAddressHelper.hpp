@@ -20,12 +20,25 @@
 #include <system/audio.h>
 #include <stdint.h>
 #include "AndroidHalTypes.hpp"
+#include <map>
+#include <tuple>
 
 class AndroidDeviceAddressHelper
 {
+protected:
+  static std::string getMacAddressString(MacAddress macAddress);
+  static inline std::map<std::tuple<AudioDevice, std::string, std::string>, std::tuple<DeviceAddress, bool>> mDeviceConnected;
+  static std::tuple<AudioDevice, std::string, std::string> getTupleFromDeviceAddreess(DeviceAddress deviceAddress);
+
 public:
-  static std::string getStringFromDeviceAddr(DeviceAddress deviceAddr);
+  static std::string getStringFromDeviceAddr(DeviceAddress deviceAddress);
   static DeviceAddress getDeviceAddrFromString(std::string deviceAddrString);
+
+  static void setDeviceConnected(DeviceAddress deviceAddress, bool isConnected);
+  static bool getDeviceConnected(DeviceAddress deviceAddress);
+
+  static void initialize(void);
+  static void terminate(void);
 };
 
 #endif /* __DEVICE_ADDRESS_HELPER_HPP__ */
