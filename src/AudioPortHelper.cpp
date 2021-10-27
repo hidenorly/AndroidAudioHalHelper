@@ -108,3 +108,8 @@ void AndroidAudioPortHelper::getAndroidPortConfigFromSourceSink(AudioPortConfig*
     strncpy( pOutAudioPort->ext.device.address, address.c_str(), AUDIO_DEVICE_MAX_ADDRESS_LEN );
   }
 }
+
+AudioGainConfig AndroidAudioPortHelper::getAudioGainConfigFromAudioPortConfig(const AudioPortConfig& config)
+{
+  return config.gain;
+}

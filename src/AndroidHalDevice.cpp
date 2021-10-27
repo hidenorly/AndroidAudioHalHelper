@@ -230,6 +230,12 @@ HalResult IDevice::setAudioPortConfig(AudioPortConfig config)
   std::shared_ptr<ISourceSinkCommon> pSourceSink = SourceSinkManager::getSourceSink( config );
   if( pSourceSink ){
     bool bSuccess = pSourceSink->setAudioFormat( AndroidFormatHelper::getAudioFormatFromAndroidPortConfig( config ) );
+    AudioGainConfig audioGainConfig = AndroidAudioPortHelper::getAudioGainConfigFromAudioPortConfig( config );
+    std::shared_ptr<ISink> pSink = std::dynamic_pointer_cast<ISink>( pSourceSink );
+    if( pSink ){
+      pSink->setVolume( (float)audioGainConfig.index/100.0f );
+    }
+
     result = bSuccess ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
   }
 
@@ -330,17 +336,49 @@ bool IDevice::getMasterMute(void)
 
 HalResult IDevice::setMicMute(bool mute)
 {
+  std::vector<std::shared_ptr<ISource>> pSources = SourceSinkManager::getSourceDevices();
+
+  for( auto& pSource : pSources ){
+    pSource->setMuteEnabled( mute );
+  }
+
   return HalResult::NOT_SUPPORTED;
 }
 
 bool IDevice::getMicMute(void)
 {
-  return false;
+  bool result = true;
+
+  std::vector<std::shared_ptr<ISource>> pSources = SourceSinkManager::getSourceDevices();
+
+  for( auto& pSource : pSources ){
+    result &= pSource->getMuteEnabled();
+  }
+
+  return pSources.empty() ? false : result;
 }
 
 std::vector<AudioMicrophoneCharacteristic> IDevice::getMicrophones(void)
 {
-  return std::vector<AudioMicrophoneCharacteristic>();
+  std::vector<AudioMicrophoneCharacteristic> result;
+
+  std::vector<std::shared_ptr<ISource>> pSources = SourceSinkManager::getSourceDevices();
+
+  int index = 0;
+  for( auto& pSource : pSources ){
+    AudioMicrophoneCharacteristic characteristic;
+    memset(&characteristic, 0, sizeof(AudioMicrophoneCharacteristic) );
+
+    strncpy(characteristic.device_id, pSource->toString().c_str(), sizeof(characteristic.device_id) );
+    strncpy(characteristic.address, AndroidDeviceAddressHelper::getStringFromDeviceAddr( SourceSinkManager::getDeviceAddress( pSource ) ).c_str(), sizeof( characteristic.address ) );
+    characteristic.id                 = SourceSinkManager::getAudioPortHandle( pSource );
+    characteristic.device             = SourceSinkManager::getAudioDevice( pSource );
+    characteristic.index_in_the_group = index++;
+
+    result.push_back( characteristic );
+  }
+
+  return result;
 }
 
 uint64_t IDevice::getInputBufferSize(AudioConfig config)

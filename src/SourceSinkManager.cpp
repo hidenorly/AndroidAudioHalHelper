@@ -48,6 +48,20 @@ AudioPortHandle SourceSinkManager::getAudioPortHandle(const AudioPort& audioPort
   return audioPort.id;
 }
 
+AudioPortHandle SourceSinkManager::getAudioPortHandle(std::shared_ptr<ISourceSinkCommon> theSourceSink)
+{
+  AudioPortHandle result = 0;
+
+  for( auto&[ audioPortHandle, pSourceSink ] : mSourceSinksByAudioPortHandle ){
+    if( pSourceSink == pSourceSink ){
+      result = audioPortHandle;
+      break;
+    }
+  }
+
+  return result;
+}
+
 
 void SourceSinkManager::associateByAudioPortConfig(const AudioPortConfig& audioPortConfig)
 {
@@ -200,6 +214,19 @@ std::shared_ptr<ISource> SourceSinkManager::getSource(AudioDevice device)
   return std::dynamic_pointer_cast<ISource>( getSourceSink(device) );
 }
 
+AudioDevice SourceSinkManager::getAudioDevice(std::shared_ptr<ISourceSinkCommon> theSourceSink)
+{
+  AudioDevice result = AUDIO_DEVICE_OUT_DEFAULT;
+
+  for(auto& [audioDevice, pSourceSink] : mSourceSinksByAudioDevice ){
+    if( pSourceSink == theSourceSink ){
+      result = audioDevice;
+      break;
+    }
+  }
+
+  return result;
+}
 
 
 std::vector<std::shared_ptr<ISink>> SourceSinkManager::getSinkDevices(void)
@@ -210,6 +237,20 @@ std::vector<std::shared_ptr<ISink>> SourceSinkManager::getSinkDevices(void)
     std::shared_ptr<ISink> pSink = std::dynamic_pointer_cast<ISink>( pDevice );
     if( pSink ){
       result.push_back( pSink );
+    }
+  }
+
+  return result;
+}
+
+std::vector<std::shared_ptr<ISource>> SourceSinkManager::getSourceDevices(void)
+{
+  std::vector<std::shared_ptr<ISource>> result;
+
+  for(auto& [ deviceAddr, pDevice] : mSourceSinksByDeviceAddr ){
+    std::shared_ptr<ISource> pSource = std::dynamic_pointer_cast<ISource>( pDevice );
+    if( pSource ){
+      result.push_back( pSource );
     }
   }
 
