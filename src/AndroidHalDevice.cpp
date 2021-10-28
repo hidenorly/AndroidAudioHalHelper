@@ -149,6 +149,23 @@ std::vector<std::shared_ptr<ISink>> IDevice::getSinks(std::vector<AudioPortConfi
   return pSinks;
 }
 
+std::vector<std::shared_ptr<ISource>> IDevice::getUsedSourcesInPatchPanels(std::vector<std::shared_ptr<ISource>> pSources)
+{
+  std::vector<std::shared_ptr<ISource>> result;
+
+  for( auto& pSource : pSources ){
+    for( auto& [ aPatchPanel, sources ] : mPatchPanelSources ){
+      for( auto& aSource : sources ){
+        if( aSource == pSource ){
+          result.push_back( pSource );
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
 
 AudioPatchHandle IDevice::createAudioPatch(std::vector<AudioPortConfig> sources, std::vector<AudioPortConfig> sinks)
 {
@@ -157,12 +174,19 @@ AudioPatchHandle IDevice::createAudioPatch(std::vector<AudioPortConfig> sources,
   std::vector<std::shared_ptr<ISource>> pSources = getSources( sources );
   std::vector<std::shared_ptr<ISink>> pSinks = getSinks( sinks );
 
+  for( auto& aSource : sources ){ setAudioPortConfig( aSource ); };
+  for( auto& aSink : sinks ){ setAudioPortConfig( aSink ); };
+
   // TODO: check the source, sink are already used in existing patch or not
+  std::vector<std::shared_ptr<ISource>> usedSources = getUsedSourcesInPatchPanels( pSources );
+  assert( usedSources.size() == 0 );
 
   if( pSources.size() && pSinks.size() ){
     result = mPatchHandleCount++;
     std::shared_ptr<PatchPanel> pPatchPanel = PatchPanel::createPatch( pSources, pSinks );
     mPatchPanels.insert_or_assign( result, pPatchPanel );
+    mPatchPanelSources.insert_or_assign( pPatchPanel, pSources );
+    mPatchPanelSinks.insert_or_assign( pPatchPanel, pSinks );
     std::shared_ptr<MixerSplitter> pMixerSplitter = pPatchPanel->getMixerSplitter();
     pMixerSplitter->run();
   }
@@ -177,15 +201,23 @@ AudioPatchHandle IDevice::updateAudioPatch(AudioPatchHandle previousPatch, std::
   std::vector<std::shared_ptr<ISource>> pSources = getSources( sources );
   std::vector<std::shared_ptr<ISink>> pSinks = getSinks( sinks );
 
-  // TODO: check the source, sink are already used in the other existing patch or not
+  for( auto& aSource : sources ){ setAudioPortConfig( aSource ); };
+  for( auto& aSink : sinks ){ setAudioPortConfig( aSink ); };
+
+  // TODO: check the source, sink are already used in existing patch or not
+  std::vector<std::shared_ptr<ISource>> usedSources = getUsedSourcesInPatchPanels( pSources );
+  assert( usedSources.size() == 0 );
 
   if( pSources.size() && pSinks.size() ){
     if( mPatchPanels.contains( previousPatch ) && mPatchPanels[previousPatch] ){
-      std::shared_ptr<MixerSplitter> pMixerSplitter = mPatchPanels[previousPatch]->getMixerSplitter();
+      std::shared_ptr<PatchPanel> pPatchPanel = mPatchPanels[previousPatch];
+      std::shared_ptr<MixerSplitter> pMixerSplitter = pPatchPanel->getMixerSplitter();
       pMixerSplitter->stop();
       pMixerSplitter.reset();
-      mPatchPanels[previousPatch]->updatePatch( pSources, pSinks );
-      pMixerSplitter = mPatchPanels[previousPatch]->getMixerSplitter();
+      pPatchPanel->updatePatch( pSources, pSinks );
+      mPatchPanelSources.insert_or_assign( pPatchPanel, pSources );
+      mPatchPanelSinks.insert_or_assign( pPatchPanel, pSinks );
+      pMixerSplitter = pPatchPanel->getMixerSplitter();
       pMixerSplitter->run();
       result = previousPatch;
     }
@@ -199,9 +231,13 @@ HalResult IDevice::releaseAudioPatch(AudioPatchHandle patch)
   HalResult result = HalResult::INVALID_ARGUMENTS;
 
   if( mPatchPanels.contains( patch ) ){
-    std::shared_ptr<MixerSplitter> pMixerSplitter = mPatchPanels[patch]->getMixerSplitter();
+    std::shared_ptr<PatchPanel> pPatchPanel = mPatchPanels[patch];
+    std::shared_ptr<MixerSplitter> pMixerSplitter = pPatchPanel->getMixerSplitter();
     pMixerSplitter->stop();
     pMixerSplitter.reset();
+    mPatchPanelSources.erase( pPatchPanel );
+    mPatchPanelSinks.erase( pPatchPanel );
+    pPatchPanel.reset();
     mPatchPanels.erase( patch );
     result = HalResult::OK;
   }
@@ -325,13 +361,23 @@ float IDevice::getMasterVolume(void)
 
 HalResult IDevice::setMasterMute(bool mute)
 {
-  setMasterVolume(0.0f);
+  for( auto& pSink : SourceSinkManager::getSinkDevices() ){
+    pSink->setMuteEnabled( mute );
+  }
   return HalResult::OK;
 }
 
 bool IDevice::getMasterMute(void)
 {
-  return ( mMasterVolume == 0.0f );
+  bool result = true;
+
+  std::vector<std::shared_ptr<ISink>> pSinks = SourceSinkManager::getSinkDevices();
+
+  for( auto& pSink : pSinks ){
+    result &= pSink->getMuteEnabled();
+  }
+
+  return pSinks.empty() ? false : result;
 }
 
 HalResult IDevice::setMicMute(bool mute)
@@ -342,7 +388,7 @@ HalResult IDevice::setMicMute(bool mute)
     pSource->setMuteEnabled( mute );
   }
 
-  return HalResult::NOT_SUPPORTED;
+  return HalResult::OK;
 }
 
 bool IDevice::getMicMute(void)
@@ -367,10 +413,10 @@ std::vector<AudioMicrophoneCharacteristic> IDevice::getMicrophones(void)
   int index = 0;
   for( auto& pSource : pSources ){
     AudioMicrophoneCharacteristic characteristic;
-    memset(&characteristic, 0, sizeof(AudioMicrophoneCharacteristic) );
+    memset( &characteristic, 0, sizeof(AudioMicrophoneCharacteristic) );
 
-    strncpy(characteristic.device_id, pSource->toString().c_str(), sizeof(characteristic.device_id) );
-    strncpy(characteristic.address, AndroidDeviceAddressHelper::getStringFromDeviceAddr( SourceSinkManager::getDeviceAddress( pSource ) ).c_str(), sizeof( characteristic.address ) );
+    strncpy( characteristic.device_id, pSource->toString().c_str(), sizeof(characteristic.device_id) );
+    strncpy( characteristic.address, AndroidDeviceAddressHelper::getStringFromDeviceAddr( SourceSinkManager::getDeviceAddress( pSource ) ).c_str(), sizeof( characteristic.address ) );
     characteristic.id                 = SourceSinkManager::getAudioPortHandle( pSource );
     characteristic.device             = SourceSinkManager::getAudioDevice( pSource );
     characteristic.index_in_the_group = index++;

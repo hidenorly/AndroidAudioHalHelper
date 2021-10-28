@@ -36,6 +36,8 @@ class IDevice : public IStream::StreamSessionHandler, public std::enable_shared_
 protected:
   static inline std::map<AudioIoHandle, std::shared_ptr<IStream>> mStreams;
   std::map<AudioPatchHandle, std::shared_ptr<PatchPanel>> mPatchPanels;
+  std::map<std::shared_ptr<PatchPanel>, std::vector<std::shared_ptr<ISource>>> mPatchPanelSources;
+  std::map<std::shared_ptr<PatchPanel>, std::vector<std::shared_ptr<ISink>>> mPatchPanelSinks;
   float mMasterVolume;
   AudioModuleHandle mHwModule;
   AudioPatchHandle mPatchHandleCount;
@@ -45,6 +47,8 @@ protected:
   std::vector<std::shared_ptr<ISink>> getSinks(std::vector<AudioPortConfig> sinks);
   std::shared_ptr<IStream> getStream(AudioPortHandle device);
   std::shared_ptr<IPipe> getPipe(AudioPortHandle device);
+
+  std::vector<std::shared_ptr<ISource>> getUsedSourcesInPatchPanels(std::vector<std::shared_ptr<ISource>> pSources);
 
 public:
   IDevice(AudioModuleHandle hwModule, std::string filterPlugInPath=".");
