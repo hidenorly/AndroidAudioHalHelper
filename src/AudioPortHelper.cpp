@@ -20,6 +20,8 @@
 #include <vector>
 #include <set>
 #include <functional>
+#include "AndroidHalStreamOut.hpp"
+
 
 void AndroidAudioPortHelper::getAndroidPortFromSourceSink(AudioPort* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, AudioModuleHandle hwModule, AudioDevice androidAudioDeviceType)
 {
@@ -29,9 +31,16 @@ void AndroidAudioPortHelper::getAndroidPortFromSourceSink(AudioPort* pOutAudioPo
       pOutAudioPort->role = AUDIO_PORT_ROLE_SINK;
     } else {
       pOutAudioPort->role = AUDIO_PORT_ROLE_SOURCE;
-      // TODO : e.g. Mic source is Ok but Source might be Android mix port, etc. then need to check.
     }
-    pOutAudioPort->type = AUDIO_PORT_TYPE_DEVICE;
+    if( std::dynamic_pointer_cast<IStreamOut::AndroidAudioSource>( pSourceSink ) ){
+      if( pSourceSink->getAudioFormat().isEncodingPcm() ){
+        pOutAudioPort->type = AUDIO_PORT_TYPE_MIX;
+      } else {
+        pOutAudioPort->type = AUDIO_PORT_TYPE_SESSION;
+      }
+    } else { // AndroidAudioSink is port for Android's Input Device, the other ISink/ISource are Device
+      pOutAudioPort->type = AUDIO_PORT_TYPE_DEVICE;
+    }
     strncpy( pOutAudioPort->name, pSourceSink->toString().c_str(), AUDIO_PORT_MAX_NAME_LEN );
 
     std::vector supportedAudioFormats = pSourceSink->getSupportedAudioFormats();
@@ -91,9 +100,16 @@ void AndroidAudioPortHelper::getAndroidPortConfigFromSourceSink(AudioPortConfig*
       pOutAudioPort->role = AUDIO_PORT_ROLE_SINK;
     } else {
       pOutAudioPort->role = AUDIO_PORT_ROLE_SOURCE;
-      // TODO : e.g. Mic source is Ok but Source might be Android mix port, etc. then need to check.
     }
-    pOutAudioPort->type = AUDIO_PORT_TYPE_DEVICE;
+    if( std::dynamic_pointer_cast<IStreamOut::AndroidAudioSource>( pSourceSink ) ){
+      if( pSourceSink->getAudioFormat().isEncodingPcm() ){
+        pOutAudioPort->type = AUDIO_PORT_TYPE_MIX;
+      } else {
+        pOutAudioPort->type = AUDIO_PORT_TYPE_SESSION;
+      }
+    } else { // AndroidAudioSink is port for Android's Input Device, the other ISink/ISource are Device
+      pOutAudioPort->type = AUDIO_PORT_TYPE_DEVICE;
+    }
 
     pOutAudioPort->config_mask = AUDIO_PORT_CONFIG_SAMPLE_RATE | AUDIO_PORT_CONFIG_CHANNEL_MASK | AUDIO_PORT_CONFIG_FORMAT;
 
