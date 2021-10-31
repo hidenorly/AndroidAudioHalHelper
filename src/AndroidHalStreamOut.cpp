@@ -74,7 +74,7 @@ std::shared_ptr<IStreamOut::WritePipeInfo> IStreamOut::prepareForWriting(uint32_
   mWritePipeInfo = std::make_shared<WritePipeInfo>();
   mSource = std::make_shared<IStreamOut::AndroidAudioSource>( mWritePipeInfo->dataMQ );
   mPipe = std::make_shared<PipeMultiThread>();
-  mPipe->attachSource( mSource );
+  mPipe->attachSource( mSource ); // TODO: should register this as session or mixPort into SourceSinkManager, etc.
   mPipe->attachSink( mSink );
 
   return mWritePipeInfo;

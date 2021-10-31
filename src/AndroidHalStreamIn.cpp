@@ -46,7 +46,7 @@ std::shared_ptr<IStreamIn::ReadPipeInfo> IStreamIn::prepareForReading(uint32_t f
   mSink = std::make_shared<IStreamIn::AndroidAudioSink>( mReadPipeInfo->dataMQ );
   mPipe = std::make_shared<PipeMultiThread>();
   mPipe->attachSource( mSource );
-  mPipe->attachSink( mSink );
+  mPipe->attachSink( mSink );  // TODO: should register this as session or mixPort into SourceSinkManager, etc.
 
   return mReadPipeInfo;
 }
