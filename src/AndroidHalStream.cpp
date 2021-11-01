@@ -21,6 +21,7 @@
 #include "AudioEffectHelper.hpp"
 #include "ParameterHelper.hpp"
 #include "SourceSinkManager.hpp"
+#include "AndroidHalStreamManager.hpp"
 
 
 IStream::IStream(AudioIoHandle ioHandle, DeviceAddress device, AudioConfig config, std::shared_ptr<StreamSessionHandler> pSessionHandler):mIoHandle(ioHandle), mDeviceAddr(device), mConfig(config), mSessionHandler(pSessionHandler)
@@ -28,11 +29,15 @@ IStream::IStream(AudioIoHandle ioHandle, DeviceAddress device, AudioConfig confi
   mPipe = std::make_shared<PipeMultiThread>();
   mPipe->registerRunnerStatusListener( shared_from_this() );
   mPipe->addFilterToTail( std::make_shared<PassThroughFilter>() ); // dummy. TODO: remove this
+
+  AndroidStreamManager::associateStream( ioHandle, shared_from_this() );
 }
 
 
 IStream::~IStream()
 {
+  AndroidStreamManager::unassociateStream( shared_from_this() );
+
   if( mSessionHandler ){
     mSessionHandler->onCloseStream( shared_from_this() );
   }

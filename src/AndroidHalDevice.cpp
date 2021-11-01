@@ -22,6 +22,7 @@
 #include "PatchPanel.hpp"
 #include "AudioEffectHelper.hpp"
 #include "ParameterHelper.hpp"
+#include "GainHelper.hpp"
 
 // TODO: the devices support
 
@@ -269,7 +270,9 @@ HalResult IDevice::setAudioPortConfig(AudioPortConfig config)
     AudioGainConfig audioGainConfig = AndroidAudioPortHelper::getAudioGainConfigFromAudioPortConfig( config );
     std::shared_ptr<ISink> pSink = std::dynamic_pointer_cast<ISink>( pSourceSink );
     if( pSink ){
-      pSink->setVolume( (float)audioGainConfig.index/100.0f );
+      // TODO: Use volume filter to support per-channel volume
+      float volumePercent = GainHelper::getVolumeRatioPercentageFromDb( audioGainConfig.values[0] );
+      pSink->setVolume( volumePercent );
     }
 
     result = bSuccess ? HalResult::OK : HalResult::INVALID_ARGUMENTS;

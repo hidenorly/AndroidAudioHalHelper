@@ -16,6 +16,9 @@
 
 #include "AndroidHalEffectFactory.hpp"
 #include "AudioEffectHelper.hpp"
+#include "AndroidHalStreamManager.hpp"
+#include "SourceSinkManager.hpp"
+
 
 EffectDescriptor IEffectsFactory::getDescriptor(Uuid uuid)
 {
@@ -45,7 +48,32 @@ std::shared_ptr<IEffect> IEffectsFactory::createEffect(Uuid uuid, AudioSession s
       pEffect->associateFilter( AudioEffectHelper::getFilterInstance( uuid ) );
     }
 
-    // TODO : associate session, ioHandle, device to the pEffect
+    switch(session){
+      case AUDIO_SESSION_DEVICE:
+      case AUDIO_SESSION_OUTPUT_STAGE:
+      case AUDIO_SESSION_OUTPUT_MIX:
+      {
+        // Associate the instantiated effect to the corresponding stream of the AudioIoHandle
+        std::shared_ptr<IStream> pStream = AndroidStreamManager::getStream( ioHandle );
+        std::shared_ptr<IPipe> pPipe;
+        if( pStream ){
+          pStream->addEffect( pEffect->getEffectId() );
+          pPipe = pStream->getPipe();
+        }
+        // Associate the AudioPortHandle's Source or Sink to the Stream
+        std::shared_ptr<ISourceSinkCommon> pSourceSink = SourceSinkManager::getSourceSink( device );
+        if( pSourceSink && pPipe ){
+          if( std::dynamic_pointer_cast<ISink>( pSourceSink ) ){
+            // Sink
+            pPipe->attachSink( std::dynamic_pointer_cast<ISink>( pSourceSink ) );
+          } else {
+            // Source
+            pPipe->attachSource( std::dynamic_pointer_cast<ISource>( pSourceSink ) );
+          }
+        }
+      }
+      default:;
+    }
   }
 
   return pEffect;

@@ -22,7 +22,7 @@ float GainHelper::getAmplifierRatioFromDb(float gainDb)
 {
   float result = 1.0f;
   if( gainDb ){
-    result = std::pow(10, gainDb/20.0f);
+    result = std::pow( 10, gainDb / 20.0f );
   }
   return result;
 }
