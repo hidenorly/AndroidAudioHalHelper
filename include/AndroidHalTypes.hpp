@@ -76,7 +76,7 @@ struct DeviceAddress
   } address;
   std::string busAddress;
   std::string rSubmixAddress;
-  DeviceAddress():device(AUDIO_DEVICE_OUT_DEFAULT){
+  DeviceAddress(AudioDevice device = AUDIO_DEVICE_OUT_DEFAULT):device(device){
     address.alsa.card = 0;
     address.alsa.device = 0;
   };

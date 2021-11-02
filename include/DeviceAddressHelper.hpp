@@ -31,6 +31,9 @@ protected:
   static std::tuple<AudioDevice, std::string, std::string> getTupleFromDeviceAddreess(DeviceAddress deviceAddress);
 
 public:
+  static std::string getDeviceString(AudioDevice device);
+  static AudioDevice getDeviceFromDeviceString(std::string deviceString);
+
   static std::string getStringFromDeviceAddr(DeviceAddress deviceAddress);
   static DeviceAddress getDeviceAddrFromString(std::string deviceAddrString);
 

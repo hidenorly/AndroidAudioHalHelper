@@ -59,10 +59,17 @@ void AndroidHalHelper::initialize(std::string filterPlugInPath, std::string uuid
   std::make_shared<ILoudnessEnhancerEffect>();
   std::make_shared<IDownmixEffect>();
   std::make_shared<IVisualizerEffect>();
+
+  // TODO: Attach Sink, Source
+  SourceSinkManager::attachSink(AUDIO_DEVICE_OUT_DEFAULT, std::make_shared<Sink>() );
+  SourceSinkManager::attachSource(AUDIO_DEVICE_IN_DEFAULT, std::make_shared<Source>() );
 }
 
 void AndroidHalHelper::terminate(void)
 {
+  // TODO: Detach Sink, Source
+
+
   // --- terminate EffectHelper
   AudioEffectHelper::terminate();
 

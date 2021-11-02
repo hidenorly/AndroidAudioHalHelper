@@ -48,6 +48,7 @@ std::shared_ptr<IEffect> IEffectsFactory::createEffect(Uuid uuid, AudioSession s
       pEffect->associateFilter( AudioEffectHelper::getFilterInstance( uuid ) );
     }
 
+    // TODO: AUDIO_SESSION_DEVICE should be applied to PipedSink...
     switch(session){
       case AUDIO_SESSION_DEVICE:
       case AUDIO_SESSION_OUTPUT_STAGE:
