@@ -18,6 +18,7 @@
 #include "PipedSink.hpp"
 #include "PipedSource.hpp"
 #include "DeviceAddressHelper.hpp"
+#include "AudioPortHelper.hpp"
 
 void SourceSinkManager::initialize(void)
 {
@@ -179,7 +180,7 @@ DeviceAddress SourceSinkManager::getDeviceAddress(std::shared_ptr<ISourceSinkCom
       break;
     }
   }
-  return AndroidDeviceAddressHelper::getDeviceAddrFromString( resultAddr);
+  return AndroidDeviceAddressHelper::getDeviceAddrFromString( resultAddr );
 }
 
 std::shared_ptr<ISink> SourceSinkManager::getSink(DeviceAddress deviceAddr)
@@ -306,5 +307,18 @@ std::shared_ptr<ISink> SourceSinkManager::getSink(const AudioPort& audioPort)
 std::shared_ptr<ISource> SourceSinkManager::getSource(const AudioPort& audioPort)
 {
   return std::dynamic_pointer_cast<ISource>( getSourceSink(audioPort) );
+}
+
+AudioPortConfig SourceSinkManager::getAudioPortConfig(std::shared_ptr<ISourceSinkCommon> pSourceSink)
+{
+  AudioPortConfig portConfig;
+  AndroidAudioPortHelper::getAndroidPortConfigFromSourceSink(
+    &portConfig,
+    pSourceSink,
+    AndroidDeviceAddressHelper::getStringFromDeviceAddr( getDeviceAddress( pSourceSink ) ),
+    /* AudioModuleHandle*/ 0, // TODO: ensure the hwModule (AudioModuleHandle)
+    getAudioDevice( pSourceSink )
+  );
+  return portConfig;
 }
 

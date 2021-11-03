@@ -40,7 +40,6 @@ public:
   static void attachSource(DeviceAddress deviceAddr, std::shared_ptr<ISource> pSource);
   static void detachSourceSinkByDeviceAddr(DeviceAddress deviceAddr);
   static void detachSourceSink(std::shared_ptr<ISourceSinkCommon> pSourceSink);
-  static DeviceAddress getDeviceAddress(std::shared_ptr<ISourceSinkCommon> pSourceSink);
 
   static std::shared_ptr<ISourceSinkCommon> getSourceSink(DeviceAddress deviceAddr);
   static std::shared_ptr<ISink> getSink(DeviceAddress deviceAddr);
@@ -51,6 +50,8 @@ public:
   static std::shared_ptr<ISource> getSource(AudioDevice device);
 
   static AudioDevice getAudioDevice(std::shared_ptr<ISourceSinkCommon> pSourceSink);
+  static DeviceAddress getDeviceAddress(std::shared_ptr<ISourceSinkCommon> pSourceSink);
+  static AudioPortConfig getAudioPortConfig(std::shared_ptr<ISourceSinkCommon> pSourceSink);
 
   static std::vector<std::shared_ptr<ISink>> getSinkDevices(void);
   static std::vector<std::shared_ptr<ISource>> getSourceDevices(void);
