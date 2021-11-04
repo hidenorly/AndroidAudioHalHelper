@@ -74,8 +74,18 @@ void SourceSinkManager::associateByAudioPortConfig(const AudioPortConfig& audioP
         mSourceSinksByAudioDevice.insert_or_assign( audioPortConfig.ext.device.type, pDevice );
       }
       break;
-    case AUDIO_PORT_TYPE_MIX:
+    case AUDIO_PORT_TYPE_MIX:;
+      break;
     case AUDIO_PORT_TYPE_SESSION:
+      {
+        // TODO: confirm this behaves as it expects or not
+        AudioPortHandle portHandle = getAudioPortHandle( audioPortConfig );
+        std::shared_ptr<ISourceSinkCommon> pDevice = getSourceSink( portHandle );
+        if( pDevice ){
+          mSourceSinksByAudioPortHandle.insert_or_assign( portHandle, pDevice );
+        }
+      }
+      break;
     default:;
       break;
   }
@@ -92,8 +102,18 @@ void SourceSinkManager::associateByAudioPort(const AudioPort& audioPort)
         mSourceSinksByAudioDevice.insert_or_assign( audioPort.ext.device.type, pDevice );
       }
       break;
-    case AUDIO_PORT_TYPE_MIX:
+    case AUDIO_PORT_TYPE_MIX:;
+      break;
     case AUDIO_PORT_TYPE_SESSION:
+      {
+        // TODO: confirm this behaves as it expects or not
+        AudioPortHandle portHandle = getAudioPortHandle( audioPort );
+        std::shared_ptr<ISourceSinkCommon> pDevice = getSourceSink( portHandle );
+        if( pDevice ){
+          mSourceSinksByAudioPortHandle.insert_or_assign( portHandle, pDevice );
+        }
+      }
+      break;
     default:;
       break;
   }
@@ -309,14 +329,27 @@ std::shared_ptr<ISource> SourceSinkManager::getSource(const AudioPort& audioPort
   return std::dynamic_pointer_cast<ISource>( getSourceSink(audioPort) );
 }
 
-AudioPortConfig SourceSinkManager::getAudioPortConfig(std::shared_ptr<ISourceSinkCommon> pSourceSink)
+AudioPortConfig SourceSinkManager::getAudioPortConfig(std::shared_ptr<ISourceSinkCommon> pSourceSink, AudioModuleHandle hwModule)
 {
   AudioPortConfig portConfig;
   AndroidAudioPortHelper::getAndroidPortConfigFromSourceSink(
     &portConfig,
     pSourceSink,
     AndroidDeviceAddressHelper::getStringFromDeviceAddr( getDeviceAddress( pSourceSink ) ),
-    /* AudioModuleHandle*/ 0, // TODO: ensure the hwModule (AudioModuleHandle)
+    hwModule, // TODO: ensure the hwModule (AudioModuleHandle)
+    getAudioDevice( pSourceSink )
+  );
+  return portConfig;
+}
+
+AudioPort SourceSinkManager::getAudioPort(std::shared_ptr<ISourceSinkCommon> pSourceSink, AudioModuleHandle hwModule)
+{
+  AudioPort portConfig;
+  AndroidAudioPortHelper::getAndroidPortFromSourceSink(
+    &portConfig,
+    pSourceSink,
+    AndroidDeviceAddressHelper::getStringFromDeviceAddr( getDeviceAddress( pSourceSink ) ),
+    hwModule, // TODO: ensure the hwModule (AudioModuleHandle)
     getAudioDevice( pSourceSink )
   );
   return portConfig;

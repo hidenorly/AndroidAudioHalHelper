@@ -51,7 +51,8 @@ public:
 
   static AudioDevice getAudioDevice(std::shared_ptr<ISourceSinkCommon> pSourceSink);
   static DeviceAddress getDeviceAddress(std::shared_ptr<ISourceSinkCommon> pSourceSink);
-  static AudioPortConfig getAudioPortConfig(std::shared_ptr<ISourceSinkCommon> pSourceSink);
+  static AudioPortConfig getAudioPortConfig(std::shared_ptr<ISourceSinkCommon> pSourceSink, AudioModuleHandle hwModule = 0);
+  static AudioPort getAudioPort(std::shared_ptr<ISourceSinkCommon> pSourceSink, AudioModuleHandle hwModule = 0);
 
   static std::vector<std::shared_ptr<ISink>> getSinkDevices(void);
   static std::vector<std::shared_ptr<ISource>> getSourceDevices(void);
