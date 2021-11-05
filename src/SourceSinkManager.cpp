@@ -335,6 +335,7 @@ AudioPortConfig SourceSinkManager::getAudioPortConfig(std::shared_ptr<ISourceSin
   AndroidAudioPortHelper::getAndroidPortConfigFromSourceSink(
     &portConfig,
     pSourceSink,
+    getAudioPortHandle( pSourceSink ),
     AndroidDeviceAddressHelper::getStringFromDeviceAddr( getDeviceAddress( pSourceSink ) ),
     hwModule, // TODO: ensure the hwModule (AudioModuleHandle)
     getAudioDevice( pSourceSink )
@@ -348,6 +349,7 @@ AudioPort SourceSinkManager::getAudioPort(std::shared_ptr<ISourceSinkCommon> pSo
   AndroidAudioPortHelper::getAndroidPortFromSourceSink(
     &portConfig,
     pSourceSink,
+    getAudioPortHandle( pSourceSink ),
     AndroidDeviceAddressHelper::getStringFromDeviceAddr( getDeviceAddress( pSourceSink ) ),
     hwModule, // TODO: ensure the hwModule (AudioModuleHandle)
     getAudioDevice( pSourceSink )

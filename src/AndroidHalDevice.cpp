@@ -251,7 +251,7 @@ AudioPort IDevice::getAudioPort(AudioPort port)
   AudioPort result = port;
 
   if( port.type == AUDIO_PORT_TYPE_DEVICE ){
-    AndroidAudioPortHelper::getAndroidPortFromSourceSink(&result, SourceSinkManager::getSink( port ), port.ext.device.address, mHwModule, port.ext.device.type );
+    AndroidAudioPortHelper::getAndroidPortFromSourceSink(&result, SourceSinkManager::getSink( port ), port.id, port.ext.device.address, mHwModule, port.ext.device.type );
     SourceSinkManager::associateByAudioPort( result );
   }
 

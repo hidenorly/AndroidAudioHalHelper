@@ -23,10 +23,10 @@
 #include "AndroidHalStreamOut.hpp"
 
 
-void AndroidAudioPortHelper::getAndroidPortFromSourceSink(AudioPort* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, AudioModuleHandle hwModule, AudioDevice androidAudioDeviceType)
+void AndroidAudioPortHelper::getAndroidPortFromSourceSink(AudioPort* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, AudioPortHandle portHandle, std::string address, AudioModuleHandle hwModule, AudioDevice androidAudioDeviceType)
 {
   if( pOutAudioPort && pSourceSink ){
-    pOutAudioPort->id = std::hash<std::string>()( pSourceSink->toString() );
+    pOutAudioPort->id = portHandle; // std::hash<std::string>()( pSourceSink->toString() );
     if( std::dynamic_pointer_cast<ISink>( pSourceSink ) ){
       pOutAudioPort->role = AUDIO_PORT_ROLE_SINK;
     } else {
@@ -84,7 +84,7 @@ void AndroidAudioPortHelper::getAndroidPortFromSourceSink(AudioPort* pOutAudioPo
     // TODO : struct audio_gain gains[AUDIO_PORT_MAX_GAINS] are expected to be configured.
 
     // set active AudioPort_config
-    getAndroidPortConfigFromSourceSink( &pOutAudioPort->active_config, pSourceSink, address, hwModule, androidAudioDeviceType);
+    getAndroidPortConfigFromSourceSink( &pOutAudioPort->active_config, pSourceSink, portHandle, address, hwModule, androidAudioDeviceType);
 
     pOutAudioPort->ext.device.hw_module = hwModule;
     pOutAudioPort->ext.device.type = androidAudioDeviceType;
@@ -92,10 +92,10 @@ void AndroidAudioPortHelper::getAndroidPortFromSourceSink(AudioPort* pOutAudioPo
   }
 }
 
-void AndroidAudioPortHelper::getAndroidPortConfigFromSourceSink(AudioPortConfig* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, std::string address, AudioModuleHandle hwModule, AudioDevice androidAudioDeviceType)
+void AndroidAudioPortHelper::getAndroidPortConfigFromSourceSink(AudioPortConfig* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, AudioPortHandle portHandle, std::string address, AudioModuleHandle hwModule, AudioDevice androidAudioDeviceType)
 {
   if( pOutAudioPort && pSourceSink ){
-    pOutAudioPort->id = std::hash<std::string>()( pSourceSink->toString() );
+    pOutAudioPort->id = portHandle; // std::hash<std::string>()( pSourceSink->toString() );
     if( std::dynamic_pointer_cast<ISink>( pSourceSink ) ){
       pOutAudioPort->role = AUDIO_PORT_ROLE_SINK;
     } else {
