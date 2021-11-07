@@ -45,7 +45,7 @@ void AndroidHalHelper::initialize(std::string filterPlugInPath, std::string uuid
   AndroidStreamManager::initialize();
 
   // --- initialize EffectHelper
-  AudioEffectHelper::initialize(filterPlugInPath, uuidFilterIdTblPath);
+  AudioEffectHelper::initialize( filterPlugInPath, uuidFilterIdTblPath );
 
   // associating(registering instatiable effects) with the UUID
   std::make_shared<IEnvironmentalReverbEffect>();
@@ -61,8 +61,8 @@ void AndroidHalHelper::initialize(std::string filterPlugInPath, std::string uuid
   std::make_shared<IVisualizerEffect>();
 
   // TODO: Attach Sink, Source
-  SourceSinkManager::attachSink(AUDIO_DEVICE_OUT_DEFAULT, std::make_shared<Sink>() );
-  SourceSinkManager::attachSource(AUDIO_DEVICE_IN_DEFAULT, std::make_shared<Source>() );
+  SourceSinkManager::attachSink( AUDIO_DEVICE_OUT_DEFAULT, std::make_shared<Sink>() );
+  SourceSinkManager::attachSource( AUDIO_DEVICE_IN_DEFAULT, std::make_shared<Source>() );
 }
 
 void AndroidHalHelper::terminate(void)

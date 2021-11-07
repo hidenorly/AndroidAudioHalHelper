@@ -101,6 +101,27 @@ std::string AndroidDeviceAddressHelper::getStringFromDeviceAddr(DeviceAddress de
   return deviceAddress.busAddress.empty() ? getDeviceString(deviceAddress.device) : getDeviceString(deviceAddress.device) + ":" + deviceAddress.busAddress;
 }
 
+DeviceAddress AndroidDeviceAddressHelper::getDeviceAddrFromAudioPortConfig(const AudioPortConfig& port)
+{
+  DeviceAddress deviceAddr;
+  if( port.type == AUDIO_PORT_TYPE_DEVICE ){
+    deviceAddr.device = port.ext.device.type;
+    deviceAddr.busAddress = port.ext.device.address;
+  }
+  return deviceAddr;
+}
+
+DeviceAddress AndroidDeviceAddressHelper::getDeviceAddrFromAudioPort(const AudioPort& port)
+{
+  DeviceAddress deviceAddr;
+  if( port.type == AUDIO_PORT_TYPE_DEVICE ){
+    deviceAddr.device = port.ext.device.type;
+    deviceAddr.busAddress = port.ext.device.address;
+  }
+  return deviceAddr;
+}
+
+
 DeviceAddress AndroidDeviceAddressHelper::getDeviceAddrFromString(std::string deviceAddrString)
 {
   DeviceAddress deviceAddr;

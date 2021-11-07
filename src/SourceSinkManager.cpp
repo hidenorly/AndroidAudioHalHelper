@@ -308,6 +308,10 @@ std::shared_ptr<ISourceSinkCommon> SourceSinkManager::getSourceSink(const AudioP
   if( !result ){
     result = getSourceSink( AndroidAudioPortHelper::getAudioDeviceFromAudioPortConfig( audioPortConfig ) );
   }
+  //try to get with DeviceAddress
+  if( !result ){
+    result = getSourceSink( AndroidDeviceAddressHelper::getDeviceAddrFromAudioPortConfig( audioPortConfig ) );
+  }
   return result;
 }
 
@@ -329,6 +333,10 @@ std::shared_ptr<ISourceSinkCommon> SourceSinkManager::getSourceSink(const AudioP
   // try to get with AudioDevice
   if( !result ){
     result = getSourceSink( AndroidAudioPortHelper::getAudioDeviceFromAudioPort( audioPort ) );
+  }
+  //try to get with DeviceAddress
+  if( !result ){
+    result = getSourceSink( AndroidDeviceAddressHelper::getDeviceAddrFromAudioPort( audioPort ) );
   }
   return result;
 }

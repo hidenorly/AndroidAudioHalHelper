@@ -36,6 +36,8 @@ public:
 
   static std::string getStringFromDeviceAddr(DeviceAddress deviceAddress);
   static DeviceAddress getDeviceAddrFromString(std::string deviceAddrString);
+  static DeviceAddress getDeviceAddrFromAudioPortConfig(const AudioPortConfig& port);
+  static DeviceAddress getDeviceAddrFromAudioPort(const AudioPort& port);
 
   static void setDeviceConnected(DeviceAddress deviceAddress, bool isConnected);
   static bool getDeviceConnected(DeviceAddress deviceAddress);
