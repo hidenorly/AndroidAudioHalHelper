@@ -125,6 +125,26 @@ void AndroidAudioPortHelper::getAndroidPortConfigFromSourceSink(AudioPortConfig*
   }
 }
 
+AudioDevice AndroidAudioPortHelper::getAudioDeviceFromAudioPortConfig(const AudioPortConfig& port)
+{
+  AudioDevice result = AUDIO_DEVICE_OUT_DEFAULT;
+  if( port.type == AUDIO_PORT_TYPE_DEVICE ){
+    result = port.ext.device.type;
+  }
+  return result;
+}
+
+AudioDevice AndroidAudioPortHelper::getAudioDeviceFromAudioPort(const AudioPort& port)
+{
+  AudioDevice result = AUDIO_DEVICE_OUT_DEFAULT;
+  if( port.type == AUDIO_PORT_TYPE_DEVICE ){
+    result = port.ext.device.type;
+  }
+  return result;
+}
+
+
+
 AudioGainConfig AndroidAudioPortHelper::getAudioGainConfigFromAudioPortConfig(const AudioPortConfig& config)
 {
   return config.gain;

@@ -301,7 +301,14 @@ std::shared_ptr<ISource> SourceSinkManager::getSource(AudioPortHandle audioPortH
 
 std::shared_ptr<ISourceSinkCommon> SourceSinkManager::getSourceSink(const AudioPortConfig& audioPortConfig)
 {
-  return getSourceSink( getAudioPortHandle( audioPortConfig ) );
+  std::shared_ptr<ISourceSinkCommon> result;
+  // try to get with AudioPort
+  result = getSourceSink( getAudioPortHandle( audioPortConfig ) );
+  // try to get with AudioDevice
+  if( !result ){
+    result = getSourceSink( AndroidAudioPortHelper::getAudioDeviceFromAudioPortConfig( audioPortConfig ) );
+  }
+  return result;
 }
 
 std::shared_ptr<ISink> SourceSinkManager::getSink(const AudioPortConfig& audioPortConfig)
@@ -316,7 +323,14 @@ std::shared_ptr<ISource> SourceSinkManager::getSource(const AudioPortConfig& aud
 
 std::shared_ptr<ISourceSinkCommon> SourceSinkManager::getSourceSink(const AudioPort& audioPort)
 {
-  return getSourceSink( getAudioPortHandle( audioPort ) );
+  std::shared_ptr<ISourceSinkCommon> result;
+  // try to get with AudioPort
+  result = getSourceSink( getAudioPortHandle( audioPort ) );
+  // try to get with AudioDevice
+  if( !result ){
+    result = getSourceSink( AndroidAudioPortHelper::getAudioDeviceFromAudioPort( audioPort ) );
+  }
+  return result;
 }
 
 std::shared_ptr<ISink> SourceSinkManager::getSink(const AudioPort& audioPort)

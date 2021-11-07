@@ -30,6 +30,9 @@ public:
   static void getAndroidPortFromSourceSink(AudioPort* pOutAudioPort, std::shared_ptr<ISourceSinkCommon> pSourceSink, AudioPortHandle portHandle = -1, std::string address = "", AudioModuleHandle hwModule = 0, AudioDevice androidAudioDeviceType = AUDIO_DEVICE_OUT_SPEAKER);
   static void getAndroidPortConfigFromSourceSink(AudioPortConfig* pOutAudioPortConfig, std::shared_ptr<ISourceSinkCommon> pSourceSink, AudioPortHandle portHandle = -1, std::string address = "", AudioModuleHandle hwModule = 0, AudioDevice androidAudioDeviceType = AUDIO_DEVICE_OUT_SPEAKER);
 
+  static AudioDevice getAudioDeviceFromAudioPortConfig(const AudioPortConfig& port);
+  static AudioDevice getAudioDeviceFromAudioPort(const AudioPort& port);
+
   static AudioGainConfig getAudioGainConfigFromAudioPortConfig(const AudioPortConfig& config);
 };
 
