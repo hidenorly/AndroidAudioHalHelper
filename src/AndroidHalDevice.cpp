@@ -128,6 +128,8 @@ std::vector<std::shared_ptr<ISource>> IDevice::getSources(std::vector<AudioPortC
     if( pSource ){
       pSource->setAudioFormat( AndroidFormatHelper::getAudioFormatFromAndroidPortConfig( aSourceAudioPort ) );
       pSources.push_back( pSource );
+    } else {
+      // TODO: fill in gap why the pSource is not found
     }
   }
 
@@ -144,6 +146,8 @@ std::vector<std::shared_ptr<ISink>> IDevice::getSinks(std::vector<AudioPortConfi
     if( pSink ){
       pSink->setAudioFormat( AndroidFormatHelper::getAudioFormatFromAndroidPortConfig( aSinkAudioPort ) );
       pSinks.push_back( pSink );
+    } else {
+      // TODO: fill in gap why the pSink is not found
     }
   }
 

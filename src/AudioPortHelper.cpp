@@ -125,10 +125,20 @@ void AndroidAudioPortHelper::getAndroidPortConfigFromSourceSink(AudioPortConfig*
   }
 }
 
+bool AndroidAudioPortHelper::isDevicePort(const AudioPort& port)
+{
+  return port.type == AUDIO_PORT_TYPE_DEVICE;
+}
+
+bool AndroidAudioPortHelper::isDevicePort(const AudioPortConfig& port)
+{
+  return port.type == AUDIO_PORT_TYPE_DEVICE;
+}
+
 AudioDevice AndroidAudioPortHelper::getAudioDeviceFromAudioPortConfig(const AudioPortConfig& port)
 {
   AudioDevice result = AUDIO_DEVICE_OUT_DEFAULT;
-  if( port.type == AUDIO_PORT_TYPE_DEVICE ){
+  if( isDevicePort( port ) ){
     result = port.ext.device.type;
   }
   return result;
@@ -137,11 +147,12 @@ AudioDevice AndroidAudioPortHelper::getAudioDeviceFromAudioPortConfig(const Audi
 AudioDevice AndroidAudioPortHelper::getAudioDeviceFromAudioPort(const AudioPort& port)
 {
   AudioDevice result = AUDIO_DEVICE_OUT_DEFAULT;
-  if( port.type == AUDIO_PORT_TYPE_DEVICE ){
+  if( isDevicePort( port ) ){
     result = port.ext.device.type;
   }
   return result;
 }
+
 
 
 

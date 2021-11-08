@@ -27,6 +27,35 @@
 #include "Filter.hpp"
 #include "Pipe.hpp"
 #include <tuple>
+#include "Source.hpp"
+#include "Sink.hpp"
+#include "FifoBuffer.hpp"
+
+class EffectSource : public ISource
+{
+protected:
+  FifoBuffer mFifoBuffer;
+  virtual void readPrimitive(IAudioBuffer& buf);
+
+public:
+  EffectSource();
+  virtual ~EffectSource();
+  virtual std::string toString(void){return "EffectSource";};
+  void enqueueBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer);
+};
+
+class EffectSink : public ISink // TODO: InterPipeBridge might be enough?
+{
+protected:
+  FifoBuffer mFifoBuffer;
+  virtual void writePrimitive(IAudioBuffer& buf);
+
+public:
+  EffectSink();
+  virtual ~EffectSink();
+  virtual std::string toString(void){return "EffectSink";};
+  void dequeueBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer);
+};
 
 class IEffect : public std::enable_shared_from_this<IEffect>
 {

@@ -20,6 +20,60 @@
 #include "AndroidHalDevice.hpp"
 #include "AudioEffectHelper.hpp"
 #include "SourceSinkManager.hpp"
+#include "PipedSource.hpp"
+#include "PipedSink.hpp"
+
+EffectSource::EffectSource()
+{
+  // TODO: mFifoBuffer.setAudioFormat() at IEffect's setConfig().
+}
+
+EffectSource::~EffectSource()
+{
+
+}
+
+void EffectSource::readPrimitive(IAudioBuffer& buf)
+{
+  mFifoBuffer.read( buf );
+}
+
+void EffectSource::enqueueBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer)
+{
+  if( pBuffer && !pBuffer->buf.empty() ){
+    AudioBuffer buf;
+    buf.setRawBuffer( pBuffer->buf );
+    mFifoBuffer.write( buf );
+  }
+}
+
+EffectSink::EffectSink()
+{
+  // TODO: mFifoBuffer.setAudioFormat() at IEffect's setConfig().
+}
+
+EffectSink::~EffectSink()
+{
+
+}
+
+void EffectSink::writePrimitive(IAudioBuffer& buf)
+{
+  mFifoBuffer.write( buf );
+}
+
+void EffectSink::dequeueBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer)
+{
+  if( pBuffer ){
+    AudioBuffer buf;
+    int nSampleSize = 4; // TODO: Fix the nSampleSize by the configured format at IEffect::setConfig()
+    int nRawBufferSize = nSampleSize * pBuffer->frameCount;
+    pBuffer->buf.resize( nRawBufferSize );
+    buf.setRawBuffer( pBuffer->buf );
+    mFifoBuffer.read( buf );
+  }
+}
+
 
 IEffect::IEffect(std::string uuid, std::shared_ptr<IFilter> pFilter):mUuid(uuid)
 {
@@ -122,7 +176,10 @@ HalResult IEffect::setDevice(AudioDevice device)
 
   std::shared_ptr<ISink> pSink = SourceSinkManager::getSink( device );
   if( pSink ){
-    if( mPipe ){
+    std::shared_ptr<PipedSink> pPipedSink = std::dynamic_pointer_cast<PipedSink>( pSink );
+    if( pPipedSink && mFilter ){
+      pPipedSink->addFilterToTail( mFilter );
+    } else if( mPipe ){
       mPipe->attachSink( pSink );
       result = HalResult::OK;
     }
@@ -138,7 +195,10 @@ HalResult IEffect::setInputDevice(AudioDevice device)
 
   std::shared_ptr<ISource> pSource = SourceSinkManager::getSource( device );
   if( pSource ){
-    if( mPipe ){
+    std::shared_ptr<PipedSource> pPipedSource = std::dynamic_pointer_cast<PipedSource>( pSource );
+    if( pPipedSource && mFilter ){
+      pPipedSource->addFilterToTail( mFilter );
+    } else if( mPipe ){
       mPipe->attachSource( pSource );
       result = HalResult::OK;
     }
@@ -264,8 +324,8 @@ HalResult IEffect::setConfig(const EffectConfig& config, std::shared_ptr<IEffect
   mEffectConfig = config;
   mInputFormat = AndroidFormatHelper::getAudioFormatFromAndroidEffectConfig( config.inputCfg );
   mOutputFormat = AndroidFormatHelper::getAudioFormatFromAndroidEffectConfig( config.outputCfg );
-  mInputBufferProvider = inputBufferProvider;
-  mOutputBufferProvider = outputBufferProvider;
+  mInputBufferProvider = inputBufferProvider; // TODO: Instantiate the Source and attach it to mPipe
+  mOutputBufferProvider = outputBufferProvider; // TODO: Instantiate the Sink and attach it to mPipe
 
   return result;
 }
@@ -331,7 +391,7 @@ std::shared_ptr<IEffect::StatusMQ> IEffect::prepareForProcessing(void)
 HalResult IEffect::setProcessBuffers(std::shared_ptr<AndroidAudioBuffer> inBuffer, std::shared_ptr<AndroidAudioBuffer> outBuffer)
 {
   HalResult result = HalResult::OK;
-  mAudioBuffers.push_back( std::make_tuple(inBuffer, outBuffer) );
+  mAudioBuffers.push_back( std::make_tuple(inBuffer, outBuffer) ); // TODO: Associate this to the corresponding instance to the Source and the Sink which are attached into the mPipe
 
   return result;
 }
