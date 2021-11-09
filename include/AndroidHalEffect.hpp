@@ -35,6 +35,9 @@ class EffectSource : public ISource
 {
 protected:
   FifoBuffer mFifoBuffer;
+
+protected:
+  void setAudioFormatPrimitive(AudioFormat format);
   virtual void readPrimitive(IAudioBuffer& buf);
 
 public:
@@ -48,6 +51,9 @@ class EffectSink : public ISink // TODO: InterPipeBridge might be enough?
 {
 protected:
   FifoBuffer mFifoBuffer;
+
+protected:
+  void setAudioFormatPrimitive(AudioFormat format);
   virtual void writePrimitive(IAudioBuffer& buf);
 
 public:
@@ -55,6 +61,8 @@ public:
   virtual ~EffectSink();
   virtual std::string toString(void){return "EffectSink";};
   void dequeueBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer);
+  virtual void dump(void);
+  virtual AudioFormat getAudioFormat(void);
 };
 
 class IEffect : public std::enable_shared_from_this<IEffect>
@@ -78,6 +86,9 @@ protected:
 
   std::vector<EffectBuffer> mAudioBuffers;
   std::map<uint32_t, std::vector<uint8_t>> mFeatureConfigData;
+
+protected:
+  std::string getStringFromVector(const std::vector<uint8_t>& value);
 
 public:
   IEffect(std::string uuid = "", std::shared_ptr<IFilter> pFilter = nullptr);

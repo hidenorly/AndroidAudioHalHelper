@@ -22,6 +22,8 @@
 #include "SourceSinkManager.hpp"
 #include "PipedSource.hpp"
 #include "PipedSink.hpp"
+#include "ParameterManager.hpp"
+#include <algorithm>
 
 EffectSource::EffectSource()
 {
@@ -36,6 +38,11 @@ EffectSource::~EffectSource()
 void EffectSource::readPrimitive(IAudioBuffer& buf)
 {
   mFifoBuffer.read( buf );
+}
+
+void EffectSource::setAudioFormatPrimitive(AudioFormat format)
+{
+  mFifoBuffer.setAudioFormat( format );
 }
 
 void EffectSource::enqueueBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer)
@@ -57,6 +64,11 @@ EffectSink::~EffectSink()
 
 }
 
+void EffectSink::setAudioFormatPrimitive(AudioFormat format)
+{
+  mFifoBuffer.setAudioFormat( format );
+}
+
 void EffectSink::writePrimitive(IAudioBuffer& buf)
 {
   mFifoBuffer.write( buf );
@@ -66,12 +78,23 @@ void EffectSink::dequeueBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer)
 {
   if( pBuffer ){
     AudioBuffer buf;
-    int nSampleSize = 4; // TODO: Fix the nSampleSize by the configured format at IEffect::setConfig()
+    AudioFormat format = mFifoBuffer.getAudioFormat();
+    int nSampleSize = format.getChannelsSampleByte();
     int nRawBufferSize = nSampleSize * pBuffer->frameCount;
     pBuffer->buf.resize( nRawBufferSize );
     buf.setRawBuffer( pBuffer->buf );
     mFifoBuffer.read( buf );
   }
+}
+
+void EffectSink::dump(void)
+{
+
+}
+
+AudioFormat EffectSink::getAudioFormat(void)
+{
+  return mFifoBuffer.getAudioFormat();
 }
 
 
@@ -324,8 +347,28 @@ HalResult IEffect::setConfig(const EffectConfig& config, std::shared_ptr<IEffect
   mEffectConfig = config;
   mInputFormat = AndroidFormatHelper::getAudioFormatFromAndroidEffectConfig( config.inputCfg );
   mOutputFormat = AndroidFormatHelper::getAudioFormatFromAndroidEffectConfig( config.outputCfg );
-  mInputBufferProvider = inputBufferProvider; // TODO: Instantiate the Source and attach it to mPipe
-  mOutputBufferProvider = outputBufferProvider; // TODO: Instantiate the Sink and attach it to mPipe
+  mInputBufferProvider = inputBufferProvider; // TODO: Associate this to EffectSource
+  mOutputBufferProvider = outputBufferProvider; // TODO: Associate this to EffectSink
+
+  if( mPipe ){
+    std::shared_ptr<ISource> pSource = mPipe->getSourceRef();
+    if( !pSource ){
+      pSource = std::make_shared<EffectSource>();
+      mPipe->attachSource( pSource );
+    }
+    if( pSource ){
+      pSource->setAudioFormat( mInputFormat );
+    }
+
+    std::shared_ptr<ISink> pSink = mPipe->getSinkRef();
+    if( !pSink ){
+      pSink = std::make_shared<EffectSink>();
+      mPipe->attachSink( pSink );
+    }
+    if( pSink ){
+      pSink->setAudioFormat( mOutputFormat );
+    }
+  }
 
   return result;
 }
@@ -401,9 +444,22 @@ uint32_t IEffect::command(uint32_t commandId, const std::vector<uint8_t>& inData
   return 0;
 }
 
+std::string IEffect::getStringFromVector(const std::vector<uint8_t>& value)
+{
+  std::vector<uint8_t> tmp = value;
+  tmp.push_back( 0 );
+  std::string result = (char*)tmp.data();
+  return result;
+}
+
 HalResult IEffect::setParameter(const std::vector<uint8_t>& parameter, const std::vector<uint8_t>& value)
 {
   HalResult result = HalResult::OK;
+
+  std::shared_ptr<ParameterManager> pParamMan = ParameterManager::getManager().lock();
+  if( pParamMan ){
+    pParamMan->setParameter( getStringFromVector( parameter ), getStringFromVector( value ) );
+  }
 
   return result;
 }
@@ -411,6 +467,14 @@ HalResult IEffect::setParameter(const std::vector<uint8_t>& parameter, const std
 HalResult IEffect::getParameter(const std::vector<uint8_t>& parameter, std::vector<uint8_t>& outValue, const uint32_t valueMaxSize)
 {
   HalResult result = HalResult::OK;
+
+  std::shared_ptr<ParameterManager> pParamMan = ParameterManager::getManager().lock();
+  if( pParamMan ){
+    std::string value = pParamMan->getParameter( getStringFromVector( parameter ) );
+    int nSize = std::min<int>( (int)value.size(), (int)valueMaxSize );
+    outValue.resize( nSize );
+    memcpy( outValue.data(), value.c_str(), nSize );
+  }
 
   return result;
 }
