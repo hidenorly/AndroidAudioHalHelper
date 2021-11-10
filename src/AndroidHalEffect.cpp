@@ -45,7 +45,7 @@ void EffectSource::setAudioFormatPrimitive(AudioFormat format)
   mFifoBuffer.setAudioFormat( format );
 }
 
-void EffectSource::enqueueBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer)
+void EffectSource::enqueueSourceBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer)
 {
   if( pBuffer && !pBuffer->buf.empty() ){
     AudioBuffer buf;
@@ -53,6 +53,12 @@ void EffectSource::enqueueBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer)
     mFifoBuffer.write( buf );
   }
 }
+
+void EffectSource::resetSourceBuffers(void)
+{
+  mFifoBuffer.clearBuffer();
+}
+
 
 EffectSink::EffectSink()
 {
@@ -72,20 +78,36 @@ void EffectSink::setAudioFormatPrimitive(AudioFormat format)
 void EffectSink::writePrimitive(IAudioBuffer& buf)
 {
   mFifoBuffer.write( buf );
-}
 
-void EffectSink::dequeueBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer)
-{
-  if( pBuffer ){
-    AudioBuffer buf;
-    AudioFormat format = mFifoBuffer.getAudioFormat();
-    int nSampleSize = format.getChannelsSampleByte();
-    int nRawBufferSize = nSampleSize * pBuffer->frameCount;
-    pBuffer->buf.resize( nRawBufferSize );
-    buf.setRawBuffer( pBuffer->buf );
-    mFifoBuffer.read( buf );
+  if( !mEffectBuffers.empty() ){
+    std::shared_ptr<AndroidAudioBuffer> pBuffer = mEffectBuffers[0];
+    if( pBuffer ){
+      if( mFifoBuffer.getBufferedSamples() > pBuffer->frameCount ){
+        AudioBuffer tmp;
+        AudioFormat format = mFifoBuffer.getAudioFormat();
+        int nSampleSize = format.getChannelsSampleByte();
+        int nRawBufferSize = nSampleSize * pBuffer->frameCount;
+        pBuffer->buf.resize( nRawBufferSize );
+        tmp.setRawBuffer( pBuffer->buf );
+        mFifoBuffer.read( tmp );
+        mEffectBuffers.erase( mEffectBuffers.begin() ); // remove the pBuffer from mEffectBuffers
+        // TODO: notice the buffer is filled to android audio effect fw.
+      }
+    }
   }
 }
+
+void EffectSink::enqueSinkBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer)
+{
+  mEffectBuffers.push_back( pBuffer );
+}
+
+void EffectSink::resetSinkBuffers(void)
+{
+  mEffectBuffers.clear();
+  mFifoBuffer.clearBuffer();
+}
+
 
 void EffectSink::dump(void)
 {
@@ -143,8 +165,9 @@ HalResult IEffect::init(void)
   mOutputFormat = AudioFormat();
   mInputBufferProvider.reset();
   mOutputBufferProvider.reset();
-  mAudioBuffers.clear();
   mFeatureConfigData.clear();
+
+  reset();
 
   return result;
 }
@@ -153,7 +176,17 @@ HalResult IEffect::reset(void)
 {
   HalResult result = HalResult::OK;
 
-  mAudioBuffers.clear();
+  if( mPipe ){
+    std::shared_ptr<EffectSource> pSource = std::dynamic_pointer_cast<EffectSource>( mPipe->getSourceRef() );
+    if( pSource ){
+      pSource->resetSourceBuffers();
+    }
+
+    std::shared_ptr<EffectSink> pSink = std::dynamic_pointer_cast<EffectSink>( mPipe->getSinkRef() );
+    if( pSink ){
+      pSink->resetSinkBuffers();
+    }
+  }
 
   return result;
 }
@@ -434,7 +467,18 @@ std::shared_ptr<IEffect::StatusMQ> IEffect::prepareForProcessing(void)
 HalResult IEffect::setProcessBuffers(std::shared_ptr<AndroidAudioBuffer> inBuffer, std::shared_ptr<AndroidAudioBuffer> outBuffer)
 {
   HalResult result = HalResult::OK;
-  mAudioBuffers.push_back( std::make_tuple(inBuffer, outBuffer) ); // TODO: Associate this to the corresponding instance to the Source and the Sink which are attached into the mPipe
+
+  if( mPipe ){
+    std::shared_ptr<EffectSource> pSource = std::dynamic_pointer_cast<EffectSource>( mPipe->getSourceRef() );
+    if( pSource ){
+      pSource->enqueueSourceBuffer( inBuffer );
+    }
+
+    std::shared_ptr<EffectSink> pSink = std::dynamic_pointer_cast<EffectSink>( mPipe->getSinkRef() );
+    if( pSink ){
+      pSink->enqueSinkBuffer( outBuffer );
+    }
+  }
 
   return result;
 }
