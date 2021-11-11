@@ -37,6 +37,14 @@ EffectSource::~EffectSource()
 
 void EffectSource::readPrimitive(IAudioBuffer& buf)
 {
+  std::shared_ptr<AndroidAudioBuffer> pBuffer;
+  if( mBufferProvider ){
+    pBuffer = mBufferProvider->getBuffer();
+    if( pBuffer ){
+      enqueueSourceBuffer( pBuffer );
+      mBufferProvider->putBuffer( pBuffer );
+    }
+  }
   mFifoBuffer.read( buf );
 }
 
@@ -59,6 +67,11 @@ void EffectSource::resetSourceBuffers(void)
   mFifoBuffer.clearBuffer();
 }
 
+void EffectSource::setBufferProvider(std::shared_ptr<IEffectBufferProviderCallback> pBufferProvider)
+{
+  mBufferProvider = pBufferProvider;
+}
+
 
 EffectSink::EffectSink()
 {
@@ -79,6 +92,10 @@ void EffectSink::writePrimitive(IAudioBuffer& buf)
 {
   mFifoBuffer.write( buf );
 
+  if( mBufferProvider ){
+    enqueSinkBuffer( mBufferProvider->getBuffer() );
+  }
+
   if( !mEffectBuffers.empty() ){
     std::shared_ptr<AndroidAudioBuffer> pBuffer = mEffectBuffers[0];
     if( pBuffer ){
@@ -90,8 +107,11 @@ void EffectSink::writePrimitive(IAudioBuffer& buf)
         pBuffer->buf.resize( nRawBufferSize );
         tmp.setRawBuffer( pBuffer->buf );
         mFifoBuffer.read( tmp );
+
+        if( mBufferProvider ){
+          mBufferProvider->putBuffer( pBuffer );
+        }
         mEffectBuffers.erase( mEffectBuffers.begin() ); // remove the pBuffer from mEffectBuffers
-        // TODO: notice the buffer is filled to android audio effect fw.
       }
     }
   }
@@ -99,7 +119,9 @@ void EffectSink::writePrimitive(IAudioBuffer& buf)
 
 void EffectSink::enqueSinkBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer)
 {
-  mEffectBuffers.push_back( pBuffer );
+  if( pBuffer ){
+    mEffectBuffers.push_back( pBuffer );
+  }
 }
 
 void EffectSink::resetSinkBuffers(void)
@@ -108,6 +130,10 @@ void EffectSink::resetSinkBuffers(void)
   mFifoBuffer.clearBuffer();
 }
 
+void EffectSink::setBufferProvider(std::shared_ptr<IEffectBufferProviderCallback> pBufferProvider)
+{
+  mBufferProvider = pBufferProvider;
+}
 
 void EffectSink::dump(void)
 {
@@ -380,8 +406,8 @@ HalResult IEffect::setConfig(const EffectConfig& config, std::shared_ptr<IEffect
   mEffectConfig = config;
   mInputFormat = AndroidFormatHelper::getAudioFormatFromAndroidEffectConfig( config.inputCfg );
   mOutputFormat = AndroidFormatHelper::getAudioFormatFromAndroidEffectConfig( config.outputCfg );
-  mInputBufferProvider = inputBufferProvider; // TODO: Associate this to EffectSource
-  mOutputBufferProvider = outputBufferProvider; // TODO: Associate this to EffectSink
+  mInputBufferProvider = inputBufferProvider;
+  mOutputBufferProvider = outputBufferProvider;
 
   if( mPipe ){
     std::shared_ptr<ISource> pSource = mPipe->getSourceRef();
@@ -389,8 +415,10 @@ HalResult IEffect::setConfig(const EffectConfig& config, std::shared_ptr<IEffect
       pSource = std::make_shared<EffectSource>();
       mPipe->attachSource( pSource );
     }
-    if( pSource ){
-      pSource->setAudioFormat( mInputFormat );
+    std::shared_ptr<EffectSource> pEffectSource = std::dynamic_pointer_cast<EffectSource>( pSource );
+    if( pEffectSource ){
+      pEffectSource->setAudioFormat( mInputFormat );
+      pEffectSource->setBufferProvider( mInputBufferProvider );
     }
 
     std::shared_ptr<ISink> pSink = mPipe->getSinkRef();
@@ -398,8 +426,10 @@ HalResult IEffect::setConfig(const EffectConfig& config, std::shared_ptr<IEffect
       pSink = std::make_shared<EffectSink>();
       mPipe->attachSink( pSink );
     }
-    if( pSink ){
-      pSink->setAudioFormat( mOutputFormat );
+    std::shared_ptr<EffectSink> pEffectSink = std::dynamic_pointer_cast<EffectSink>( pSink );
+    if( pEffectSink ){
+      pEffectSink->setAudioFormat( mOutputFormat );
+      pEffectSink->setBufferProvider( mOutputBufferProvider );
     }
   }
 
