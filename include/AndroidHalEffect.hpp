@@ -48,6 +48,7 @@ public:
   void enqueueSourceBuffer(std::shared_ptr<AndroidAudioBuffer> pBuffer);
   void resetSourceBuffers(void);
   void setBufferProvider(std::shared_ptr<IEffectBufferProviderCallback> pBufferProvider);
+  virtual bool isAvailableFormat(AudioFormat format){ return true; };
 };
 
 class EffectSink : public ISink // TODO: InterPipeBridge might be enough?
@@ -69,6 +70,7 @@ public:
   void resetSinkBuffers(void);
   virtual void dump(void);
   virtual AudioFormat getAudioFormat(void);
+  virtual bool isAvailableFormat(AudioFormat format){ return true; };
   void setBufferProvider(std::shared_ptr<IEffectBufferProviderCallback> pBufferProvider);
 };
 

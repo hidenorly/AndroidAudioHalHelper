@@ -18,6 +18,7 @@
 #define __GAIN_HELPER_HPP__
 
 #include <cfloat>
+#include <stdint.h>
 
 class GainHelper
 {
@@ -27,6 +28,8 @@ public:
 
   static float getDbFromAmplifierRatio(float amplifierRatio);
   static float getDbFromVolumeRatioPercentage(float volumeRatioPercentage);
+
+  static float getFloatVolumeFromFixedVolume(uint32_t volume);
 };
 
 #endif /* __GAIN_HELPER_HPP__ */

@@ -23,11 +23,11 @@
 #include "PipedSource.hpp"
 #include "PipedSink.hpp"
 #include "ParameterManager.hpp"
+#include "GainHelper.hpp"
 #include <algorithm>
 
 EffectSource::EffectSource()
 {
-  // TODO: mFifoBuffer.setAudioFormat() at IEffect's setConfig().
 }
 
 EffectSource::~EffectSource()
@@ -75,7 +75,6 @@ void EffectSource::setBufferProvider(std::shared_ptr<IEffectBufferProviderCallba
 
 EffectSink::EffectSink()
 {
-  // TODO: mFifoBuffer.setAudioFormat() at IEffect's setConfig().
 }
 
 EffectSink::~EffectSink()
@@ -192,6 +191,11 @@ HalResult IEffect::init(void)
   mInputBufferProvider.reset();
   mOutputBufferProvider.reset();
   mFeatureConfigData.clear();
+
+  if( mPipe ){
+    mPipe->attachSource( nullptr );
+    mPipe->attachSink( nullptr );
+  }
 
   reset();
 
@@ -389,12 +393,29 @@ std::vector<uint32_t> IEffect::setAndGetVolume(const std::vector<uint32_t>& chan
 {
   std::vector<uint32_t> result;
 
+  if( mPipe ){
+    std::shared_ptr<ISink> pSink = mPipe->getSinkRef();
+    if( pSink ){
+      // FIXME with CHANNEL_VOLUME
+      float volume = 0;
+      for( auto& aVolume : channelVolumes ){
+        volume += GainHelper::getFloatVolumeFromFixedVolume( aVolume );
+      }
+      volume = volume / channelVolumes.size();
+      for( int i=0; i<channelVolumes.size(); i++ ){
+        result.push_back( volume );
+      }
+      pSink->setVolume( volume );
+    }
+  }
+
   return result;
 }
 
 HalResult IEffect::volumeChangeNotification(const std::vector<uint32_t>& channelVolumes)
 {
   HalResult result = HalResult::OK;
+  setAndGetVolume( channelVolumes );
 
   return result;
 }
@@ -415,10 +436,12 @@ HalResult IEffect::setConfig(const EffectConfig& config, std::shared_ptr<IEffect
       pSource = std::make_shared<EffectSource>();
       mPipe->attachSource( pSource );
     }
-    std::shared_ptr<EffectSource> pEffectSource = std::dynamic_pointer_cast<EffectSource>( pSource );
-    if( pEffectSource ){
-      pEffectSource->setAudioFormat( mInputFormat );
-      pEffectSource->setBufferProvider( mInputBufferProvider );
+    if( pSource ){
+      pSource->setAudioFormat( mInputFormat );
+      std::shared_ptr<EffectSource> pEffectSource = std::dynamic_pointer_cast<EffectSource>( pSource );
+      if( pEffectSource ){
+        pEffectSource->setBufferProvider( mInputBufferProvider );
+      }
     }
 
     std::shared_ptr<ISink> pSink = mPipe->getSinkRef();
@@ -426,10 +449,12 @@ HalResult IEffect::setConfig(const EffectConfig& config, std::shared_ptr<IEffect
       pSink = std::make_shared<EffectSink>();
       mPipe->attachSink( pSink );
     }
-    std::shared_ptr<EffectSink> pEffectSink = std::dynamic_pointer_cast<EffectSink>( pSink );
-    if( pEffectSink ){
-      pEffectSink->setAudioFormat( mOutputFormat );
-      pEffectSink->setBufferProvider( mOutputBufferProvider );
+    if( pSink ){
+      pSink->setAudioFormat( mOutputFormat );
+      std::shared_ptr<EffectSink> pEffectSink = std::dynamic_pointer_cast<EffectSink>( pSink );
+      if( pEffectSink ){
+        pEffectSink->setBufferProvider( mOutputBufferProvider );
+      }
     }
   }
 

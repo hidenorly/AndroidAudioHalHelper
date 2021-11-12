@@ -45,3 +45,11 @@ float GainHelper::getDbFromVolumeRatioPercentage(float volumeRatioPercentage)
 {
   return getDbFromAmplifierRatio( volumeRatioPercentage / 100.0f );
 }
+
+
+float GainHelper::getFloatVolumeFromFixedVolume(uint32_t volume)
+{
+  int intVol = volume >> 24;
+  int decVol = volume & 0x0FFFFFFF;
+  return (float)intVol + (float)decVol/(float)(0x0FFFFFFF);
+}
