@@ -94,6 +94,7 @@ protected:
   std::shared_ptr<StatusMQ> mStatusMQ;
 
   std::map<uint32_t, std::vector<uint8_t>> mFeatureConfigData;
+  std::map<uint32_t, std::vector<uint8_t>> mSupportedFeatureConfigData;
 
 protected:
   std::string getStringFromVector(const std::vector<uint8_t>& value);

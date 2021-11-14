@@ -582,6 +582,15 @@ std::vector<uint8_t> IEffect::getSupportedConfigsForFeature(uint32_t featureId, 
 {
   std::vector<uint8_t> result;
 
+  if( mSupportedFeatureConfigData.contains( featureId ) ){
+    result = mSupportedFeatureConfigData[ featureId ];
+  } else if( mFeatureConfigData.contains( featureId ) ){
+    // TODO: Fill mSupportedFeatureConfigData in your delivered class's constructor, etc. since this is Dummy(0) as same size of current Configdata
+    result.resize( mFeatureConfigData[ featureId ].size() );
+  }
+  int nSize = std::min<int>( (int)result.size(), (int)(maxConfigs * configSize) );
+  result.resize( nSize );
+
   return result;
 }
 
