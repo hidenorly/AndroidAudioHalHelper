@@ -39,6 +39,16 @@ public:
   static bool isDevicePort(const AudioPortConfig& port);
 
   static AudioDevice getAudioDeviceFromAudioSource(const AudioSource& source);
+
+public:
+  struct table_source_device
+  {
+    AudioSource source;
+    AudioDevice device;
+  };
+
+protected:
+  static table_source_device* getSourceDeviceTable(void);
 };
 
 #endif /* __AUDIO_PORT_HELPER_HPP__ */

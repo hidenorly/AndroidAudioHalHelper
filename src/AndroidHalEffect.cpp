@@ -392,21 +392,16 @@ HalResult IEffect::setAudioMode(AudioMode mode)
 
 std::vector<uint32_t> IEffect::setAndGetVolume(const std::vector<uint32_t>& channelVolumes)
 {
-  std::vector<uint32_t> result;
+  std::vector<uint32_t> result = channelVolumes;
 
   if( mPipe ){
     std::shared_ptr<ISink> pSink = mPipe->getSinkRef();
     if( pSink ){
-      // FIXME with CHANNEL_VOLUME
-      float volume = 0;
+      std::vector<float> volumes;
       for( auto& aVolume : channelVolumes ){
-        volume += GainHelper::getFloatVolumeFromFixedVolume( aVolume );
+        volumes.push_back( GainHelper::getFloatVolumeFromFixedVolume( aVolume ) );
       }
-      volume = volume / channelVolumes.size();
-      for( int i=0; i<channelVolumes.size(); i++ ){
-        result.push_back( volume );
-      }
-      pSink->setVolume( volume );
+      pSink->setVolume( volumes ); //Volume::getChannelVolume( pSink->getAudioFormat().getChannels(), volumes ) );
     }
   }
 

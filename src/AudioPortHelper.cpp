@@ -153,20 +153,36 @@ AudioDevice AndroidAudioPortHelper::getAudioDeviceFromAudioPort(const AudioPort&
   return result;
 }
 
+#ifndef __REPLACE_SOURCE_DEVICE_TABLE__
+static const AndroidAudioPortHelper::table_source_device source_device_conv_tbl[] =
+{
+  {AUDIO_SOURCE_MIC,                  AUDIO_DEVICE_IN_BUILTIN_MIC},
+  {AUDIO_SOURCE_VOICE_UPLINK,         AUDIO_DEVICE_IN_COMMUNICATION},
+  {AUDIO_SOURCE_VOICE_DOWNLINK,       AUDIO_DEVICE_IN_COMMUNICATION},
+  {AUDIO_SOURCE_VOICE_CALL,           AUDIO_DEVICE_IN_COMMUNICATION},
+  {AUDIO_SOURCE_CAMCORDER,            AUDIO_DEVICE_IN_DEFAULT},
+  {AUDIO_SOURCE_VOICE_RECOGNITION,    AUDIO_DEVICE_IN_BUILTIN_MIC},
+  {AUDIO_SOURCE_VOICE_COMMUNICATION,  AUDIO_DEVICE_IN_COMMUNICATION},
+  {AUDIO_SOURCE_REMOTE_SUBMIX,        AUDIO_DEVICE_IN_DEFAULT},
+  {AUDIO_SOURCE_UNPROCESSED,          AUDIO_DEVICE_IN_DEFAULT},
+  {AUDIO_SOURCE_VOICE_PERFORMANCE,    AUDIO_DEVICE_IN_COMMUNICATION},
+  {AUDIO_SOURCE_ECHO_REFERENCE,       AUDIO_DEVICE_IN_ECHO_REFERENCE},
+  {AUDIO_SOURCE_FM_TUNER,             AUDIO_DEVICE_IN_FM_TUNER},
+  {AUDIO_SOURCE_HOTWORD,              AUDIO_DEVICE_IN_BUILTIN_MIC},
+  {AUDIO_SOURCE_DEFAULT,              AUDIO_DEVICE_IN_DEFAULT},
+};
+#endif /* __REPLACE_SOURCE_DEVICE_TABLE__ */
+
+AndroidAudioPortHelper::table_source_device* AndroidAudioPortHelper::getSourceDeviceTable(void)
+{
+  return (table_source_device*)source_device_conv_tbl;
+}
+
 AudioDevice AndroidAudioPortHelper::getAudioDeviceFromAudioSource(const AudioSource& source)
 {
   AudioDevice result = AUDIO_DEVICE_IN_DEFAULT;
 
-  struct table
-  {
-    AudioSource source;
-    AudioDevice device;
-  };
-
-  table tbl[] =
-  {
-    {AUDIO_SOURCE_DEFAULT, AUDIO_DEVICE_IN_DEFAULT},
-  };
+  const static table_source_device* tbl = getSourceDeviceTable();
 
   for( int i=0; tbl[i].source != AUDIO_SOURCE_DEFAULT && tbl[i].device != AUDIO_DEVICE_IN_DEFAULT; i++ ){
     if( source == tbl[i].source ){
