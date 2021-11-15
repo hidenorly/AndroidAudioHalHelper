@@ -24,6 +24,7 @@
 #include "PipedSink.hpp"
 #include "ParameterManager.hpp"
 #include "GainHelper.hpp"
+#include "AudioPortHelper.hpp"
 #include <algorithm>
 
 EffectSource::EffectSource()
@@ -145,7 +146,7 @@ AudioFormat EffectSink::getAudioFormat(void)
 }
 
 
-IEffect::IEffect(std::string uuid, std::shared_ptr<IFilter> pFilter):mUuid(uuid)
+IEffect::IEffect(std::string uuid, std::shared_ptr<IFilter> pFilter):mUuid(uuid), mAudioSource(AUDIO_SOURCE_DEFAULT), mAudioMode(AudioModeVal::NORMAL)
 {
   AudioEffectHelper::associateEffect( shared_from_this() );
 
@@ -297,8 +298,15 @@ HalResult IEffect::setInputDevice(AudioDevice device)
 HalResult IEffect::setAudioSource(AudioSource source)
 {
   HalResult result = HalResult::OK;
+  mAudioSource = source;
 
   std::string sourceDesc;
+
+  AudioDevice device = AndroidAudioPortHelper::getAudioDeviceFromAudioSource( source );
+  std::shared_ptr<ISource> pSource = SourceSinkManager::getSource( device );
+  if( mPipe && pSource ){
+    mPipe->attachSource( pSource );
+  }
 
   switch( source ){
     case AUDIO_SOURCE_MIC:
@@ -354,14 +362,7 @@ HalResult IEffect::setAudioMode(AudioMode mode)
 {
   HalResult result = HalResult::OK;
 
-  enum AudioModeVal
-  {
-    NORMAL           = 0,
-    RINGTONE         = 1,
-    IN_CALL          = 2,
-    IN_COMMUNICATION = 3,
-    CALL_SCREEN      = 4,
-  };
+  mAudioMode = mode;
 
   std::string modeString;
   switch( mode )

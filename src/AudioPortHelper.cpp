@@ -153,8 +153,29 @@ AudioDevice AndroidAudioPortHelper::getAudioDeviceFromAudioPort(const AudioPort&
   return result;
 }
 
+AudioDevice AndroidAudioPortHelper::getAudioDeviceFromAudioSource(const AudioSource& source)
+{
+  AudioDevice result = AUDIO_DEVICE_IN_DEFAULT;
 
+  struct table
+  {
+    AudioSource source;
+    AudioDevice device;
+  };
 
+  table tbl[] =
+  {
+    {AUDIO_SOURCE_DEFAULT, AUDIO_DEVICE_IN_DEFAULT},
+  };
+
+  for( int i=0; tbl[i].source != AUDIO_SOURCE_DEFAULT && tbl[i].device != AUDIO_DEVICE_IN_DEFAULT; i++ ){
+    if( source == tbl[i].source ){
+      result = tbl[i].device;
+    }
+  }
+
+  return result;
+}
 
 AudioGainConfig AndroidAudioPortHelper::getAudioGainConfigFromAudioPortConfig(const AudioPortConfig& config)
 {

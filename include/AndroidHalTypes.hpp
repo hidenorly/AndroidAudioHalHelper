@@ -32,6 +32,14 @@ typedef audio_channel_mask_t AudioChannelMask;
 typedef audio_format_t AndroidAudioFormat;
 typedef audio_devices_t AudioDevice;
 typedef int32_t AudioMode;
+enum AudioModeVal
+{
+  NORMAL           = 0,
+  RINGTONE         = 1,
+  IN_CALL          = 2,
+  IN_COMMUNICATION = 3,
+  CALL_SCREEN      = 4,
+};
 
 typedef audio_port AudioPort;
 typedef audio_port_config AudioPortConfig;

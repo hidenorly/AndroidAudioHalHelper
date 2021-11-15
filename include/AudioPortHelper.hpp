@@ -37,6 +37,8 @@ public:
 
   static bool isDevicePort(const AudioPort& port);
   static bool isDevicePort(const AudioPortConfig& port);
+
+  static AudioDevice getAudioDeviceFromAudioSource(const AudioSource& source);
 };
 
 #endif /* __AUDIO_PORT_HELPER_HPP__ */

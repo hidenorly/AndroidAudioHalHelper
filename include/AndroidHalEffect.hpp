@@ -83,18 +83,24 @@ public:
 
 protected:
   std::string mUuid;
-  std::shared_ptr<IFilter> mFilter;
-  std::shared_ptr<IPipe> mPipe;
+
   EffectConfig mEffectConfig;
   EffectAuxChannelsConfig mEffectAuxChannelConfig;
   AudioFormat mInputFormat;
   AudioFormat mOutputFormat;
+  AudioSource mAudioSource;
+  AudioMode mAudioMode;
+
+  std::shared_ptr<IFilter> mFilter;
+  std::shared_ptr<IPipe> mPipe;
+
   std::shared_ptr<IEffectBufferProviderCallback> mInputBufferProvider;
   std::shared_ptr<IEffectBufferProviderCallback> mOutputBufferProvider;
   std::shared_ptr<StatusMQ> mStatusMQ;
 
   std::map<uint32_t, std::vector<uint8_t>> mFeatureConfigData;
   std::map<uint32_t, std::vector<uint8_t>> mSupportedFeatureConfigData;
+
 
 protected:
   std::string getStringFromVector(const std::vector<uint8_t>& value);
