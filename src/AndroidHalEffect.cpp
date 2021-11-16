@@ -401,6 +401,7 @@ std::vector<uint32_t> IEffect::setAndGetVolume(const std::vector<uint32_t>& chan
       for( auto& aVolume : channelVolumes ){
         volumes.push_back( GainHelper::getFloatVolumeFromFixedVolume( aVolume ) );
       }
+      // TODO: May reorder the channel layout to adjust Android expectation and AFW expectation
       pSink->setVolume( volumes ); //Volume::getChannelVolume( pSink->getAudioFormat().getChannels(), volumes ) );
     }
   }
@@ -496,10 +497,12 @@ EffectAuxChannelsConfig IEffect::getAuxChannelsConfig(void)
 HalResult IEffect::offload(const EffectOffloadParameter& param)
 {
   HalResult result = HalResult::OK;
-  if( param.isOffload ){
-    std::shared_ptr<IStream> pStream = IDevice::getStreamByIoHandle( param.ioHandle );
-    if( pStream ){
+  std::shared_ptr<IStream> pStream = IDevice::getStreamByIoHandle( param.ioHandle );
+  if( pStream ){
+    if( param.isOffload ){
       pStream->addEffect( getEffectId() );
+    } else {
+      pStream->removeEffect( getEffectId() );
     }
   }
 

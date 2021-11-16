@@ -26,7 +26,7 @@
 
 // TODO: the devices support
 
-IDevice::IDevice(AudioModuleHandle hwModule, std::string filterPlugInPath):mMasterVolume(100.0f), mHwModule(hwModule), mPatchHandleCount(0)
+IDevice::IDevice(AudioModuleHandle hwModule, std::string filterPlugInPath):mMasterVolume(100.0f), mHwModule(hwModule), mPatchHandleCount(0), mScreenStateOn(false)
 {
   AudioEffectHelper::initialize( filterPlugInPath );
 }
@@ -452,6 +452,7 @@ AudioHwSync IDevice::getHwAvSync(void)
 
 HalResult IDevice::setScreenState(bool turnedOn)
 {
-  return HalResult::NOT_SUPPORTED;
+  mScreenStateOn = turnedOn;
+  return HalResult::OK;
 }
 

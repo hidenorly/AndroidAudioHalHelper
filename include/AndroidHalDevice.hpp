@@ -41,6 +41,7 @@ protected:
   float mMasterVolume;
   AudioModuleHandle mHwModule;
   AudioPatchHandle mPatchHandleCount;
+  bool mScreenStateOn;
 
 protected:
   std::vector<std::shared_ptr<ISource>> getSources(std::vector<AudioPortConfig> sources);
