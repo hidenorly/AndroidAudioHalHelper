@@ -30,11 +30,7 @@ protected:
   virtual void setAudioFormatPrimitive(AudioFormat format){mFormat=format;};
 
 public:
-  CompressedSink(AudioFormat::ENCODING encodingStartPoint = AudioFormat::ENCODING::COMPRESSED):Sink(),mFormat(AudioFormat::ENCODING::ENCODING_DEFAULT){
-    for(int anEncoding = encodingStartPoint; anEncoding < AudioFormat::ENCODING::COMPRESSED_UNKNOWN; anEncoding++){
-      mAudioFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding) );
-    }
-  };
+  CompressedSink():Sink(),mFormat(AudioFormat::ENCODING::ENCODING_DEFAULT){};
   virtual ~CompressedSink(){};
   virtual AudioFormat getAudioFormat(void){ return mFormat; };
   std::vector<AudioFormat> getSupportedAudioFormats(void){ return mAudioFormats; };
@@ -43,10 +39,16 @@ public:
 
 class IHdmiArcSink : public CompressedSink
 {
+protected:
+  int mParameterHandler;
+  bool mIsAtmosCapable;
+
 public:
-  IHdmiArcSink():CompressedSink(){};
-  virtual ~IHdmiArcSink(){};
+  IHdmiArcSink();
+  virtual ~IHdmiArcSink();
   virtual std::string toString(void){ return "HdmiArcSink";};
+
+  const static inline char* PARAM_KEY_SAD = "hdmi.edid.sad";
 };
 
 

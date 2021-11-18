@@ -15,6 +15,59 @@
 */
 
 #include "IHdmiArcSink.hpp"
+#include "HdmiEdidSadHelper.hpp"
+#include "ParameterManager.hpp"
+#include "StringTokenizer.hpp"
+#include <sstream>
+#include <vector>
+
+#include <iostream>
+
+
+#define ADDITIONAL_CAP_ATMOS "JOC_DolbyAtmos"
+
+IHdmiArcSink::IHdmiArcSink():CompressedSink()
+{
+  mIsAtmosCapable = false;
+
+  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
+
+  ParameterManager::CALLBACK sadHandler = [&](std::string key, std::string value){
+    // parse hex formated SAD(Short Audio Descriptor) packets per 3 bytes (sad packet size is 3 bytes)
+    StringTokenizer token( value, "," );
+    std::vector<ByteBuffer> sadPackets;
+    ByteBuffer aSadPacket;
+    while( token.hasNext() ){
+      std::stringstream ss( token.getNext() );
+      int data = 0;
+      ss >> std::hex >> data;
+      aSadPacket.push_back( data );
+      if( aSadPacket.size() == 3 ){
+        sadPackets.push_back( aSadPacket );
+        aSadPacket.clear();
+      }
+    }
+    // parse the SAD packet to AudioFormat
+    for( auto& aSadPacket : sadPackets ){
+      std::vector<AudioFormat> formats = HdmiEdidSadHelper::getAudioFormatsFromSad( aSadPacket );
+      mAudioFormats.insert( mAudioFormats.end(), formats.begin(), formats.end() );
+      if( ( formats.size() > 0 ) && !formats[0].isEncodingPcm() ){
+        std::map<std::string, std::string> addionalCapabilities = HdmiEdidSadHelper::getAdditionalCapabilities( aSadPacket );
+        if( addionalCapabilities.contains( ADDITIONAL_CAP_ATMOS ) ){
+          mIsAtmosCapable = addionalCapabilities[ ADDITIONAL_CAP_ATMOS ] == "true";
+        }
+      }
+    }
+  };
+  mParameterHandler = pParams->registerCallback( PARAM_KEY_SAD, sadHandler );
+}
+
+IHdmiArcSink::~IHdmiArcSink()
+{
+
+}
+
+
 
 // TODO: will encapsule or use factory template, etc.
 

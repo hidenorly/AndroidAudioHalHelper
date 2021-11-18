@@ -24,6 +24,10 @@ AFW_INC_DIR=$(AFW_DIR)/include
 LIB_DIR=$(AFW_DIR)/lib
 LIB_HELPER_DIR=./lib
 OBJ_DIR=./out
+SAD_DIR=../HdmiEdidShortAudioDescriptorParser
+SAD_INC_DIR=$(SAD_DIR)/src
+SAD_LIB_DIR=$(SAD_DIR)/lib
+
 
 ANDROID_HOME := $(shell printenv ANDROID_HOME)
 ANDROID_MEDIA_INC=$(ANDROID_HOME)/system/media/audio/include
@@ -48,10 +52,12 @@ UNAME := $(shell uname -s)
 ifeq ($(UNAME),Linux)
 	HELPER_SO_TARGET = $(LIB_HELPER_DIR)/libaudiohalhelper.so
 	AFW_SO_TARGET = $(LIB_DIR)/libafw.so
+	SAD_SO_TARGET = $(SAD_LIB_DIR)/libhdmisadhelper.so
 endif
 ifeq ($(UNAME),Darwin)
 	HELPER_SO_TARGET = $(LIB_HELPER_DIR)/libaudiohalhelper.dylib
 	AFW_SO_TARGET = $(LIB_DIR)/libafw.dylib
+	SAD_SO_TARGET = $(SAD_LIB_DIR)/libhdmisadhelper.dylib
 endif
 HELPER_DEPS = $(HELPER_OBJS:.o=.d)
 
@@ -61,13 +67,13 @@ default: $(HELPER_SO_TARGET)
 $(HELPER_SO_TARGET): $(HELPER_OBJS)
 	@[ -d $(LIB_DIR) ] || mkdir -p $(LIB_DIR)
 	@[ -d $(LIB_HELPER_DIR) ] || mkdir -p $(LIB_HELPER_DIR)
-	$(CXX) $(LDFLAGS) $(SHARED_CXXFLAGS) $(HELPER_OBJS) -o $@ $(LDLIBS) $(AFW_SO_TARGET) $(LIBFMQ) $(LIBBASE) $(LIBCUTILS) $(LIBUTILS)
+	$(CXX) $(LDFLAGS) $(SHARED_CXXFLAGS) $(HELPER_OBJS) -o $@ $(LDLIBS) $(AFW_SO_TARGET) $(LIBFMQ) $(LIBBASE) $(LIBCUTILS) $(LIBUTILS) $(SAD_SO_TARGET)
 
 $(HELPER_OBJS): $(HELPER_SRCS)
 	echo Android home is $(ANDROID_HOME)
 
 	@[ -d $(OBJ_DIR) ] || mkdir -p $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) $(EXT_CXXFLAGS) -I $(HELPER_INC_DIR) -I $(AFW_INC_DIR) -I $(ANDROID_MEDIA_INC) -I $(ANDROID_CUTIL_INC) -I $(ANDROID_FMQ_INC) -I $(ANDROID_FMQ_INC2) -I $(ANDROID_LIBBASE_INC) -I $(ANDROID_UTILS_INC) -I $(ANDROID_HIDL_INC) -I $(ANDROID_LOG_INC) -I $(ANDROID_LOG_S_INC) -c $(HELPER_DIR)/$(notdir $(@:.o=.cpp)) -o $@
+	$(CXX) $(CXXFLAGS) $(EXT_CXXFLAGS) -I $(HELPER_INC_DIR) -I $(AFW_INC_DIR) -I $(ANDROID_MEDIA_INC) -I $(ANDROID_CUTIL_INC) -I $(ANDROID_FMQ_INC) -I $(ANDROID_FMQ_INC2) -I $(ANDROID_LIBBASE_INC) -I $(ANDROID_UTILS_INC) -I $(ANDROID_HIDL_INC) -I $(ANDROID_LOG_INC) -I $(ANDROID_LOG_S_INC) -I $(SAD_INC_DIR) -c $(HELPER_DIR)/$(notdir $(@:.o=.cpp)) -o $@
 
 -include $(HELPER_DEPS)
 
