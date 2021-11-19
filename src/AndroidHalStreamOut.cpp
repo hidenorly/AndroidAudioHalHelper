@@ -149,6 +149,7 @@ HalResult IStreamOut::setEventCallback(std::weak_ptr<IStreamOut::IStreamOutEvent
 // get status
 int64_t IStreamOut::getNextWriteTimestampUsec()
 {
+  // TODO: FIX THIS
   return 0;
 }
 
@@ -216,21 +217,25 @@ HalResult IStreamOut::setVolume(float left, float right)
 
 PlaybackRate IStreamOut::getPlaybackRateParameters(void)
 {
+  // TODO
   return PlaybackRate();
 }
 
 HalResult IStreamOut::setPlaybackRateParameters(PlaybackRate playbackRate)
 {
+  // TODO
   return HalResult::NOT_SUPPORTED;
 }
 
 DualMonoMode IStreamOut::getDualMonoMode(void)
 {
+  // TODO
   return DualMonoMode();
 }
 
 HalResult IStreamOut::setDualMonoMode(DualMonoMode mode)
 {
+  // TODO
   return HalResult::NOT_SUPPORTED;
 }
 

@@ -39,16 +39,26 @@ public:
 
 class IHdmiArcSink : public CompressedSink
 {
+public:
+  enum ArcType
+  {
+    ARC,
+    EARC,
+  };
+  const static inline char* PARAM_KEY_SAD = "hdmi.edid.sad";
+
 protected:
   int mParameterHandler;
   bool mIsAtmosCapable;
+  ArcType mArcType;
 
 public:
-  IHdmiArcSink();
+  IHdmiArcSink(ArcType arcType = ArcType::ARC);
   virtual ~IHdmiArcSink();
-  virtual std::string toString(void){ return "HdmiArcSink";};
 
-  const static inline char* PARAM_KEY_SAD = "hdmi.edid.sad";
+  ArcType getArcType(void);
+
+  virtual std::string toString(void){ return "HdmiArcSink";};
 };
 
 

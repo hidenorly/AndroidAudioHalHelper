@@ -26,7 +26,7 @@
 
 #define ADDITIONAL_CAP_ATMOS "JOC_DolbyAtmos"
 
-IHdmiArcSink::IHdmiArcSink():CompressedSink()
+IHdmiArcSink::IHdmiArcSink(IHdmiArcSink::ArcType arcType):CompressedSink(), mArcType(arcType)
 {
   mIsAtmosCapable = false;
 
@@ -67,6 +67,10 @@ IHdmiArcSink::~IHdmiArcSink()
 
 }
 
+IHdmiArcSink::ArcType IHdmiArcSink::getArcType(void)
+{
+  return mArcType;
+}
 
 
 // TODO: will encapsule or use factory template, etc.
