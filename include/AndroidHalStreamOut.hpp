@@ -121,11 +121,15 @@ protected:
   AudioOutputFlags mOutputFlags;
   SourceMetadata mSourceMetadata;
 
+  float mAudioDescMixLevlDb;
+  PlaybackRate mPlaybackRate;
+  DualMonoMode mDualMonoMode;
+
 protected:
   virtual void process(void);
 
 public:
-  IStreamOut(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), AudioConfig config={0}, AudioOutputFlags flags=AUDIO_OUTPUT_FLAG_NONE, SourceMetadata sourceMetadata=SourceMetadata(), std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr, std::shared_ptr<ISink> pSink = nullptr) : IStream(ioHandle, device, config, pSessionHandler), mSink(pSink), mOutputFlags(flags), mSourceMetadata(sourceMetadata){};
+  IStreamOut(AudioIoHandle ioHandle = 0, DeviceAddress device=DeviceAddress(), AudioConfig config={0}, AudioOutputFlags flags=AUDIO_OUTPUT_FLAG_NONE, SourceMetadata sourceMetadata=SourceMetadata(), std::shared_ptr<StreamSessionHandler> pSessionHandler = nullptr, std::shared_ptr<ISink> pSink = nullptr);
   virtual ~IStreamOut(){};
 
   virtual std::shared_ptr<WritePipeInfo> prepareForWriting(uint32_t frameSize, uint32_t framesCount);

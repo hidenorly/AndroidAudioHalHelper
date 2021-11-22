@@ -65,6 +65,18 @@ void IStreamOut::AndroidAudioSource::notifyNextCommand(void)
 }
 
 
+IStreamOut::IStreamOut(AudioIoHandle ioHandle, DeviceAddress device, AudioConfig config, AudioOutputFlags flags, SourceMetadata sourceMetadata, std::shared_ptr<IStream::StreamSessionHandler> pSessionHandler, std::shared_ptr<ISink> pSink) :
+  IStream(ioHandle, device, config, pSessionHandler),
+  mSink(pSink),
+  mOutputFlags(flags),
+  mSourceMetadata(sourceMetadata),
+  mAudioDescMixLevlDb(0.0f)
+{
+
+}
+
+
+
 std::shared_ptr<IStreamOut::WritePipeInfo> IStreamOut::prepareForWriting(uint32_t frameSize, uint32_t framesCount)
 {
   mWritePipeInfo.reset();
@@ -217,26 +229,24 @@ HalResult IStreamOut::setVolume(float left, float right)
 
 PlaybackRate IStreamOut::getPlaybackRateParameters(void)
 {
-  // TODO
-  return PlaybackRate();
+  return mPlaybackRate;
 }
 
 HalResult IStreamOut::setPlaybackRateParameters(PlaybackRate playbackRate)
 {
-  // TODO
-  return HalResult::NOT_SUPPORTED;
+  mPlaybackRate = playbackRate;
+  return HalResult::OK;
 }
 
 DualMonoMode IStreamOut::getDualMonoMode(void)
 {
-  // TODO
-  return DualMonoMode();
+  return mDualMonoMode;
 }
 
 HalResult IStreamOut::setDualMonoMode(DualMonoMode mode)
 {
-  // TODO
-  return HalResult::NOT_SUPPORTED;
+  mDualMonoMode = mode;
+  return HalResult::OK;
 }
 
 HalResult IStreamOut::selectPresentation(int32_t presentationId, int32_t programId)
@@ -247,12 +257,13 @@ HalResult IStreamOut::selectPresentation(int32_t presentationId, int32_t program
 
 float IStreamOut::getAudioDescriptionMixLevelDb(void)
 {
-  return 0.0f;
+  return mAudioDescMixLevlDb;
 }
 
 HalResult IStreamOut::setAudioDescriptionMixLevel(float leveldB)
 {
-  return HalResult::NOT_SUPPORTED;
+  mAudioDescMixLevlDb = leveldB;
+  return HalResult::OK;
 }
 
 void IStreamOut::updateSourceMetadata(SourceMetadata sourceMetadata)
