@@ -124,6 +124,8 @@ protected:
   float mAudioDescMixLevlDb;
   PlaybackRate mPlaybackRate;
   DualMonoMode mDualMonoMode;
+  int32_t mPresentationId;
+  int32_t mProgramId;
 
 protected:
   virtual void process(void);

@@ -70,7 +70,9 @@ IStreamOut::IStreamOut(AudioIoHandle ioHandle, DeviceAddress device, AudioConfig
   mSink(pSink),
   mOutputFlags(flags),
   mSourceMetadata(sourceMetadata),
-  mAudioDescMixLevlDb(0.0f)
+  mAudioDescMixLevlDb(0.0f),
+  mPresentationId(0),
+  mProgramId(0)
 {
 
 }
@@ -235,6 +237,7 @@ PlaybackRate IStreamOut::getPlaybackRateParameters(void)
 HalResult IStreamOut::setPlaybackRateParameters(PlaybackRate playbackRate)
 {
   mPlaybackRate = playbackRate;
+  // TODO
   return HalResult::OK;
 }
 
@@ -245,13 +248,17 @@ DualMonoMode IStreamOut::getDualMonoMode(void)
 
 HalResult IStreamOut::setDualMonoMode(DualMonoMode mode)
 {
+  // TODO
   mDualMonoMode = mode;
   return HalResult::OK;
 }
 
 HalResult IStreamOut::selectPresentation(int32_t presentationId, int32_t programId)
 {
-  return HalResult::NOT_SUPPORTED;
+  mPresentationId = presentationId;
+  mProgramId = programId;
+  // TODO
+  return HalResult::OK;
 }
 
 
@@ -263,6 +270,7 @@ float IStreamOut::getAudioDescriptionMixLevelDb(void)
 HalResult IStreamOut::setAudioDescriptionMixLevel(float leveldB)
 {
   mAudioDescMixLevlDb = leveldB;
+  // TODO
   return HalResult::OK;
 }
 
