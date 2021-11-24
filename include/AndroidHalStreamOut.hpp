@@ -27,6 +27,7 @@
 #include "Pipe.hpp"
 #include "Source.hpp"
 #include "Sink.hpp"
+#include "PlaybackRateFilter.hpp"
 
 #include <fmq/EventFlag.h>
 #include "deleters.hpp"
@@ -123,6 +124,7 @@ protected:
 
   float mAudioDescMixLevlDb;
   PlaybackRate mPlaybackRate;
+  std::shared_ptr<PlaybackRateFilter> mPlaybackRateFilter;
   DualMonoMode mDualMonoMode;
   int32_t mPresentationId;
   int32_t mProgramId;

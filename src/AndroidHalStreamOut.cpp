@@ -236,6 +236,23 @@ PlaybackRate IStreamOut::getPlaybackRateParameters(void)
 
 HalResult IStreamOut::setPlaybackRateParameters(PlaybackRate playbackRate)
 {
+  if( mPlaybackRate.speed != playbackRate.speed ){
+    if( !mPlaybackRateFilter ){
+      mPlaybackRateFilter = std::make_shared<PlaybackRateFilter>();
+    }
+    // just in case but this has side effect
+    bool bRunning = false;
+    if( mPipe ){
+      bRunning = mPipe->isRunning();
+      mPipe->stopAndFlush();
+      mPipe->removeFilter( mPlaybackRateFilter );
+      mPlaybackRateFilter->setPlaybackRate( playbackRate );
+      mPipe->addFilterToTail( mPlaybackRateFilter );
+      if( bRunning ){
+        mPipe->run();
+      }
+    }
+  }
   mPlaybackRate = playbackRate;
   // TODO
   return HalResult::OK;
