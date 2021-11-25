@@ -71,6 +71,7 @@ IStreamOut::IStreamOut(AudioIoHandle ioHandle, DeviceAddress device, AudioConfig
   mOutputFlags(flags),
   mSourceMetadata(sourceMetadata),
   mAudioDescMixLevlDb(0.0f),
+  mDualMonoMode(AUDIO_DUAL_MONO_MODE_OFF),
   mPresentationId(0),
   mProgramId(0)
 {
@@ -266,7 +267,25 @@ DualMonoMode IStreamOut::getDualMonoMode(void)
 HalResult IStreamOut::setDualMonoMode(DualMonoMode mode)
 {
   // TODO
+  if( mDualMonoMode != mode ){
+    if( !mDualMonoFilter ){
+      mDualMonoFilter = std::make_shared<DualMonoFilter>();
+    }
+    // just in case but this has side effect
+    bool bRunning = false;
+    if( mPipe ){
+      bRunning = mPipe->isRunning();
+      mPipe->stopAndFlush();
+      mPipe->removeFilter( mDualMonoFilter );
+      mDualMonoFilter->setDualMonoMode( mode );
+      mPipe->addFilterToTail( mDualMonoFilter );
+      if( bRunning ){
+        mPipe->run();
+      }
+    }
+  }
   mDualMonoMode = mode;
+  // TODO
   return HalResult::OK;
 }
 
@@ -380,3 +399,16 @@ void IStreamOut::process(void)
     }
   }
 }
+
+HalResult IStreamOut::streamClose(void)
+{
+  mCallback.reset();
+  mEventCallback.reset();
+  mWritePipeInfo.reset();
+  mSource.reset();
+  mSink.reset();
+  mPlaybackRateFilter.reset();
+
+  return IStream::streamClose();
+}
+

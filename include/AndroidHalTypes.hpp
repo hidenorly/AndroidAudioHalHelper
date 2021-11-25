@@ -26,7 +26,7 @@ typedef uint32_t AudioHwSync;
 typedef int32_t AudioUsage;
 typedef uint32_t AudioContentType;
 typedef int32_t AudioDrain;
-typedef int32_t DualMonoMode;
+typedef audio_dual_mono_mode_t DualMonoMode;
 typedef audio_source_t AudioSource;
 typedef audio_channel_mask_t AudioChannelMask;
 typedef audio_format_t AndroidAudioFormat;

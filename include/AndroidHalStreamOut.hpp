@@ -28,6 +28,7 @@
 #include "Source.hpp"
 #include "Sink.hpp"
 #include "PlaybackRateFilter.hpp"
+#include "DualMonoFilter.hpp"
 
 #include <fmq/EventFlag.h>
 #include "deleters.hpp"
@@ -126,6 +127,7 @@ protected:
   PlaybackRate mPlaybackRate;
   std::shared_ptr<PlaybackRateFilter> mPlaybackRateFilter;
   DualMonoMode mDualMonoMode;
+  std::shared_ptr<DualMonoFilter> mDualMonoFilter;
   int32_t mPresentationId;
   int32_t mProgramId;
 
@@ -177,6 +179,8 @@ public:
 
   virtual HalResult getDevices(std::vector<DeviceAddress>& devices);
   virtual HalResult setDevices(std::vector<DeviceAddress> devices);
+
+  virtual HalResult streamClose(void);
 };
 
 class StreamOutContext : public StrategyContext
