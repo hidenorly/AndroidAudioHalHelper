@@ -131,6 +131,8 @@ protected:
   int32_t mPresentationId;
   int32_t mProgramId;
 
+  long mLastPts;
+
 protected:
   virtual void process(void);
 

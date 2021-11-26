@@ -73,7 +73,8 @@ IStreamOut::IStreamOut(AudioIoHandle ioHandle, DeviceAddress device, AudioConfig
   mAudioDescMixLevlDb(0.0f),
   mDualMonoMode(AUDIO_DUAL_MONO_MODE_OFF),
   mPresentationId(0),
-  mProgramId(0)
+  mProgramId(0),
+  mLastPts(0)
 {
 
 }
@@ -98,12 +99,12 @@ std::shared_ptr<IStreamOut::WritePipeInfo> IStreamOut::prepareForWriting(uint32_
 // capability check
 bool IStreamOut::supportsPause(void)
 {
-  return false;
+  return true;
 }
 
 bool IStreamOut::supportsResume(void)
 {
-  return false;
+  return true;
 }
 
 bool IStreamOut::supportsDrain(void)
@@ -114,12 +115,23 @@ bool IStreamOut::supportsDrain(void)
 // operation
 HalResult IStreamOut::pause(void)
 {
-  return HalResult::NOT_SUPPORTED;
+  mLastPts = 0;
+  if( mPipe && mPipe->isRunning() ){
+    std::shared_ptr<ISink> pSink = mPipe->getSinkRef();
+    mLastPts = pSink ? pSink->getPresentationTime() : 0;
+    mPipe->stopAndFlush();
+  }
+  return HalResult::OK;
 }
 
 HalResult IStreamOut::resume(void)
 {
-  return HalResult::NOT_SUPPORTED;
+  if( mPipe && mLastPts ){
+    // TODO: May require to do as mPipe->seek(mLastPts);
+    mPipe->run();
+  }
+  mLastPts = 0;
+  return HalResult::OK;
 }
 
 HalResult IStreamOut::drain(AudioDrain type)
@@ -219,7 +231,7 @@ HalResult IStreamOut::setVolume(float left, float right)
       if( pSink->getAudioFormat().getChannels() == AudioFormat::CHANNEL::CHANNEL_STEREO ){
         Volume::CHANNEL_VOLUME chVolume;
         chVolume[AudioFormat::CH::L] = left;
-        chVolume[AudioFormat::CH::R] = left;
+        chVolume[AudioFormat::CH::R] = right;
         pSink->setVolume( chVolume );
       } else {
         pSink->setVolume( (left + right) / 2 );
@@ -407,7 +419,19 @@ HalResult IStreamOut::streamClose(void)
   mWritePipeInfo.reset();
   mSource.reset();
   mSink.reset();
+
+  mOutputFlags = AudioOutputFlags();
+  mSourceMetadata = SourceMetadata();
+
+  mAudioDescMixLevlDb = 0.0f;
+  mPlaybackRate = PlaybackRate();
   mPlaybackRateFilter.reset();
+  mDualMonoMode = DualMonoMode();
+  mDualMonoFilter.reset();
+  mPresentationId = 0;
+  mProgramId = 0;
+
+  mLastPts = 0;
 
   return IStream::streamClose();
 }
