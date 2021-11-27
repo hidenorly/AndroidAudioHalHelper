@@ -199,7 +199,7 @@ uint32_t IStreamOut::getRenderPositionDspFrames(void)
     if( pSink ){
       long time = pSink->getPresentationTime(); // usec
       int windowSize = mPipe->getWindowSizeUsec();
-      result = time ? (uint32_t)( time / (long)windowSize ) : 0;
+      result = (time && windowSize) ? (uint32_t)( time / (long)windowSize ) : 0;
     }
   }
 

@@ -58,7 +58,22 @@ uint32_t IStreamIn::getInputFramesLost(void)
 
 PresentationPosition IStreamIn::getCapturePosition(void)
 {
-  return PresentationPosition();
+  PresentationPosition result;
+
+  if( mPipe ){
+    std::shared_ptr<ISource> pSource = mPipe->getSourceRef();
+    if( pSource ){
+      long time = pSource->getPresentationTime(); // usec
+      result.timeStamp.tvSec = time / 1000000; // usec to sec
+      result.timeStamp.tvNSec = (time - result.timeStamp.tvSec * 1000000) * 1000; // usec to nsec
+
+
+      int windowSize = mPipe->getWindowSizeUsec();
+      result.frames = (time && windowSize) ? (uint32_t)( time / (long)windowSize ) : 0;
+    }
+  }
+
+  return result;
 }
 
 HalResult IStreamIn::setGain(float gain)
