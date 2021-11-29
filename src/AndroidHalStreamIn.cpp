@@ -15,6 +15,8 @@
 */
 
 #include "AndroidHalStreamIn.hpp"
+#include "SourceSinkManager.hpp"
+#include "GainHelper.hpp"
 
 void IStreamIn::AndroidAudioSink::writePrimitive(IAudioBuffer& buf)
 {
@@ -78,12 +80,32 @@ PresentationPosition IStreamIn::getCapturePosition(void)
 
 HalResult IStreamIn::setGain(float gain)
 {
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::INVALID_STATE;
+
+  if( mPipe ){
+    std::shared_ptr<ISource> pSource = mPipe->getSourceRef();
+    if( pSource ){
+      float volumePercent = GainHelper::getVolumeRatioPercentageFromDb( gain );
+      pSource->setVolume( volumePercent );
+      result = HalResult::OK;
+    }
+  }
+
+  return result;
 }
 
 AudioSource IStreamIn::getAudioSource(void)
 {
-  return AUDIO_SOURCE_DEFAULT;
+  AudioSource result = AUDIO_SOURCE_DEFAULT;
+
+  if( mPipe ){
+    std::shared_ptr<ISource> pSource = mPipe->getSourceRef();
+    if( pSource ){
+      result = (AudioSource)SourceSinkManager::getAudioDevice( pSource );
+    }
+  }
+
+  return result;
 }
 
 std::vector<AudioMicrophoneCharacteristic> IStreamIn::getActiveMicrophones(void)
