@@ -94,9 +94,10 @@ public:
     std::shared_ptr<DataMQ> mDataMQ;
     std::shared_ptr<StatusMQ> mStatusMQ;
     std::unique_ptr<::android::hardware::EventFlag, deleters::forEventFlag> mEfGroup;
+    long mLastWritePts;
 
   public:
-    AndroidAudioSource(std::shared_ptr<DataMQ> dataMQ = nullptr, std::shared_ptr<StatusMQ> statusMQ = nullptr) : mDataMQ(dataMQ), mStatusMQ(statusMQ){
+    AndroidAudioSource(std::shared_ptr<DataMQ> dataMQ = nullptr, std::shared_ptr<StatusMQ> statusMQ = nullptr) : mDataMQ(dataMQ), mStatusMQ(statusMQ), mLastWritePts(0){
       android::hardware::EventFlag* rawEfGroup = nullptr;
       android::hardware::EventFlag::createEventFlag( mDataMQ->getEventFlagWord(), &rawEfGroup );
       mEfGroup.reset( rawEfGroup );
@@ -108,9 +109,12 @@ public:
     virtual bool isAvailableFormat(AudioFormat format){ return true; };
     virtual void notifyDoRead(void);
     virtual void notifyNextCommand(void);
+    virtual void resetWritePts(void){ mLastWritePts = 0; };
+    long getWritePresentationTimeUsec(void){ return mLastWritePts; };
 
   protected:
     virtual void readPrimitive(IAudioBuffer& buf);
+    virtual long getDeltaPtsUsecByBytes(int64_t bytes);
   };
 
 protected:
@@ -132,6 +136,7 @@ protected:
   int32_t mProgramId;
 
   long mLastPts;
+  long mLastWritePtsBase;
 
 protected:
   virtual void process(void);

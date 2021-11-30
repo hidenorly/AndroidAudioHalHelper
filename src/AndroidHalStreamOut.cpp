@@ -44,6 +44,8 @@ void IStreamOut::AndroidAudioSource::readPrimitive(IAudioBuffer& buf)
     mDataMQ->read( rawBuf.data(), nReadSize );
     buf.setRawBuffer( rawBuf ); // just in case. basically not be required.
 
+    mLastWritePts += getDeltaPtsUsecByBytes( nReadSize );
+
     IStreamOut::WriteStatus status;
     status.replyTo = IStreamOut::WriteCommand::WRITE;
     status.retval = HalResult::OK;
@@ -53,6 +55,14 @@ void IStreamOut::AndroidAudioSource::readPrimitive(IAudioBuffer& buf)
     }
   }
 }
+
+long IStreamOut::AndroidAudioSource::getDeltaPtsUsecByBytes(int64_t bytes)
+{
+  AudioFormat format = getAudioFormat();
+  int64_t nSampleByte = format.getChannelsSampleByte();
+  return 1000000 * bytes / nSampleByte / format.getSamplingRate();
+}
+
 
 void IStreamOut::AndroidAudioSource::notifyDoRead(void)
 {
@@ -74,11 +84,11 @@ IStreamOut::IStreamOut(AudioIoHandle ioHandle, DeviceAddress device, AudioConfig
   mDualMonoMode(AUDIO_DUAL_MONO_MODE_OFF),
   mPresentationId(0),
   mProgramId(0),
-  mLastPts(0)
+  mLastPts(0),
+  mLastWritePtsBase(0)
 {
 
 }
-
 
 
 std::shared_ptr<IStreamOut::WritePipeInfo> IStreamOut::prepareForWriting(uint32_t frameSize, uint32_t framesCount)
@@ -92,6 +102,9 @@ std::shared_ptr<IStreamOut::WritePipeInfo> IStreamOut::prepareForWriting(uint32_
   mPipe = std::make_shared<PipeMultiThread>();
   mPipe->attachSource( mSource ); // TODO: should register this as session or mixPort into SourceSinkManager, etc.
   mPipe->attachSink( mSink );
+
+  mSource->resetWritePts();
+  mLastWritePtsBase = mSource->getPresentationTime();
 
   return mWritePipeInfo;
 }
@@ -176,8 +189,11 @@ HalResult IStreamOut::setEventCallback(std::weak_ptr<IStreamOut::IStreamOutEvent
 // get status
 int64_t IStreamOut::getNextWriteTimestampUsec()
 {
-  // TODO: FIX THIS
-  return 0;
+  int64_t result = mLastWritePtsBase;
+  if( mSource ){
+    result += mSource->getWritePresentationTimeUsec();
+  }
+  return result;
 }
 
 uint32_t IStreamOut::getLatencyMsec(void)
@@ -417,6 +433,9 @@ HalResult IStreamOut::streamClose(void)
   mCallback.reset();
   mEventCallback.reset();
   mWritePipeInfo.reset();
+  if( mSource ){
+    mSource->resetWritePts();
+  }
   mSource.reset();
   mSink.reset();
 
@@ -432,6 +451,7 @@ HalResult IStreamOut::streamClose(void)
   mProgramId = 0;
 
   mLastPts = 0;
+  mLastWritePtsBase = 0;
 
   return IStream::streamClose();
 }
