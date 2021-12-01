@@ -121,6 +121,9 @@ public:
   virtual HalResult setMicrophoneDirection(AudioMicrophoneDirection direction);
   virtual HalResult setMicrophoneFieldDimension(float zoom);
 
+  virtual std::vector<DeviceAddress> getDevices(void);
+  virtual HalResult setDevices(std::vector<DeviceAddress> devices);
+
   virtual void updateSinkMetadata(SinkMetadata sinkMetadata);
 };
 

@@ -127,3 +127,32 @@ void IStreamIn::updateSinkMetadata(SinkMetadata sinkMetadata)
 {
 
 }
+
+std::vector<DeviceAddress> IStreamIn::getDevices(void)
+{
+  std::vector<DeviceAddress> result;
+
+  if( mPipe ){
+    std::shared_ptr<ISource> pSource = mPipe->getSourceRef();
+    result.push_back( SourceSinkManager::getDeviceAddress( pSource) );
+  }
+
+  return result;
+}
+
+HalResult IStreamIn::setDevices(std::vector<DeviceAddress> devices)
+{
+  HalResult result = HalResult::INVALID_STATE;
+
+  if( mPipe ){
+    if( devices.size() > 0 ){
+      std::shared_ptr<ISource> pSource = SourceSinkManager::getSource( devices[0] );
+      if( pSource ){
+        mPipe->attachSource( pSource );
+      }
+      result = pSource ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
+    }
+  }
+
+  return result;
+}

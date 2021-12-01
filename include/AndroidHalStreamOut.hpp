@@ -184,7 +184,7 @@ public:
 
   virtual void updateSourceMetadata(SourceMetadata sourceMetadata);
 
-  virtual HalResult getDevices(std::vector<DeviceAddress>& devices);
+  virtual std::vector<DeviceAddress> getDevices(void);
   virtual HalResult setDevices(std::vector<DeviceAddress> devices);
 
   virtual HalResult streamClose(void);

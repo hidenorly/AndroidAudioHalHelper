@@ -23,7 +23,7 @@
 #include "AudioEffectHelper.hpp"
 #include "ParameterHelper.hpp"
 #include "GainHelper.hpp"
-
+#include <functional>
 // TODO: the devices support
 
 IDevice::IDevice(AudioModuleHandle hwModule, std::string filterPlugInPath):mMasterVolume(100.0f), mHwModule(hwModule), mPatchHandleCount(0), mScreenStateOn(false)
@@ -272,9 +272,12 @@ HalResult IDevice::setAudioPortConfig(AudioPortConfig config)
     AudioGainConfig audioGainConfig = AndroidAudioPortHelper::getAudioGainConfigFromAudioPortConfig( config );
     std::shared_ptr<ISink> pSink = std::dynamic_pointer_cast<ISink>( pSourceSink );
     if( pSink ){
-      // TODO: Use volume filter to support per-channel volume
-      float volumePercent = GainHelper::getVolumeRatioPercentageFromDb( audioGainConfig.values[0] );
-      pSink->setVolume( volumePercent );
+      std::vector<float> volumePercents;
+      // TODO: Check the order is same as Android's expectation or not
+      for(auto& aGainDb : audioGainConfig.values ){
+        volumePercents.push_back( GainHelper::getVolumeRatioPercentageFromDb( aGainDb ) );
+      }
+      pSink->setVolume( volumePercents );
     }
 
     result = bSuccess ? HalResult::OK : HalResult::INVALID_ARGUMENTS;
@@ -447,7 +450,8 @@ HalResult IDevice::setConnectedState(DeviceAddress address, bool connected)
 
 AudioHwSync IDevice::getHwAvSync(void)
 {
-  return 0;
+  int64_t ptr = reinterpret_cast<int64_t>( shared_from_this().get() );
+  return (AudioHwSync)std::hash<int64_t>()(ptr);
 }
 
 HalResult IDevice::setScreenState(bool turnedOn)

@@ -22,9 +22,10 @@
 #include "ParameterHelper.hpp"
 #include "SourceSinkManager.hpp"
 #include "AndroidHalStreamManager.hpp"
+#include "MultipleSink.hpp"
 
 
-IStream::IStream(AudioIoHandle ioHandle, DeviceAddress device, AudioConfig config, std::shared_ptr<StreamSessionHandler> pSessionHandler):mIoHandle(ioHandle), mDeviceAddr(device), mConfig(config), mSessionHandler(pSessionHandler)
+IStream::IStream(AudioIoHandle ioHandle, DeviceAddress device, AudioConfig config, std::shared_ptr<StreamSessionHandler> pSessionHandler):mIoHandle(ioHandle), mDeviceAddr(device), mConfig(config), mSessionHandler(pSessionHandler), mAudioHwSync(0)
 {
   mPipe = std::make_shared<PipeMultiThread>();
   mPipe->registerRunnerStatusListener( shared_from_this() );
@@ -263,20 +264,45 @@ HalResult IStream::standby(void)
 }
 
 
-HalResult IStream::getDevices(std::vector<DeviceAddress>& devices)
+std::vector<DeviceAddress> IStream::getDevices(void)
 {
-  return HalResult::NOT_SUPPORTED;
+  std::vector<DeviceAddress> result;
+  return result;
 }
 
 HalResult IStream::setDevices(std::vector<DeviceAddress> devices)
 {
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::INVALID_STATE;
+
+  if( mPipe ){
+    std::shared_ptr<MultipleSink> theMultiSink = std::dynamic_pointer_cast<MultipleSink>( mPipe->getSinkRef() );
+    if( !theMultiSink ){
+      theMultiSink = std::make_shared<MultipleSink>();
+      mPipe->attachSink( theMultiSink );
+    }
+
+    std::vector<std::shared_ptr<ISink>> sinks;
+    for( auto& aDevice : devices ){
+      std::shared_ptr<ISink> pSink = SourceSinkManager::getSink( aDevice );
+      if( pSink ){
+        sinks.push_back( pSink );
+      }
+    }
+    theMultiSink->clearSinks();
+    for( auto& pSink : sinks ){
+      theMultiSink->attachSink( pSink, pSink->getAudioFormat().getSameChannelMapper() );
+    }
+    result = HalResult::OK;
+  }
+
+  return result;
 }
 
 
 HalResult IStream::setHwAvSync(AudioHwSync hwAvSync)
 {
-  return HalResult::NOT_SUPPORTED;
+  mAudioHwSync = hwAvSync;
+  return HalResult::OK;
 }
 
 

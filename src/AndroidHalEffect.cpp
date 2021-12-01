@@ -137,7 +137,6 @@ void EffectSink::setBufferProvider(std::shared_ptr<IEffectBufferProviderCallback
 
 void EffectSink::dump(void)
 {
-
 }
 
 AudioFormat EffectSink::getAudioFormat(void)

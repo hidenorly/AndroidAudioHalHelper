@@ -343,20 +343,23 @@ void IStreamOut::updateSourceMetadata(SourceMetadata sourceMetadata)
 
 }
 
-HalResult IStreamOut::getDevices(std::vector<DeviceAddress>& devices)
+std::vector<DeviceAddress> IStreamOut::getDevices(void)
 {
-  HalResult result = HalResult::INVALID_ARGUMENTS;
+  std::vector<DeviceAddress> result;
 
   if( mPipe ){
-    DeviceAddress deviceAddr = SourceSinkManager::getDeviceAddress( mPipe->getSinkRef() );
-    if( !AndroidDeviceAddressHelper::getStringFromDeviceAddr(deviceAddr).empty() ){
-      devices.push_back( deviceAddr );
-      result = HalResult::OK;
+    std::shared_ptr<MultipleSink> theMultiSink = std::dynamic_pointer_cast<MultipleSink>( mPipe->getSinkRef() );
+    if( theMultiSink ){
+      std::vector<std::shared_ptr<ISink>> sinks = theMultiSink->getAllOfSinks();
+      for( auto& pSink : sinks ){
+        result.push_back( SourceSinkManager::getDeviceAddress( pSink) );
+      }
     }
   }
 
   return result;
 }
+
 
 HalResult IStreamOut::setDevices(std::vector<DeviceAddress> devices)
 {

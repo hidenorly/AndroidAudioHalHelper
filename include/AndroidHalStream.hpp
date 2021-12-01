@@ -39,6 +39,7 @@ protected:
   AudioConfig mConfig;
   std::shared_ptr<StreamSessionHandler> mSessionHandler;
   std::shared_ptr<IPipe> mPipe;
+  AudioHwSync mAudioHwSync;
 
 protected:
   AudioFormat getPipeAudioFormat(void);
@@ -83,7 +84,7 @@ public:
   virtual HalResult standby(void);
 
   // getDevices(), setDevices() are not supported on patch panel supported devices
-  virtual HalResult getDevices(std::vector<DeviceAddress>& devices);
+  virtual std::vector<DeviceAddress> getDevices(void);
   virtual HalResult setDevices(std::vector<DeviceAddress> devices);
 
   virtual HalResult setHwAvSync(AudioHwSync hwAvSync);
