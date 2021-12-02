@@ -14,36 +14,28 @@
    limitations under the License.
 */
 
-#ifndef __IHDMI_ARC_SINK_HPP__
-#define __IHDMI_ARC_SINK_HPP__
+#ifndef __COMPRESSED_SINK_HPP__
+#define __COMPRESSED_SINK_HPP__
 
 #include "Sink.hpp"
 #include "EncodedSink.hpp"
-#include "CompressedSink.hpp"
 
-class IHdmiArcSink : public CompressedSink
+class CompressedSink : public Sink
 {
-public:
-  enum ArcType
-  {
-    ARC,
-    EARC,
-  };
-  const static inline char* PARAM_KEY_SAD = "hdmi.edid.sad";
+protected:
+  std::vector<AudioFormat> mAudioFormats;
+  AudioFormat mFormat;
 
 protected:
-  int mParameterHandler;
-  bool mIsAtmosCapable;
-  ArcType mArcType;
+  virtual void setAudioFormatPrimitive(AudioFormat format){mFormat=format;};
 
 public:
-  IHdmiArcSink(ArcType arcType = ArcType::ARC);
-  virtual ~IHdmiArcSink();
-
-  ArcType getArcType(void);
-
-  virtual std::string toString(void){ return "HdmiArcSink";};
+  CompressedSink():Sink(),mFormat(AudioFormat::ENCODING::ENCODING_DEFAULT){};
+  virtual ~CompressedSink(){};
+  virtual AudioFormat getAudioFormat(void){ return mFormat; };
+  std::vector<AudioFormat> getSupportedAudioFormats(void){ return mAudioFormats; };
+  virtual std::string toString(void){return "CompressedSink";};
 };
 
 
-#endif /* __IHDMI_ARC_SINK_HPP__ */
+#endif /* __COMPRESSED_SINK_HPP__ */

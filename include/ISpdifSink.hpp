@@ -14,36 +14,19 @@
    limitations under the License.
 */
 
-#ifndef __IHDMI_ARC_SINK_HPP__
-#define __IHDMI_ARC_SINK_HPP__
+#ifndef __ISPDIF_SINK_HPP__
+#define __ISPDIF_SINK_HPP__
 
 #include "Sink.hpp"
 #include "EncodedSink.hpp"
 #include "CompressedSink.hpp"
 
-class IHdmiArcSink : public CompressedSink
+class ISpdifSink : public CompressedSink
 {
 public:
-  enum ArcType
-  {
-    ARC,
-    EARC,
-  };
-  const static inline char* PARAM_KEY_SAD = "hdmi.edid.sad";
-
-protected:
-  int mParameterHandler;
-  bool mIsAtmosCapable;
-  ArcType mArcType;
-
-public:
-  IHdmiArcSink(ArcType arcType = ArcType::ARC);
-  virtual ~IHdmiArcSink();
-
-  ArcType getArcType(void);
-
-  virtual std::string toString(void){ return "HdmiArcSink";};
+  ISpdifSink();
+  virtual ~ISpdifSink();
+  virtual std::string toString(void){ return "SpdifSink";};
 };
 
-
-#endif /* __IHDMI_ARC_SINK_HPP__ */
+#endif /* __ISPDIF_SINK_HPP__ */
