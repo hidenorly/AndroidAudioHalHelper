@@ -23,10 +23,9 @@
 
 #include <iostream>
 
-
 #define ADDITIONAL_CAP_ATMOS "JOC_DolbyAtmos"
 
-IHdmiArcSink::IHdmiArcSink(IHdmiArcSink::ArcType arcType):CompressedSink(), mArcType(arcType)
+IHdmiArcSink::IHdmiArcSink():ISpdifSink(), mArcType(IHdmiArcSink::ArcType::ARC)
 {
   mIsAtmosCapable = false;
 
@@ -70,6 +69,29 @@ IHdmiArcSink::~IHdmiArcSink()
 IHdmiArcSink::ArcType IHdmiArcSink::getArcType(void)
 {
   return mArcType;
+}
+
+IHdmiEArcSink::IHdmiEArcSink():IHdmiArcSink()
+{
+  mArcType = IHdmiArcSink::ArcType::EARC;
+
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::PCM_16BIT,               AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ, AudioFormat::CHANNEL::CHANNEL_7_1CH ) );
+
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_E_AC3,        AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_5_1CH ) );
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_E_AC3,        AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_7_1CH ) );
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_DOLBY_TRUEHD, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_5_1CH ) );
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_DOLBY_TRUEHD, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_7_1CH ) );
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_AC4,          AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_5_1CH ) );
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_AC4,          AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_7_1CH ) );
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_MAT,          AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_5_1CH ) );
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_MAT,          AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_7_1CH ) );
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_DTS_HD,       AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_5_1CH ) );
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_DTS_HD,       AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_7_1CH ) );
+}
+
+IHdmiEArcSink::~IHdmiEArcSink()
+{
+
 }
 
 

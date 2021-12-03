@@ -19,9 +19,9 @@
 
 #include "Sink.hpp"
 #include "EncodedSink.hpp"
-#include "CompressedSink.hpp"
+#include "ISpdifSink.hpp"
 
-class IHdmiArcSink : public CompressedSink
+class IHdmiArcSink : public ISpdifSink
 {
 public:
   enum ArcType
@@ -37,7 +37,7 @@ protected:
   ArcType mArcType;
 
 public:
-  IHdmiArcSink(ArcType arcType = ArcType::ARC);
+  IHdmiArcSink();
   virtual ~IHdmiArcSink();
 
   ArcType getArcType(void);
@@ -45,5 +45,12 @@ public:
   virtual std::string toString(void){ return "HdmiArcSink";};
 };
 
+class IHdmiEArcSink : public IHdmiArcSink
+{
+public:
+  IHdmiEArcSink();
+  virtual ~IHdmiEArcSink();
+  virtual std::string toString(void){ return "HdmiEArcSink";};
+};
 
 #endif /* __IHDMI_ARC_SINK_HPP__ */

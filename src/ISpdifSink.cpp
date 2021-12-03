@@ -30,6 +30,8 @@ ISpdifSink::ISpdifSink()
   mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::PCM_24BIT_PACKED, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_96_KHZ, AudioFormat::CHANNEL::CHANNEL_STEREO ) );
   mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::PCM_24BIT_PACKED, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_192_KHZ, AudioFormat::CHANNEL::CHANNEL_STEREO ) );
 
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_AAC, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_STEREO ) );
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_AAC, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_5_1CH ) );
   mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_AC3, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_5_1CH ) );
   mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_DTS, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_5_1CH ) );
   mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_DTS, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_7_1CH ) );
