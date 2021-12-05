@@ -15,29 +15,3 @@
 */
 
 #include "ISpeakerSink.hpp"
-
-LPcmSink::LPcmSink()
-{
-  for(int anEncoding = AudioFormat::ENCODING::PCM_8BIT; anEncoding < AudioFormat::ENCODING::COMPRESSED_UNKNOWN; anEncoding++){
-    for( int aChannel = AudioFormat::CHANNEL::CHANNEL_MONO; aChannel < AudioFormat::CHANNEL::CHANNEL_UNKNOWN; aChannel++){
-      mSupportedFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding,  48000, (AudioFormat::CHANNEL)aChannel) );
-      mSupportedFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding,  96000, (AudioFormat::CHANNEL)aChannel) );
-      mSupportedFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding, 192000, (AudioFormat::CHANNEL)aChannel) );
-    }
-  }
-}
-
-LPcmSink::~LPcmSink()
-{
-
-}
-
-std::vector<AudioFormat> LPcmSink::getSupportedAudioFormats(void)
-{
-  return mSupportedFormats;
-}
-
-bool LPcmSink::isAvailableFormat(AudioFormat format)
-{
-  return format.isEncodingPcm();
-}

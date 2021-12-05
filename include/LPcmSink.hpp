@@ -14,17 +14,22 @@
    limitations under the License.
 */
 
-#ifndef __ISPEAKER_SINK_HPP__
-#define __ISPEAKER_SINK_HPP__
+#ifndef __LPCM_SINK_HPP__
+#define __LPCM_SINK_HPP__
 
-#include "LPcmSink.hpp"
+#include "Sink.hpp"
 
-class ISpeakerSink : public LPcmSink
+class LPcmSink : public Sink
 {
+protected:
+  std::vector<AudioFormat> mSupportedFormats;
+
 public:
-  ISpeakerSink();
-  virtual ~ISpeakerSink();
-  virtual std::string toString(void){ return "ISpeakerSink";};
+  LPcmSink();
+  virtual ~LPcmSink();
+  virtual std::string toString(void){ return "LPcmSink";};
+  virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
+  virtual bool isAvailableFormat(AudioFormat format);
 };
 
-#endif /* __ISPEAKER_SINK_HPP__ */
+#endif /* __LPCM_SINK_HPP__ */
