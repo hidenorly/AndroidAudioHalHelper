@@ -14,27 +14,29 @@
    limitations under the License.
 */
 
-#ifndef __COMPRESSED_SINK_HPP__
-#define __COMPRESSED_SINK_HPP__
+#ifndef __COMPRESSED_SOURCE_HPP__
+#define __COMPRESSED_SOURCE_HPP__
 
-#include "Sink.hpp"
-#include "EncodedSink.hpp"
+#include "Source.hpp"
 
-class CompressedSink : public Sink
+class CompressedSource : public Source
 {
 protected:
   std::vector<AudioFormat> mAudioFormats;
   AudioFormat mFormat;
 
 protected:
-  virtual void setAudioFormatPrimitive(AudioFormat format){mFormat=format;};
+  virtual void setAudioFormatPrimitive(AudioFormat format);
+  virtual void readPrimitive(IAudioBuffer& buf);
 
 public:
-  CompressedSink():Sink(),mFormat(AudioFormat::ENCODING::ENCODING_DEFAULT){};
-  virtual ~CompressedSink(){};
-  virtual AudioFormat getAudioFormat(void){ return mFormat; };
-  std::vector<AudioFormat> getSupportedAudioFormats(void){ return mAudioFormats; };
-  virtual std::string toString(void){return "CompressedSink";};
+  CompressedSource();
+  virtual ~CompressedSource();
+
+  virtual AudioFormat getAudioFormat(void);
+  std::vector<AudioFormat> getSupportedAudioFormats(void);
+
+  virtual std::string toString(void){return "CompressedSource";};
 };
 
-#endif /* __COMPRESSED_SINK_HPP__ */
+#endif /* __COMPRESSED_SOURCE_HPP__ */
