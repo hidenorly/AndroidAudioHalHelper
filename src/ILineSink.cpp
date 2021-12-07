@@ -14,17 +14,4 @@
    limitations under the License.
 */
 
-#ifndef __ISPEAKER_SINK_HPP__
-#define __ISPEAKER_SINK_HPP__
-
-#include "LPcmSink.hpp"
-
-class ISpeakerSink : public LPcmSink
-{
-public:
-  ISpeakerSink();
-  virtual ~ISpeakerSink();
-  virtual std::string toString(void){ return "ISpeakerSink"; };
-};
-
-#endif /* __ISPEAKER_SINK_HPP__ */
+#include "ILineSink.hpp"

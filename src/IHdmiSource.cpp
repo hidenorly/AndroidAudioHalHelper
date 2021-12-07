@@ -23,6 +23,7 @@ IHdmiSource::IHdmiSource()
 
   mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_AC3,          AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_5_1CH ) );
   mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_E_AC3,        AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_5_1CH ) );
+  mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_E_AC3,        AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_7_1CH ) );
   mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_AC4,          AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_5_1CH ) );
   mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_MAT,          AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_5_1CH ) );
   mAudioFormats.push_back( AudioFormat( AudioFormat::ENCODING::COMPRESSED_MAT,          AudioFormat::SAMPLING_RATE::SAMPLING_RATE_DEFAULT, AudioFormat::CHANNEL::CHANNEL_7_1CH ) );
