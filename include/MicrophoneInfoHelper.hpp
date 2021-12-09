@@ -14,26 +14,16 @@
    limitations under the License.
 */
 
-#ifndef __IMICROPHONE_SOURCE_HPP__
-#define __IMICROPHONE_SOURCE_HPP__
+#ifndef __MICROPHONE_INFO_HELPER_HPP__
+#define __MICROPHONE_INFO_HELPER_HPP__
 
-#include "LPcmSource.hpp"
 #include "AndroidHalTypes.hpp"
+#include "Source.hpp"
 
-class IMicrophoneSource : public LPcmSource, public std::enable_shared_from_this<IMicrophoneSource>
+class MicrophoneInfoHelper
 {
-protected:
-  AudioMicrophoneDirection mDirection;
-  float mZoom;
-
 public:
-  IMicrophoneSource();
-  virtual ~IMicrophoneSource();
-  virtual AudioMicrophoneCharacteristic getActiveMicrophones(void);
-  virtual bool setMicrophoneDirection(AudioMicrophoneDirection direction);
-  virtual bool setMicrophoneFieldDimension(float zoom);
-
-  virtual std::string toString(void){return "IMicrophoneSource";};
+  static AudioMicrophoneCharacteristic getMicrophoneInfo(std::shared_ptr<ISource> pSource);
 };
 
-#endif /* __IMICROPHONE_SOURCE_HPP__ */
+#endif /* __MICROPHONE_INFO_HELPER_HPP__ */

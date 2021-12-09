@@ -15,8 +15,11 @@
 */
 
 #include "IMicrophoneSource.hpp"
+#include <algorithm>
+#include "MicrophoneInfoHelper.hpp"
 
-IMicrophoneSource::IMicrophoneSource()
+
+IMicrophoneSource::IMicrophoneSource():mDirection( MIC_DIRECTION_UNSPECIFIED ), mZoom( 0.0f )
 {
 
 }
@@ -26,4 +29,25 @@ IMicrophoneSource::~IMicrophoneSource()
 
 }
 
-// TODO: Add getMicrophoneInfo related.
+AudioMicrophoneCharacteristic IMicrophoneSource::getActiveMicrophones(void)
+{
+  return MicrophoneInfoHelper::getMicrophoneInfo( shared_from_this() );
+}
+
+bool IMicrophoneSource::setMicrophoneDirection(AudioMicrophoneDirection direction)
+{
+  bool result = true;
+
+  mDirection = direction;
+
+  return result;
+}
+
+bool IMicrophoneSource::setMicrophoneFieldDimension(float zoom)
+{
+  bool result = true;
+
+  mZoom = std::max<float>(-1.0f, std::min<float>( 1.0f, zoom ) );
+
+  return result;
+}
