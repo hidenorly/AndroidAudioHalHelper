@@ -17,7 +17,7 @@
 #include "MicrophoneInfoHelper.hpp"
 #include "DeviceAddressHelper.hpp"
 #include "SourceSinkManager.hpp"
-
+#include "IMicrophoneSource.hpp"
 
 AudioMicrophoneCharacteristic MicrophoneInfoHelper::getMicrophoneInfo(std::shared_ptr<ISource> pSource)
 {
@@ -29,17 +29,24 @@ AudioMicrophoneCharacteristic MicrophoneInfoHelper::getMicrophoneInfo(std::share
     info.id = SourceSinkManager::getAudioPortHandle( pSource );
     info.device = SourceSinkManager::getAudioDevice( pSource );
     strncpy( info.address, AndroidDeviceAddressHelper::getStringFromDeviceAddr( SourceSinkManager::getDeviceAddress(pSource) ).c_str(),  AUDIO_DEVICE_MAX_ADDRESS_LEN );
+
+    // FIXME: this index isn't correct.
+    int i=0;
+    for(auto& aSource : SourceSinkManager::getSourceDevices() ){
+      if( aSource == pSource ){
+        info.index_in_the_group = i;
+        break;
+      }
+      if( std::dynamic_pointer_cast<IMicrophoneSource>(aSource) ){
+        i++;
+      }
+    }
   }
 
 /*
-    char                               device_id[AUDIO_MICROPHONE_ID_MAX_LEN];
-    audio_port_handle_t                id;
-    audio_devices_t                    device;
-    char                               address[AUDIO_DEVICE_MAX_ADDRESS_LEN];
     audio_microphone_channel_mapping_t channel_mapping[AUDIO_CHANNEL_COUNT_MAX];
     audio_microphone_location_t        location;
     audio_microphone_group_t           group;
-    unsigned int                       index_in_the_group;
     float                              sensitivity;
     float                              max_spl;
     float                              min_spl;
