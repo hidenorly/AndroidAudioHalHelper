@@ -23,7 +23,7 @@
 class MicrophoneInfoHelper
 {
 public:
-  static AudioMicrophoneCharacteristic getMicrophoneInfo(std::shared_ptr<ISource> pSource);
+  static AudioMicrophoneCharacteristic getMicrophoneInfo(std::shared_ptr<ISource> pSource, std::string configPath="");
 };
 
 #endif /* __MICROPHONE_INFO_HELPER_HPP__ */

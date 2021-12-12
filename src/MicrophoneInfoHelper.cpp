@@ -18,8 +18,9 @@
 #include "DeviceAddressHelper.hpp"
 #include "SourceSinkManager.hpp"
 #include "IMicrophoneSource.hpp"
+#include "MicrophoneFrequencyResponseConfig.hpp"
 
-AudioMicrophoneCharacteristic MicrophoneInfoHelper::getMicrophoneInfo(std::shared_ptr<ISource> pSource)
+AudioMicrophoneCharacteristic MicrophoneInfoHelper::getMicrophoneInfo(std::shared_ptr<ISource> pSource, std::string configPath)
 {
   AudioMicrophoneCharacteristic info;
   memset( &info, 0, sizeof(AudioMicrophoneCharacteristic) );
@@ -41,6 +42,21 @@ AudioMicrophoneCharacteristic MicrophoneInfoHelper::getMicrophoneInfo(std::share
         i++;
       }
     }
+
+    if( !configPath.empty() ){
+      std::vector<MicrophoneFrequencyResponseConfig::FrequencyResponse> frequencyResponses = MicrophoneFrequencyResponseConfig::load( configPath );
+      int nCountFreqResponse = 0;
+      for( auto& aResponse : frequencyResponses ){
+        info.frequency_responses[0][nCountFreqResponse] = aResponse.frequencyHz;
+        info.frequency_responses[1][nCountFreqResponse] = aResponse.levelDb;
+        nCountFreqResponse++;
+      }
+      info.num_frequency_responses = nCountFreqResponse;
+      for(int i = nCountFreqResponse; i < AUDIO_MICROPHONE_MAX_FREQUENCY_RESPONSES; i++){
+        info.frequency_responses[0][i] = 0;
+        info.frequency_responses[1][i] = 0;
+      }
+    }
   }
 
 /*
@@ -51,8 +67,6 @@ AudioMicrophoneCharacteristic MicrophoneInfoHelper::getMicrophoneInfo(std::share
     float                              max_spl;
     float                              min_spl;
     audio_microphone_directionality_t  directionality;
-    unsigned int                       num_frequency_responses;
-    float frequency_responses[2][AUDIO_MICROPHONE_MAX_FREQUENCY_RESPONSES];
     struct audio_microphone_coordinate geometric_location;
     struct audio_microphone_coordinate orientation;
 */
