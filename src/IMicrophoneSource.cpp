@@ -29,7 +29,7 @@ IMicrophoneSource::~IMicrophoneSource()
 
 }
 
-AudioMicrophoneCharacteristic IMicrophoneSource::getActiveMicrophones(void)
+AudioMicrophoneCharacteristic IMicrophoneSource::getMicrophoneInfo(void)
 {
   return MicrophoneInfoHelper::getMicrophoneInfo( shared_from_this() );
 }

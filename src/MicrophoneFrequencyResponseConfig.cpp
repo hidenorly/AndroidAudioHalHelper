@@ -34,15 +34,14 @@ std::vector<MicrophoneFrequencyResponseConfig::FrequencyResponse> MicrophoneFreq
           std::string frequencyHz = StringUtil::trim( tok.getNext() );
           if( tok.hasNext() ){
             std::string levelDb = StringUtil::trim( tok.getNext() );
-            MicrophoneFrequencyResponseConfig::FrequencyResponse aResponse(frequencyHz, levelDb);
+            MicrophoneFrequencyResponseConfig::FrequencyResponse aResponse( frequencyHz, levelDb );
             result.push_back( aResponse );
           }
         }
       }
     }
+    pStream->close();
   }
-
-
 
   return result;
 }

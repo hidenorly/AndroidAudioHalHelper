@@ -17,6 +17,7 @@
 #include "AndroidHalStreamIn.hpp"
 #include "SourceSinkManager.hpp"
 #include "GainHelper.hpp"
+#include "IMicrophoneSource.hpp"
 
 void IStreamIn::AndroidAudioSink::writePrimitive(IAudioBuffer& buf)
 {
@@ -110,17 +111,55 @@ AudioSource IStreamIn::getAudioSource(void)
 
 std::vector<AudioMicrophoneCharacteristic> IStreamIn::getActiveMicrophones(void)
 {
-  return std::vector<AudioMicrophoneCharacteristic>();
+  std::vector<AudioMicrophoneCharacteristic> result;
+
+  if( mPipe ){
+    std::shared_ptr<ISource> pSource = mPipe->getSourceRef();
+    if( pSource ){
+      std::shared_ptr<IMicrophoneSource> pMicSource = std::dynamic_pointer_cast<IMicrophoneSource>( pSource );
+      if( pMicSource ){
+        result.push_back( pMicSource->getMicrophoneInfo() );
+      }
+    }
+  }
+
+  return result;
 }
 
 HalResult IStreamIn::setMicrophoneDirection(AudioMicrophoneDirection direction)
 {
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::INVALID_ARGUMENTS;
+
+  if( mPipe ){
+    std::shared_ptr<ISource> pSource = mPipe->getSourceRef();
+    if( pSource ){
+      std::shared_ptr<IMicrophoneSource> pMicSource = std::dynamic_pointer_cast<IMicrophoneSource>( pSource );
+      if( pMicSource ){
+        pMicSource->setMicrophoneDirection( direction );
+        result = HalResult::OK;
+      }
+    }
+  }
+
+  return result;
 }
 
 HalResult IStreamIn::setMicrophoneFieldDimension(float zoom)
 {
-  return HalResult::NOT_SUPPORTED;
+  HalResult result = HalResult::INVALID_ARGUMENTS;
+
+  if( mPipe ){
+    std::shared_ptr<ISource> pSource = mPipe->getSourceRef();
+    if( pSource ){
+      std::shared_ptr<IMicrophoneSource> pMicSource = std::dynamic_pointer_cast<IMicrophoneSource>( pSource );
+      if( pMicSource ){
+        pMicSource->setMicrophoneFieldDimension( zoom );
+        result = HalResult::OK;
+      }
+    }
+  }
+
+  return result;
 }
 
 void IStreamIn::updateSinkMetadata(SinkMetadata sinkMetadata)

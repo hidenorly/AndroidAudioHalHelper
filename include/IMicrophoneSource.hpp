@@ -29,7 +29,7 @@ protected:
 public:
   IMicrophoneSource();
   virtual ~IMicrophoneSource();
-  virtual AudioMicrophoneCharacteristic getActiveMicrophones(void);
+  virtual AudioMicrophoneCharacteristic getMicrophoneInfo(void);
   virtual bool setMicrophoneDirection(AudioMicrophoneDirection direction);
   virtual bool setMicrophoneFieldDimension(float zoom);
 

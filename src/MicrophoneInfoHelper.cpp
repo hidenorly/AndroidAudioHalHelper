@@ -31,7 +31,7 @@ AudioMicrophoneCharacteristic MicrophoneInfoHelper::getMicrophoneInfo(std::share
     info.device = SourceSinkManager::getAudioDevice( pSource );
     strncpy( info.address, AndroidDeviceAddressHelper::getStringFromDeviceAddr( SourceSinkManager::getDeviceAddress(pSource) ).c_str(),  AUDIO_DEVICE_MAX_ADDRESS_LEN );
 
-    // FIXME: this index isn't correct.
+    // FIXME: this index might not be correct in some case.
     int i=0;
     for(auto& aSource : SourceSinkManager::getSourceDevices() ){
       if( aSource == pSource ){
