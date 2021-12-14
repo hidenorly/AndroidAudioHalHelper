@@ -14,13 +14,20 @@
    limitations under the License.
 */
 
-#include "ISpeakerSink.hpp"
+#ifndef __IBLUETOOTH_AUDIO_SINK_HPP__
+#define __IBLUETOOTH_AUDIO_SINK_HPP__
 
-ISpeakerSink::ISpeakerSink():LPcmSink()
+#include "LPcmSink.hpp"
+
+class IBluetoothAudioSink : public LPcmSink
 {
+protected:
+  virtual void writePrimitive(IAudioBuffer& buf);
 
-}
+public:
+  IBluetoothAudioSink();
+  virtual ~IBluetoothAudioSink();
+  virtual std::string toString(void){ return "IBluetoothAudioSink"; };
+};
 
-ISpeakerSink::~ISpeakerSink()
-{
-}
+#endif /* __IBLUETOOTH_AUDIO_SINK_HPP__ */

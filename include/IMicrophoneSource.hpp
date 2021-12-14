@@ -31,7 +31,9 @@ public:
   virtual ~IMicrophoneSource();
   virtual AudioMicrophoneCharacteristic getMicrophoneInfo(void);
   virtual bool setMicrophoneDirection(AudioMicrophoneDirection direction);
+  virtual AudioMicrophoneDirection getMicrophoneDirection(void);
   virtual bool setMicrophoneFieldDimension(float zoom);
+  virtual float getMicrophoneFieldDimension(void);
 
   virtual std::string toString(void){return "IMicrophoneSource";};
 };

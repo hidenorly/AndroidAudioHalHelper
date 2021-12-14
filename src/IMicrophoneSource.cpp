@@ -43,6 +43,11 @@ bool IMicrophoneSource::setMicrophoneDirection(AudioMicrophoneDirection directio
   return result;
 }
 
+AudioMicrophoneDirection IMicrophoneSource::getMicrophoneDirection(void)
+{
+  return mDirection;
+}
+
 bool IMicrophoneSource::setMicrophoneFieldDimension(float zoom)
 {
   bool result = true;
@@ -50,4 +55,9 @@ bool IMicrophoneSource::setMicrophoneFieldDimension(float zoom)
   mZoom = std::max<float>(-1.0f, std::min<float>( 1.0f, zoom ) );
 
   return result;
+}
+
+float IMicrophoneSource::getMicrophoneFieldDimension(void)
+{
+  return mZoom;
 }
